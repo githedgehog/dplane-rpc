@@ -36,6 +36,9 @@ pub enum WireError {
     MissingIpPrefix,
     /// The encapsulation type is invalid
     InvalidEncap(u8),
+    /// The message is too large and should be split. This error can only happen
+    /// when encoding a message and it is possibly the only encoding error possible.
+    TooBig,
 }
 
 #[doc = "Type to represent possible errors when decoding a blob in wire format"]
@@ -44,7 +47,7 @@ pub type WireResult<T> = Result<T, WireError>;
 #[doc = "Trait implemented by internal types to be encoded and decoded"]
 pub trait Wire<T> {
     fn decode(buf: &mut Bytes) -> WireResult<T>;
-    fn encode(&self, buf: &mut BytesMut);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError>;
 }
 
 #[inline(always)]
@@ -67,8 +70,9 @@ impl Wire<MacAddress> for MacAddress {
         buf.copy_to_slice(&mut m);
         Ok(MacAddress::new(m))
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.extend_from_slice(&self.bytes());
+        Ok(())
     }
 }
 impl Wire<IpVer> for IpVer {
@@ -78,10 +82,11 @@ impl Wire<IpVer> for IpVer {
         let ipver: IpVer = IpVer::from_u8(raw).ok_or(WireError::InvalidIpVersion(raw))?;
         Ok(ipver)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         // Even if the version is IpVer::NONE
         // we encode it. This consumes one octet.
         buf.put_u8(*self as u8);
+        Ok(())
     }
 }
 impl Wire<Option<IpAddr>> for IpAddr {
@@ -103,28 +108,29 @@ impl Wire<Option<IpAddr>> for IpAddr {
             }
         }
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         match self {
             IpAddr::V4(ipv4) => {
                 let v = IpVer::IPV4;
-                v.encode(buf);
+                v.encode(buf)?;
                 buf.put_u32(ipv4.to_bits());
             }
             IpAddr::V6(ipv6) => {
                 let v = IpVer::IPV6;
-                v.encode(buf);
+                v.encode(buf)?;
                 buf.put_u128(ipv6.to_bits());
             }
         }
+        Ok(())
     }
 }
 impl Wire<Option<IpAddr>> for Option<IpAddr> {
     fn decode(buf: &mut Bytes) -> WireResult<Option<IpAddr>> {
         IpAddr::decode(buf)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         if let Some(address) = &self {
-            address.encode(buf);
+            address.encode(buf)
         } else {
             IpVer::encode(&IpVer::NONE, buf)
         }
@@ -136,8 +142,9 @@ impl Wire<VrfId> for VrfId {
         let id = buf.get_u32_ne();
         Ok(VrfId { id })
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u32_ne(self.id);
+        Ok(())
     }
 }
 impl Wire<EncapType> for EncapType {
@@ -147,10 +154,11 @@ impl Wire<EncapType> for EncapType {
         let etype = EncapType::from_u8(raw).ok_or(WireError::InvalidEncap(raw))?;
         Ok(etype)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         // Encap type is always present on the wire.
         // Nothing follows if it is EncapType::NoEncap
         buf.put_u8(*self as u8);
+        Ok(())
     }
 }
 impl Wire<VxlanEncap> for VxlanEncap {
@@ -159,8 +167,9 @@ impl Wire<VxlanEncap> for VxlanEncap {
         let vni: Vni = buf.get_u32_ne();
         Ok(VxlanEncap { vni })
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u32_ne(self.vni);
+        Ok(())
     }
 }
 impl Wire<Option<NextHopEncap>> for Option<NextHopEncap> {
@@ -174,16 +183,17 @@ impl Wire<Option<NextHopEncap>> for Option<NextHopEncap> {
             }
         }
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         match self {
             Some(NextHopEncap::VXLAN(e)) => {
-                EncapType::VXLAN.encode(buf);
-                e.encode(buf);
+                EncapType::VXLAN.encode(buf)?;
+                e.encode(buf)?;
             }
             None => {
-                EncapType::NoEncap.encode(buf);
+                EncapType::NoEncap.encode(buf)?;
             }
         };
+        Ok(())
     }
 }
 impl Wire<ObjType> for ObjType {
@@ -193,8 +203,9 @@ impl Wire<ObjType> for ObjType {
         let otype: ObjType = ObjType::from_u8(otype).ok_or(WireError::InvalidObjTtype(otype))?;
         Ok(otype)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(*self as u8);
+        Ok(())
     }
 }
 
@@ -211,10 +222,11 @@ impl Wire<VerInfo> for VerInfo {
             patch,
         })
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(self.major);
         buf.put_u8(self.minor);
         buf.put_u8(self.patch);
+        Ok(())
     }
 }
 impl Wire<Rmac> for Rmac {
@@ -226,10 +238,11 @@ impl Wire<Rmac> for Rmac {
         let vni: Vni = buf.get_u32_ne();
         Ok(Rmac { address, mac, vni })
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        IpAddr::encode(&self.address, buf);
-        MacAddress::encode(&self.mac, buf);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        IpAddr::encode(&self.address, buf)?;
+        MacAddress::encode(&self.mac, buf)?;
         buf.put_u32_ne(self.vni);
+        Ok(())
     }
 }
 impl Wire<IfAddress> for IfAddress {
@@ -248,11 +261,12 @@ impl Wire<IfAddress> for IfAddress {
             vrfid,
         })
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        self.address.encode(buf);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        self.address.encode(buf)?;
         buf.put_u8(self.mask_len);
         buf.put_u32_ne(self.ifindex);
-        self.vrfid.encode(buf);
+        self.vrfid.encode(buf)?;
+        Ok(())
     }
 }
 impl Wire<NextHop> for NextHop {
@@ -270,15 +284,16 @@ impl Wire<NextHop> for NextHop {
             encap,
         })
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        self.address.encode(buf);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        self.address.encode(buf)?;
         if let Some(ifindex) = self.ifindex {
             buf.put_u32_ne(ifindex);
         } else {
             buf.put_u32_ne(0);
         }
-        self.vrfid.encode(buf);
-        self.encap.encode(buf);
+        self.vrfid.encode(buf)?;
+        self.encap.encode(buf)?;
+        Ok(())
     }
 }
 impl Wire<IpRoute> for IpRoute {
@@ -317,18 +332,19 @@ impl Wire<IpRoute> for IpRoute {
             nhops,
         })
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        IpAddr::encode(&self.prefix, buf);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        IpAddr::encode(&self.prefix, buf)?;
         buf.put_u8(self.prefix_len);
-        VrfId::encode(&self.vrfid, buf);
+        VrfId::encode(&self.vrfid, buf)?;
         buf.put_u32_ne(self.tableid);
         buf.put_u8(self.rtype as u8);
         buf.put_u32_ne(self.distance);
         buf.put_u32_ne(self.metric);
         buf.put_u8(self.nhops.len() as NumNhops);
         for nhop in &self.nhops {
-            nhop.encode(buf);
+            nhop.encode(buf)?;
         }
+        Ok(())
     }
 }
 impl Wire<Option<RpcObject>> for RpcObject {
@@ -343,26 +359,27 @@ impl Wire<Option<RpcObject>> for RpcObject {
         };
         Ok(obj)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         let otype: ObjType = RpcObject::wire_type(self);
-        otype.encode(buf);
+        otype.encode(buf)?;
         match self {
-            RpcObject::VerInfo(o) => o.encode(buf),
-            RpcObject::IfAddress(o) => o.encode(buf),
-            RpcObject::Rmac(o) => o.encode(buf),
-            RpcObject::IpRoute(o) => o.encode(buf),
+            RpcObject::VerInfo(o) => o.encode(buf)?,
+            RpcObject::IfAddress(o) => o.encode(buf)?,
+            RpcObject::Rmac(o) => o.encode(buf)?,
+            RpcObject::IpRoute(o) => o.encode(buf)?,
         };
+        Ok(())
     }
 }
 impl Wire<Option<RpcObject>> for Option<RpcObject> {
     fn decode(buf: &mut Bytes) -> WireResult<Option<RpcObject>> {
         RpcObject::decode(buf)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         if let Some(obj) = self {
             obj.encode(buf)
         } else {
-            ObjType::None.encode(buf);
+            ObjType::None.encode(buf)
         }
     }
 }
@@ -377,10 +394,11 @@ impl Wire<RpcRequest> for RpcRequest {
         let obj: Option<RpcObject> = RpcObject::decode(buf)?;
         Ok(RpcRequest { op, seqn, obj })
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(self.op as u8);
         buf.put_u64_ne(self.seqn);
-        self.obj.encode(buf);
+        self.obj.encode(buf)?;
+        Ok(())
     }
 }
 
@@ -392,8 +410,9 @@ impl Wire<RpcResultCode> for RpcResultCode {
         let rescode = RpcResultCode::from_u8(rescode).ok_or(WireError::InValidResCode(rescode))?;
         Ok(rescode)
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        buf.put_u8(*self as u8)
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        buf.put_u8(*self as u8);
+        Ok(())
     }
 }
 impl Wire<RpcResponse> for RpcResponse {
@@ -422,14 +441,15 @@ impl Wire<RpcResponse> for RpcResponse {
             objs,
         })
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(self.op as u8);
         buf.put_u64_ne(self.seqn);
-        self.rescode.encode(buf);
+        self.rescode.encode(buf)?;
         buf.put_u8(self.objs.len() as MsgNumObjects);
         for obj in &self.objs {
-            obj.encode(buf);
+            obj.encode(buf)?;
         }
+        Ok(())
     }
 }
 
@@ -440,8 +460,9 @@ impl Wire<MsgType> for MsgType {
         let mtype = MsgType::from_u8(raw).ok_or(WireError::InvalidMsgType(raw))?;
         Ok(mtype)
     }
-    fn encode(&self, buf: &mut BytesMut) {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(*self as u8);
+        Ok(())
     }
 }
 impl Wire<RpcMsg> for RpcMsg {
@@ -479,18 +500,24 @@ impl Wire<RpcMsg> for RpcMsg {
         };
         msg
     }
-    fn encode(&self, buf: &mut BytesMut) {
-        self.msg_type().encode(buf);
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        self.msg_type().encode(buf)?;
         let len_offset = buf.len();
         buf.put_u16_ne(0); // reserve space for length
 
         match self {
-            RpcMsg::Request(m) => m.encode(buf),
-            RpcMsg::Response(m) => m.encode(buf),
-            _ => (),
+            RpcMsg::Request(m) => m.encode(buf)?,
+            RpcMsg::Response(m) => m.encode(buf)?,
+            _ => unimplemented!(),
         };
         // set the actual length
-        let bufflen: MsgLen = buf.len() as u16;
-        buf[len_offset..len_offset + size_of::<MsgLen>()].copy_from_slice(&bufflen.to_ne_bytes());
+        if buf.len() > u16::MAX as usize {
+            Err(WireError::TooBig)
+        } else {
+            let bufflen: MsgLen = buf.len() as u16;
+            buf[len_offset..len_offset + size_of::<MsgLen>()]
+                .copy_from_slice(&bufflen.to_ne_bytes());
+            Ok(())
+        }
     }
 }

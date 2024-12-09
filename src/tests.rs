@@ -12,7 +12,7 @@ mod positive_tests {
         // Encode message into wire fmt
         println!("Message to encode:\n {:#?}", &msg);
         let mut buf = BytesMut::with_capacity(128);
-        msg.encode(&mut buf);
+        let _ = msg.encode(&mut buf);
         let wire: &[u8] = buf.deref();
 
         // show wire
