@@ -41,6 +41,8 @@ pub enum WireError {
     TooBig,
     /// The maximum number of next-hops in a route was exceeded
     TooManyNextHops,
+    /// The maximum number of objects in a response was exceeded
+    TooManyObjects,
 }
 
 #[doc = "Type to represent possible errors when decoding a blob in wire format"]
@@ -448,6 +450,7 @@ impl Wire<RpcResponse> for RpcResponse {
         buf.put_u8(self.op as u8);
         buf.put_u64_ne(self.seqn);
         self.rescode.encode(buf)?;
+        debug_assert!(self.objs.len() <= MsgNumObjects::MAX as usize);
         buf.put_u8(self.objs.len() as MsgNumObjects);
         for obj in &self.objs {
             obj.encode(buf)?;

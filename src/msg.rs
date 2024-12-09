@@ -1,4 +1,5 @@
 use crate::objects::*;
+use crate::wire::WireError;
 
 /* Msg definitions */
 #[doc = "A request message"]
@@ -137,6 +138,15 @@ impl RpcResponse {
             seqn,
             rescode,
             objs: vec![],
+        }
+    }
+    #[allow(dead_code)]
+    pub fn add_object(&mut self, object: RpcObject) -> Result<(), WireError> {
+        if self.objs.len() == MsgNumObjects::MAX as usize {
+            Err(WireError::TooManyObjects)
+        } else {
+            self.objs.push(object);
+            Ok(())
         }
     }
 }

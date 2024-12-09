@@ -243,11 +243,49 @@ mod positive_tests {
         // wrap them as objects and add them to the response
         let object1 = RpcObject::Rmac(rmac);
         let object2 = RpcObject::IfAddress(ifaddress);
-        resp.objs.push(object1);
-        resp.objs.push(object2);
+        assert_eq!(resp.add_object(object1), Ok(()));
+        assert_eq!(resp.add_object(object2), Ok(()));
 
         let msg = resp.wrap_in_msg();
         test_encode_decode_msg(&msg);
+    }
+
+    #[test]
+    fn test_rpcmsg_response_with_many_objects() {
+        let mut resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);
+
+        for n in 1..=255 {
+            let addr = format!("7.0.0.{}", n);
+            let rmac = Rmac::new(
+                addr.parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                3000,
+            );
+            let object = RpcObject::Rmac(rmac);
+            assert_eq!(resp.add_object(object), Ok(()));
+        }
+        let msg = resp.wrap_in_msg();
+        test_encode_decode_msg(&msg);
+    }
+
+    #[test]
+    fn test_rpcmsg_response_with_too_many_objects() {
+        let mut resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);
+
+        for n in 1..=1000 {
+            let rmac = Rmac::new(
+                "7.0.0.1".parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                n,
+            );
+            let object = RpcObject::Rmac(rmac);
+            if n < 256 {
+                assert_eq!(resp.add_object(object), Ok(()));
+            } else {
+                assert_eq!(resp.add_object(object), Err(WireError::TooManyObjects));
+                break;
+            }
+        }
     }
 }
 
