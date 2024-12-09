@@ -115,3 +115,6 @@ pub type MaskLen = u8;
 
 #[doc = "An EVPN/VxLAN virtual network Id"]
 pub type Vni = u32;
+
+#[doc = "The Id for a VRF"]
+pub type VrfId = u32;

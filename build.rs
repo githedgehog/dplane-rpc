@@ -46,6 +46,7 @@ fn gen_proto_c_header() {
     export.include.push("Ifindex".to_owned());
     export.include.push("MaskLen".to_owned());
     export.include.push("Vni".to_owned());
+    export.include.push("VrfId".to_owned());
 
     /* Main config */
     let config = Config {

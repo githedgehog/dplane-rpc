@@ -153,4 +153,9 @@ typedef uint8_t MaskLen;
  */
 typedef uint32_t Vni;
 
+/**
+ *The Id for a VRF
+ */
+typedef uint32_t VrfId;
+
 #endif  /* DPLANE_WIRE */

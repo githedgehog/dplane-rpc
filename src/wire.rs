@@ -140,10 +140,10 @@ impl Wire<VrfId> for VrfId {
     fn decode(buf: &mut Bytes) -> WireResult<VrfId> {
         check_available("VrfId", buf, 4)?;
         let id = buf.get_u32_ne();
-        Ok(VrfId { id })
+        Ok(id)
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        buf.put_u32_ne(self.id);
+        buf.put_u32_ne(*self);
         Ok(())
     }
 }

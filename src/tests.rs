@@ -78,7 +78,7 @@ mod positive_tests {
         let mut route = IpRoute {
             prefix: "192.168.50.13".parse().unwrap(),
             prefix_len: 32,
-            vrfid: VrfId { id: 17 },
+            vrfid: 0,
             tableid: 1001,
             rtype: RouteType::Bgp,
             distance: 20,
@@ -89,7 +89,7 @@ mod positive_tests {
         let nhop = NextHop {
             address: Some("7.0.0.1".parse().unwrap()),
             ifindex: None,
-            vrfid: VrfId { id: 13 },
+            vrfid: 0,
             encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: 300 })),
         };
         route.nhops.push(nhop);
@@ -105,7 +105,7 @@ mod positive_tests {
         let mut route = IpRoute {
             prefix: "10.0.0.0".parse().unwrap(),
             prefix_len: 30,
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             tableid: 254,
             rtype: RouteType::Connected,
             distance: 0,
@@ -116,7 +116,7 @@ mod positive_tests {
         let nhop = NextHop {
             address: None,
             ifindex: Some(123),
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             encap: None,
         };
         route.nhops.push(nhop);
@@ -133,7 +133,7 @@ mod positive_tests {
         let mut route = IpRoute {
             prefix: "7.0.0.1".parse().unwrap(),
             prefix_len: 32,
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             tableid: 254,
             rtype: RouteType::Bgp,
             distance: 20,
@@ -143,7 +143,7 @@ mod positive_tests {
         let nhop = NextHop {
             address: Some("10.0.0.3".parse().unwrap()),
             ifindex: None,
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             encap: None,
         };
         route.nhops.push(nhop);
@@ -151,7 +151,7 @@ mod positive_tests {
         let nhop = NextHop {
             address: Some("10.0.0.6".parse().unwrap()),
             ifindex: None,
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             encap: None,
         };
         route.nhops.push(nhop);
@@ -168,7 +168,7 @@ mod positive_tests {
         let mut route = IpRoute {
             prefix: "7.0.0.1".parse().unwrap(),
             prefix_len: 32,
-            vrfid: VrfId { id: 0 },
+            vrfid: 0,
             tableid: 254,
             rtype: RouteType::Bgp,
             distance: 20,
@@ -182,7 +182,7 @@ mod positive_tests {
                 let nhop = NextHop {
                     address: Some(a.parse().unwrap()),
                     ifindex: None,
-                    vrfid: VrfId { id: 0 },
+                    vrfid: 0,
                     encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: j * i })),
                 };
                 route.nhops.push(nhop);

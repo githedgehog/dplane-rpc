@@ -2,13 +2,6 @@ pub use crate::proto::*;
 pub use mac_address::MacAddress;
 pub use std::net::IpAddr;
 
-#[doc = "The id of a VRF."]
-#[repr(transparent)]
-#[derive(Debug, PartialEq)]
-pub struct VrfId {
-    pub(crate) id: u32,
-}
-
 #[doc = "A versioning information object."]
 #[derive(Debug, PartialEq)]
 pub struct VerInfo {
@@ -98,12 +91,12 @@ impl Rmac {
 }
 impl IfAddress {
     #[allow(dead_code)]
-    pub fn new(address: IpAddr, mask_len: MaskLen, ifindex: Ifindex, vrf_id: u32) -> Self {
+    pub fn new(address: IpAddr, mask_len: MaskLen, ifindex: Ifindex, vrfid: VrfId) -> Self {
         Self {
             address,
             mask_len,
             ifindex,
-            vrfid: VrfId { id: vrf_id },
+            vrfid,
         }
     }
 }
