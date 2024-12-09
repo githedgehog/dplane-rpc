@@ -39,6 +39,8 @@ pub enum WireError {
     /// The message is too large and should be split. This error can only happen
     /// when encoding a message and it is possibly the only encoding error possible.
     TooBig,
+    /// The maximum number of next-hops in a route was exceeded
+    TooManyNextHops,
 }
 
 #[doc = "Type to represent possible errors when decoding a blob in wire format"]
@@ -340,6 +342,7 @@ impl Wire<IpRoute> for IpRoute {
         buf.put_u8(self.rtype as u8);
         buf.put_u32_ne(self.distance);
         buf.put_u32_ne(self.metric);
+        debug_assert!(self.nhops.len() <= NumNhops::MAX as usize);
         buf.put_u8(self.nhops.len() as NumNhops);
         for nhop in &self.nhops {
             nhop.encode(buf)?;

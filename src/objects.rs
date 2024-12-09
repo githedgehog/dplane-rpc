@@ -1,4 +1,5 @@
 pub use crate::proto::*;
+use crate::wire::WireError;
 pub use mac_address::MacAddress;
 pub use std::net::IpAddr;
 
@@ -27,7 +28,7 @@ pub struct IfAddress {
     pub(crate) vrfid: VrfId,
 }
 
-#[doc = "An IP route"]
+#[doc = "An IP route. Routes can have 255 next-hops at the most."]
 #[derive(Debug, PartialEq)]
 pub struct IpRoute {
     pub(crate) prefix: IpAddr,
@@ -106,6 +107,17 @@ impl Default for VerInfo {
             major: VER_DP_MAJOR,
             minor: VER_DP_MINOR,
             patch: VER_DP_PATCH,
+        }
+    }
+}
+impl IpRoute {
+    #[allow(dead_code)]
+    pub fn add_next_hop(&mut self, nhop: NextHop) -> Result<(), WireError> {
+        if self.nhops.len() == NumNhops::MAX as usize {
+            Err(WireError::TooManyNextHops)
+        } else {
+            self.nhops.push(nhop);
+            Ok(())
         }
     }
 }

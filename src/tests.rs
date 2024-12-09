@@ -92,7 +92,7 @@ mod positive_tests {
             vrfid: 0,
             encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: 300 })),
         };
-        route.nhops.push(nhop);
+        assert_eq!(route.add_next_hop(nhop), Ok(()));
 
         let mut req = RpcRequest::new(RpcOp::Update, 3210);
         req.set_object(Some(RpcObject::IpRoute(route)));
@@ -119,7 +119,7 @@ mod positive_tests {
             vrfid: 0,
             encap: None,
         };
-        route.nhops.push(nhop);
+        assert_eq!(route.add_next_hop(nhop), Ok(()));
 
         let mut req = RpcRequest::new(RpcOp::Update, 3210);
         req.set_object(Some(RpcObject::IpRoute(route)));
@@ -146,7 +146,7 @@ mod positive_tests {
             vrfid: 0,
             encap: None,
         };
-        route.nhops.push(nhop);
+        assert_eq!(route.add_next_hop(nhop), Ok(()));
 
         let nhop = NextHop {
             address: Some("10.0.0.6".parse().unwrap()),
@@ -154,13 +154,31 @@ mod positive_tests {
             vrfid: 0,
             encap: None,
         };
-        route.nhops.push(nhop);
+        assert_eq!(route.add_next_hop(nhop), Ok(()));
 
         let mut req = RpcRequest::new(RpcOp::Add, 7777);
         req.set_object(Some(RpcObject::IpRoute(route)));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
+    }
+
+    fn add_next_hops(route: &mut IpRoute, a: u8, b: u8) -> Result<(), WireError> {
+        for i in 1..=a {
+            for j in 1..=b {
+                let a = format!("10.0.{}.{}", i, j);
+                let vni: Vni = j as Vni * i as Vni;
+                let nhop = NextHop {
+                    address: Some(a.parse().unwrap()),
+                    ifindex: None,
+                    vrfid: 0,
+                    encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni })),
+                };
+                route.add_next_hop(nhop)?;
+            }
+        }
+        println!("Route has {} next-hops", route.nhops.len());
+        Ok(())
     }
 
     #[test]
@@ -175,25 +193,30 @@ mod positive_tests {
             metric: 100,
             nhops: vec![],
         };
-
-        for i in 1..=20 {
-            for j in 1..=10 {
-                let a = format!("10.0.{}.{}", i, j);
-                let nhop = NextHop {
-                    address: Some(a.parse().unwrap()),
-                    ifindex: None,
-                    vrfid: 0,
-                    encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: j * i })),
-                };
-                route.nhops.push(nhop);
-            }
-        }
-        println!("Route has {} next-hops", route.nhops.len());
+        assert_eq!(add_next_hops(&mut route, 10, 20), Ok(()));
         let mut req = RpcRequest::new(RpcOp::Add, 7777);
         req.set_object(Some(RpcObject::IpRoute(route)));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
+    }
+
+    #[test]
+    fn test_rpcmsg_request_iproute_too_many_nhops() {
+        let mut route = IpRoute {
+            prefix: "7.0.0.1".parse().unwrap(),
+            prefix_len: 32,
+            vrfid: 0,
+            tableid: 254,
+            rtype: RouteType::Bgp,
+            distance: 20,
+            metric: 100,
+            nhops: vec![],
+        };
+        assert_eq!(
+            add_next_hops(&mut route, 20, 20),
+            Err(WireError::TooManyNextHops)
+        );
     }
 
     #[test]
