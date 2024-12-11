@@ -195,7 +195,7 @@ This limits the number of next-hops to 255, which should suffice in all cases.
 ```
 +------------+-----+---------+-----------+-----+----+---------+-----+-----------+ - - -------+
 |  Prefix    | len |  vrfid  | tableid   |type | AD | metric  |numNH|  next-hop |  next-hop  |
-| (address)  | (2) |   (4)   |    (4)    | (1) |(1) |  (4)    | (1) |           |            |
+| (address)  | (1) |   (4)   |    (4)    | (1) |(1) |  (4)    | (1) |           |            |
 +------------+-----+---------+-----------+-----+----+---------+-----+-----------+ - - -------+
 ```
 Prefix is encoded `exactly as an IP address` and is mandatory in routes.

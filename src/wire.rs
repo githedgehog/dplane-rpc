@@ -313,7 +313,7 @@ impl Wire<IpRoute> for IpRoute {
         let rtype = buf.get_u8();
         let rtype = RouteType::from_u8(rtype).unwrap_or_default();
         check_available("distance", buf, 4)?;
-        let distance: RouteDistance = buf.get_u32_ne();
+        let distance: RouteDistance = buf.get_u8();
         check_available("metric", buf, 4)?;
         let metric: RouteMetric = buf.get_u32_ne();
         check_available("num-nhops", buf, 1)?;
@@ -342,7 +342,7 @@ impl Wire<IpRoute> for IpRoute {
         VrfId::encode(&self.vrfid, buf)?;
         buf.put_u32_ne(self.tableid);
         buf.put_u8(self.rtype as u8);
-        buf.put_u32_ne(self.distance);
+        buf.put_u8(self.distance);
         buf.put_u32_ne(self.metric);
         debug_assert!(self.nhops.len() <= NumNhops::MAX as usize);
         buf.put_u8(self.nhops.len() as NumNhops);

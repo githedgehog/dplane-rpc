@@ -121,7 +121,7 @@ typedef uint8_t MsgNumObjects;
 /**
  *The admin distance of a route
  */
-typedef uint32_t RouteDistance;
+typedef uint8_t RouteDistance;
 
 /**
  *The metric for a route, depending on its type

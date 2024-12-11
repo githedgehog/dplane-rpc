@@ -96,7 +96,7 @@ pub type MsgSeqn = u64;
 pub type MsgNumObjects = u8;
 
 #[doc = "The admin distance of a route"]
-pub type RouteDistance = u32;
+pub type RouteDistance = u8;
 
 #[doc = "The metric for a route, depending on its type"]
 pub type RouteMetric = u32;
