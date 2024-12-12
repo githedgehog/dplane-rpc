@@ -3,7 +3,7 @@
 use cbindgen::{Config, EnumConfig, ExportConfig, ItemType, Language, RenameRule};
 
 const DPLANE_PROTO_FILE: &str = "src/proto.rs";
-const DPLANE_PROTO_C_HEADER: &str = "include/dplane-rpc.h";
+const DPLANE_PROTO_C_HEADER: &str = "clib/src/proto.h";
 
 fn regenerate_check() {
     println!("cargo:rerun-if-changed=build.rs");
