@@ -104,6 +104,16 @@ enum RpcResultCode {
 typedef uint8_t RpcResultCode;
 
 /**
+ *Number of next-hops that a route has
+ */
+typedef uint8_t NumNhops;
+
+/**
+ *A type to indicate the number of objects within a response
+ */
+typedef uint8_t MsgNumObjects;
+
+/**
  *The Id or sequence number of a message
  */
 typedef uint64_t MsgSeqn;
@@ -112,11 +122,6 @@ typedef uint64_t MsgSeqn;
  *The length of a message in octets
  */
 typedef uint16_t MsgLen;
-
-/**
- *A type to indicate the number of objects within a response
- */
-typedef uint8_t MsgNumObjects;
 
 /**
  *The admin distance of a route
@@ -132,11 +137,6 @@ typedef uint32_t RouteMetric;
  *The Id of a routing table (kernel)
  */
 typedef uint32_t RouteTableId;
-
-/**
- *Number of next-hops that a route has
- */
-typedef uint8_t NumNhops;
 
 /**
  *Ifindex of a network interface
@@ -157,5 +157,9 @@ typedef uint32_t Vni;
  *The Id for a VRF
  */
 typedef uint32_t VrfId;
+
+#define MAX_NUM_NHOPS UINT8_MAX
+
+#define MAX_NUM_OBJECTS UINT8_MAX
 
 #endif  /* DPLANE_WIRE */

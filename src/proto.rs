@@ -11,6 +11,8 @@ pub const IPV4_ADDR_LEN: usize = 4;
 pub const IPV6_ADDR_LEN: usize = 16;
 pub const REQUEST_HDR_SIZE: usize = 10;
 pub const RESPONSE_HDR_SIZE: usize = 11;
+pub const MAX_NUM_NHOPS: NumNhops = u8::MAX;
+pub const MAX_NUM_OBJECTS: MsgNumObjects = u8::MAX;
 
 #[doc = "Code for the type of a message"]
 #[repr(u8)]
