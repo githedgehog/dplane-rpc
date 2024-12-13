@@ -380,3 +380,34 @@ mod negative_tests {
         assert_eq!(res, Err(WireError::NotEnoughBytes(0, 4, "IPv4-address")));
     }
 }
+
+#[cfg(test)]
+mod buf_tests {
+    use bytes::{Buf, BufMut, Bytes, BytesMut};
+    use std::ops::Deref;
+    #[test]
+    fn buffmut_write() {
+        let mut buf = BytesMut::with_capacity(0);
+        for n in 1..=1000000 {
+            buf.put_u8(n as u8);
+        }
+        println!("\ncapacity: {}", buf.capacity());
+        println!("written:  {}", buf.len());
+    }
+
+    #[test]
+    fn buff_read() {
+        let mut buf = BytesMut::with_capacity(1000);
+        for n in 1..=100000 {
+            buf.put_u8(n as u8);
+        }
+
+        let wire: &[u8] = buf.deref();
+        let mut buf_rx = Bytes::copy_from_slice(wire);
+        for _n in 1..=100000 {
+            let _v = buf_rx.get_u8();
+        }
+        println!("\ncapacity: {}", buf.capacity());
+        println!("written:  {}", buf.len());
+    }
+}
