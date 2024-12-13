@@ -236,6 +236,44 @@ The dataplane should determine the mac of the next-hop and the mac of the local 
 +-----------+---------------+------------+
 ```
 
+### GetFilter
+
+**Purpose**: When performing a Get request, it may be desirable the ability to retrieve only certain types of objects, or only those that meet some criteria.
+The GetFilter is the object used to that end and includes optional lists of `match types` A match type indicates a property of an object and the GetFilter can specify the set of values that such a property (and others) can have for objects to be eligible. For instance, if a match type is VrfId and the corresponding values (100, 200, 300), then only objects associated with those VRFs should be retrieved (logical OR). If more than a match type is specified, objects qualify when they match all of the match types. I.e. when they satisfy all the conditions (logical AND).
+
+**format**: The format is as shown below. An octet (num Mtypes) indicates the number of distinct match types present, and appears once.
+That number is followed by a match type code (Mtype), the number of 'allowed' values, and the values themselves.
+
+```
++-------+-------+-----+----------++-------+-----+-----+-----+-----++-------+-----+-----+-----+
+|  num  | Mtype | num | value(s) || Mtype | num |  values(s)      || Mtype | num | value(s)  |
+| Mtypes|  (1)  | (1) |          ||  (1)  | (1) |                 ||  (1)  | (1) |           |
++-------+-------+-----+----------++-------+-----+-----+-----+-----++-------+-----+-----+-----+
+   (1)
+```
+For instance, to retrieve only objects of type 'route', the wire encoding of the GetFilter would be:
+
+```
++-------+-------+-----+-----+
+|  1    | object| 1   |type |
+|       | type  |     |route|
++-------+-------+-----+-----+
+```
+because there is only one match type Mtype = Object-type with one value 'type route'.
+If additional filtering was desired so that only the routes of VRFs 100, 200 and 300 were wanted, an additional match type VrfId could be added with those values and the encoding be would be:
+
+```
++-------+-------+-----+-----++-------+-----+-----+-----+-----+
+|  2    | object| 1   |type || vrfid |  3  | 100 | 200 | 300 |
+|       | type  |     |route||       |     |     |     |     |
++-------+-------+-----+-----++-------+-----+-----+-----+-----+
+```
+Note:
+* The order of match types does not matter, nor does that of the values within each match type.
+
+* On the wire, the size of the **values** for a given match type is implied by the type of match. E.g. if a match type is a vrfId, the vrf Ids that follow are 4 octets in length since that is the size that is used throughout to encode VRF Ids.
+
+
 ## Code organization
 
 [proto.rs](./src/proto.rs): contains the codes, constants and their sizes that the wire protocol relies on.
@@ -243,22 +281,17 @@ It does not contain any structured data nor wire layout, which is implicit in th
 This is the **source of truth** for the wire protocol constants and values.
 This file is processed by cbindgen to produce a `C header` file with these definitions.
 No code should be needed in this file.
-The rest of the source files are rust-only.
-
+The rest of the source files are for the implementation of the wire format in Rust.
 
 [objects.rs](./src/objects.rs): contains type definitions for the `objects` exchanged between CP and DP.
 The types chosen are rust-friendly and may be reused for the internals of the dataplane code.
-Again, these types are not part of the wire format.
+Again, these types are not part of the wire format in that their layout, while related, is independent of the encoding.
 
-
-[msg.rs](./src/msg.rs): contains definitions for the message types so far defined (e.g.
-Request, Response, etc..), some utilities to work with them and an auxiliary trait `WrapMsg` that eases some operations in the Rust implementation.
-
+[msg.rs](./src/msg.rs): contains definitions for the message types so far defined (e.g. Request, Response, etc..), some utilities to work with them and an auxiliary trait `WrapMsg` that eases some operations in the Rust implementation.
 
 [wire.rs](./src/wire.rs) This contains the implementation of the `Wire` trait, which consists in two functions: `encode()` and `decode()`.
 The trait is implemented for messages and objects in a somewhat hierarchical manner.
 99% of the logic is here.
-
 
 
 ## Adding new message types
@@ -268,9 +301,7 @@ Adding new message types is simple and requires:
   * defining a type for the message (rust struct)
   * implementing a tiny trait `WrapMsg` for it
   * implementing the `Wire` trait.
-
   * adding a variant to enum `RpcMsg` and extending its `Wire` implementation by calling the new message `Wire` trait methods/functions.
-
   * adding a new variant to `MsgType`enum in proto.rs (plus other definitions if needed)
 
 ## Handling versioning, updates and backwards compatibility
