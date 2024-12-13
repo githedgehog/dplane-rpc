@@ -63,6 +63,7 @@ enum ObjType {
   IfAddress = 2,
   Rmac = 3,
   IpRoute = 4,
+  GetFilter = 5,
 };
 typedef uint8_t ObjType;
 
@@ -96,6 +97,7 @@ enum RpcResultCode {
   Ok = 1,
   Failure = 2,
   InvalidOperation = 3,
+  ExpectMore = 4,
 };
 typedef uint8_t RpcResultCode;
 

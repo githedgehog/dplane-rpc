@@ -29,6 +29,7 @@ pub enum RpcResultCode {
     Ok = 1,
     Failure = 2,
     InvalidOperation = 3,
+    ExpectMore = 4,
 }
 
 #[doc = "Ip version for an address or prefix. None if not present."]
@@ -62,6 +63,7 @@ pub enum ObjType {
     IfAddress = 2,
     Rmac = 3,
     IpRoute = 4,
+    GetFilter = 5,
 }
 
 #[doc = "A type of route."]
@@ -82,6 +84,25 @@ pub enum EncapType {
     #[default]
     NoEncap = 0,
     VXLAN = 1,
+}
+
+#[doc = "A type of match indicated in a GetFilter object in a Get request."]
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]
+pub enum MatchType {
+    #[default]
+    None = 0,
+    ObjType = 1,
+    Vrf = 2,
+    /*
+       RoutePrefix = 3,
+       RouteType = 4,
+       IpAddress = 5,
+       Ifindex = 6,
+       Mac = 7,
+       Vni = 8,
+       NextHopAddress = 9,
+    */
 }
 
 // Type aliases to be more explicit on the size of some fields on the wire.
