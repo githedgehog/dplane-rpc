@@ -287,6 +287,27 @@ mod positive_tests {
             }
         }
     }
+
+    #[test]
+    fn test_rpcmsg_request_get_with_empty_filter() {
+        let filter = GetFilter::default();
+        let mut req = RpcRequest::new(RpcOp::Get, 11223344);
+        req.set_object(Some(RpcObject::GetFilter(filter)));
+        let msg = req.wrap_in_msg();
+        test_encode_decode_msg(&msg);
+    }
+
+    #[test]
+    fn test_rpcmsg_request_get_with_filter() {
+        let filter = GetFilter {
+            otype: vec![ObjType::IpRoute, ObjType::IfAddress, ObjType::Rmac],
+            vrfid: vec![11, 21, 31, 41],
+        };
+        let mut req = RpcRequest::new(RpcOp::Get, 13);
+        req.set_object(Some(RpcObject::GetFilter(filter)));
+        let msg = req.wrap_in_msg();
+        test_encode_decode_msg(&msg);
+    }
 }
 
 #[cfg(test)]
@@ -300,9 +321,10 @@ mod negative_tests {
     #[test]
     fn neg_test_missing_rmac_vni() {
         let _wire_ok = [2, 28, 0, 2, 205, 129, 1, 0, 0, 0, 0, 0, 3, 1, 7, 0, 0, 1, 1, 2, 3, 4, 5, 6, 184, 11, 0, 0];
-        let wire_bad = [2, 24, 0, 2, 205, 129, 1, 0, 0, 0, 0, 0, 3, 1, 7, 0, 0, 1, 1, 2, 3, 4, 5, 6];
+        let wire_bad =  [2, 24, 0, 2, 205, 129, 1, 0, 0, 0, 0, 0, 3, 1, 7, 0, 0, 1, 1, 2, 3, 4, 5, 6];
         let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
         let res = RpcMsg::decode(&mut buf_rx);
+        println!("{:?}",res);
         assert_eq!(res, Err(WireError::NotEnoughBytes(0, 4, "vni")));
     }
 
