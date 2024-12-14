@@ -7,7 +7,7 @@ use std::net::IpAddr;
 use crate::msg::*;
 use crate::objects::*;
 use crate::proto::{EncapType, IpVer, MsgType, ObjType, RouteType, RpcOp, RpcResultCode};
-use crate::proto::{IPV4_ADDR_LEN, IPV6_ADDR_LEN, MAC_LEN, REQUEST_HDR_SIZE, RESPONSE_HDR_SIZE};
+use crate::proto::{IPV4_ADDR_LEN, IPV6_ADDR_LEN, MAC_LEN};
 
 #[doc = "Errors returned by the decoding and encoding trait methods.
 Note: these are local error codes, not present on the wire. However, we may
@@ -54,14 +54,59 @@ pub trait Wire<T> {
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError>;
 }
 
-#[inline(always)]
-#[doc = "Utility to check if a buffer contains enough data to decode a certain field or object.
-The bytes crate is such that buffer readers will panic when attempting to read more octets than
-those that are available. This wrapper checks this and issues an error instead."]
-pub fn check_available(field: &'static str, buf: &mut Bytes, required: usize) -> WireResult<()> {
-    if buf.remaining() < required {
-        Err(WireError::NotEnoughBytes(buf.remaining(), required, field))
-    } else {
+trait SafeReads {
+    fn sget_u8(&mut self, hint: &'static str) -> Result<u8, WireError>;
+    fn sget_u16_ne(&mut self, hint: &'static str) -> Result<u16, WireError>;
+    fn sget_u32_ne(&mut self, hint: &'static str) -> Result<u32, WireError>;
+    fn sget_u64_ne(&mut self, hint: &'static str) -> Result<u64, WireError>;
+    fn scopy_to_slice(&mut self, dst: &mut [u8], hint: &'static str) -> Result<(), WireError>;
+}
+
+impl SafeReads for Bytes {
+    #[rustfmt::skip]
+    fn sget_u8(&mut self, hint: &'static str) -> Result<u8, WireError> {
+        if self.remaining() < 1 {
+            Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u8>(), hint))
+        } else {
+            Ok(self.get_u8())
+        }
+    }
+    #[rustfmt::skip]
+    fn sget_u16_ne(&mut self, hint: &'static str) -> Result<u16, WireError> {
+        if self.remaining() < 1 {
+            Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u16>(), hint))
+        } else {
+            Ok(self.get_u16_ne())
+        }
+    }
+    #[rustfmt::skip]
+    fn sget_u32_ne(&mut self, hint: &'static str) -> Result<u32, WireError> {
+        if self.remaining() < 1 {
+            Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u32>(), hint))
+        } else {
+            Ok(self.get_u32_ne())
+        }
+    }
+    #[rustfmt::skip]
+    fn sget_u64_ne(&mut self, hint: &'static str) -> Result<u64, WireError> {
+        if self.remaining() < 1 {
+            Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u64>(), hint))
+        } else {
+            Ok(self.get_u64_ne())
+        }
+    }
+    #[rustfmt::skip]
+    fn scopy_to_slice(&mut self, mut dst: &mut [u8], hint: &'static str) -> Result<(), WireError> {
+        if self.remaining() < dst.len() {
+            return Err(WireError::NotEnoughBytes(self.remaining(), dst.len(), hint));
+        }
+        while !dst.is_empty() {
+            let src = self.chunk();
+            let cnt = usize::min(src.len(), dst.len());
+            dst[..cnt].copy_from_slice(&src[..cnt]);
+            dst = &mut dst[cnt..];
+            self.advance(cnt);
+        }
         Ok(())
     }
 }
@@ -69,9 +114,8 @@ pub fn check_available(field: &'static str, buf: &mut Bytes, required: usize) ->
 /* Sub types: sub-objects that are not standalone and reused by other objects  */
 impl Wire<MacAddress> for MacAddress {
     fn decode(buf: &mut Bytes) -> WireResult<MacAddress> {
-        check_available("Mac", buf, MAC_LEN)?;
         let mut m: [u8; MAC_LEN] = [0; MAC_LEN];
-        buf.copy_to_slice(&mut m);
+        buf.scopy_to_slice(&mut m, "Mac")?;
         Ok(MacAddress::new(m))
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -81,8 +125,7 @@ impl Wire<MacAddress> for MacAddress {
 }
 impl Wire<IpVer> for IpVer {
     fn decode(buf: &mut Bytes) -> WireResult<IpVer> {
-        check_available("Ipver", buf, 1)?;
-        let raw = buf.get_u8();
+        let raw = buf.sget_u8("Ipver")?;
         let ipver: IpVer = IpVer::from_u8(raw).ok_or(WireError::InvalidIpVersion(raw))?;
         Ok(ipver)
     }
@@ -99,15 +142,13 @@ impl Wire<Option<IpAddr>> for IpAddr {
         match ipver {
             IpVer::NONE => Ok(None),
             IpVer::IPV4 => {
-                check_available("IPv4-address", buf, IPV4_ADDR_LEN)?;
                 let mut ipv4 = [0_u8; IPV4_ADDR_LEN];
-                buf.copy_to_slice(&mut ipv4);
+                buf.scopy_to_slice(&mut ipv4, "IPv4-address")?;
                 Ok(Some(IpAddr::from(ipv4)))
             }
             IpVer::IPV6 => {
-                check_available("IPv4-address", buf, IPV6_ADDR_LEN)?;
                 let mut ipv6 = [0_u8; IPV6_ADDR_LEN];
-                buf.copy_to_slice(&mut ipv6);
+                buf.scopy_to_slice(&mut ipv6, "IPv6-address")?;
                 Ok(Some(IpAddr::from(ipv6)))
             }
         }
@@ -142,8 +183,7 @@ impl Wire<Option<IpAddr>> for Option<IpAddr> {
 }
 impl Wire<VrfId> for VrfId {
     fn decode(buf: &mut Bytes) -> WireResult<VrfId> {
-        check_available("VrfId", buf, 4)?;
-        let id = buf.get_u32_ne();
+        let id = buf.sget_u32_ne("VrfId")?;
         Ok(id)
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -153,8 +193,7 @@ impl Wire<VrfId> for VrfId {
 }
 impl Wire<EncapType> for EncapType {
     fn decode(buf: &mut Bytes) -> WireResult<EncapType> {
-        check_available("EncapType", buf, 1)?;
-        let raw = buf.get_u8();
+        let raw = buf.sget_u8("EncapType")?;
         let etype = EncapType::from_u8(raw).ok_or(WireError::InvalidEncap(raw))?;
         Ok(etype)
     }
@@ -167,8 +206,7 @@ impl Wire<EncapType> for EncapType {
 }
 impl Wire<VxlanEncap> for VxlanEncap {
     fn decode(buf: &mut Bytes) -> WireResult<VxlanEncap> {
-        check_available("EncapVxLAN", buf, 4)?;
-        let vni: Vni = buf.get_u32_ne();
+        let vni: Vni = buf.sget_u32_ne("EncapVxLAN")?;
         Ok(VxlanEncap { vni })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -202,8 +240,7 @@ impl Wire<Option<NextHopEncap>> for Option<NextHopEncap> {
 }
 impl Wire<ObjType> for ObjType {
     fn decode(buf: &mut Bytes) -> WireResult<ObjType> {
-        check_available("ObjType", buf, 1)?;
-        let otype = buf.get_u8();
+        let otype = buf.sget_u8("ObjType")?;
         let otype: ObjType = ObjType::from_u8(otype).ok_or(WireError::InvalidObjTtype(otype))?;
         Ok(otype)
     }
@@ -216,10 +253,9 @@ impl Wire<ObjType> for ObjType {
 /* First-class objects */
 impl Wire<VerInfo> for VerInfo {
     fn decode(buf: &mut Bytes) -> WireResult<VerInfo> {
-        check_available("Verinfo", buf, 3)?;
-        let major = buf.get_u8();
-        let minor = buf.get_u8();
-        let patch = buf.get_u8();
+        let major = buf.sget_u8("Ver:major")?;
+        let minor = buf.sget_u8("Ver:minor")?;
+        let patch = buf.sget_u8("Ver:patch")?;
         Ok(VerInfo {
             major,
             minor,
@@ -238,8 +274,7 @@ impl Wire<Rmac> for Rmac {
         let address = IpAddr::decode(buf)?;
         let address = address.ok_or(WireError::MissingIpAddress)?;
         let mac = MacAddress::decode(buf)?;
-        check_available("vni", buf, 4)?;
-        let vni: Vni = buf.get_u32_ne();
+        let vni: Vni = buf.sget_u32_ne("vni")?;
         Ok(Rmac { address, mac, vni })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -253,10 +288,8 @@ impl Wire<IfAddress> for IfAddress {
     fn decode(buf: &mut Bytes) -> WireResult<IfAddress> {
         let address = IpAddr::decode(buf)?;
         let address = address.ok_or(WireError::MissingIpAddress)?;
-        check_available("mask-len", buf, 1)?;
-        let mask_len: MaskLen = buf.get_u8();
-        check_available("ifindex", buf, 4)?;
-        let ifindex: Ifindex = buf.get_u32_ne();
+        let mask_len: MaskLen = buf.sget_u8("mask-len")?;
+        let ifindex: Ifindex = buf.sget_u32_ne("ifindex")?;
         let vrfid = VrfId::decode(buf)?;
         Ok(IfAddress {
             address,
@@ -276,8 +309,7 @@ impl Wire<IfAddress> for IfAddress {
 impl Wire<NextHop> for NextHop {
     fn decode(buf: &mut Bytes) -> WireResult<NextHop> {
         let address = IpAddr::decode(buf)?;
-        check_available("ifindex", buf, 4)?;
-        let ifindex: Ifindex = buf.get_u32_ne();
+        let ifindex: Ifindex = buf.sget_u32_ne("ifindex")?;
         let ifindex = if ifindex != 0 { Some(ifindex) } else { None };
         let vrfid = VrfId::decode(buf)?;
         let encap = Option::<NextHopEncap>::decode(buf)?;
@@ -304,20 +336,14 @@ impl Wire<IpRoute> for IpRoute {
     fn decode(buf: &mut Bytes) -> WireResult<IpRoute> {
         let prefix = IpAddr::decode(buf)?;
         let prefix = prefix.ok_or(WireError::MissingIpPrefix)?;
-        check_available("pref-len", buf, 1)?;
-        let prefix_len: MaskLen = buf.get_u8();
+        let prefix_len: MaskLen = buf.sget_u8("pref-len")?;
         let vrfid: VrfId = VrfId::decode(buf)?;
-        check_available("table-id", buf, 4)?;
-        let tableid: RouteTableId = buf.get_u32_ne();
-        check_available("rtype", buf, 4)?;
-        let rtype = buf.get_u8();
+        let tableid: RouteTableId = buf.sget_u32_ne("table-id")?;
+        let rtype = buf.sget_u8("rtype")?;
         let rtype = RouteType::from_u8(rtype).unwrap_or_default();
-        check_available("distance", buf, 4)?;
-        let distance: RouteDistance = buf.get_u8();
-        check_available("metric", buf, 4)?;
-        let metric: RouteMetric = buf.get_u32_ne();
-        check_available("num-nhops", buf, 1)?;
-        let num_nhops: NumNhops = buf.get_u8();
+        let distance = buf.sget_u8("distance")?;
+        let metric = buf.sget_u32_ne("metric")?;
+        let num_nhops: NumNhops = buf.sget_u8("num-nhops")?;
 
         let mut nhops: Vec<NextHop> = Vec::with_capacity(num_nhops as usize);
         for _n in 1..=num_nhops {
@@ -392,10 +418,9 @@ impl Wire<Option<RpcObject>> for Option<RpcObject> {
 /* RpcRequest */
 impl Wire<RpcRequest> for RpcRequest {
     fn decode(buf: &mut Bytes) -> WireResult<RpcRequest> {
-        check_available("Request-hdr", buf, REQUEST_HDR_SIZE)?;
-        let op = buf.get_u8();
+        let op = buf.sget_u8("Op")?;
         let op: RpcOp = RpcOp::from_u8(op).ok_or(WireError::InvalidOp(op))?;
-        let seqn: MsgSeqn = buf.get_u64_ne();
+        let seqn: MsgSeqn = buf.sget_u64_ne("seqn")?;
         let obj: Option<RpcObject> = RpcObject::decode(buf)?;
         Ok(RpcRequest { op, seqn, obj })
     }
@@ -410,8 +435,7 @@ impl Wire<RpcRequest> for RpcRequest {
 /* RpcResponse */
 impl Wire<RpcResultCode> for RpcResultCode {
     fn decode(buf: &mut Bytes) -> WireResult<RpcResultCode> {
-        check_available("Rescode", buf, 1)?;
-        let rescode = buf.get_u8();
+        let rescode = buf.sget_u8("Rescode")?;
         let rescode = RpcResultCode::from_u8(rescode).ok_or(WireError::InValidResCode(rescode))?;
         Ok(rescode)
     }
@@ -422,12 +446,11 @@ impl Wire<RpcResultCode> for RpcResultCode {
 }
 impl Wire<RpcResponse> for RpcResponse {
     fn decode(buf: &mut Bytes) -> WireResult<RpcResponse> {
-        check_available("Response-hdr", buf, RESPONSE_HDR_SIZE)?;
-        let op = buf.get_u8();
+        let op = buf.sget_u8("Op")?;
         let op: RpcOp = RpcOp::from_u8(op).ok_or(WireError::InvalidOp(op))?;
-        let seqn: MsgSeqn = buf.get_u64_ne();
+        let seqn: MsgSeqn = buf.sget_u64_ne("seqn")?;
         let rescode: RpcResultCode = RpcResultCode::decode(buf)?;
-        let num_objects: MsgNumObjects = buf.get_u8();
+        let num_objects: MsgNumObjects = buf.sget_u8("num-objects")?;
         let mut objs: Vec<RpcObject> = Vec::with_capacity(num_objects as usize);
 
         /* decode objects if there */
@@ -462,7 +485,7 @@ impl Wire<RpcResponse> for RpcResponse {
 /* RpcMsg and MsgType */
 impl Wire<MsgType> for MsgType {
     fn decode(buf: &mut Bytes) -> WireResult<MsgType> {
-        let raw = buf.get_u8();
+        let raw = buf.sget_u8("Msg-type")?;
         let mtype = MsgType::from_u8(raw).ok_or(WireError::InvalidMsgType(raw))?;
         Ok(mtype)
     }
@@ -480,7 +503,7 @@ impl Wire<RpcMsg> for RpcMsg {
         let mtype = MsgType::decode(buf)?;
 
         /* decode length */
-        let msg_len: MsgLen = buf.get_u16_ne();
+        let msg_len: MsgLen = buf.sget_u16_ne("msg-len")?;
         if msg_len != rx_len {
             return Err(WireError::InconsistentMsgLen(msg_len, rx_len));
         }

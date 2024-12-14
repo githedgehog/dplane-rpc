@@ -323,7 +323,8 @@ mod negative_tests {
         let wire_bad  = [2, 3, 0];
         let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
         let res = RpcMsg::decode(&mut buf_rx);
-        assert_eq!(res, Err(WireError::NotEnoughBytes(0, 10, "Request-hdr")));
+        println!("{:?}", res);
+        assert_eq!(res, Err(WireError::NotEnoughBytes(0, 1, "Op")));
     }
 
     #[rustfmt::skip]

@@ -24,10 +24,6 @@
 
 #define IPV6_ADDR_LEN 16
 
-#define REQUEST_HDR_SIZE 10
-
-#define RESPONSE_HDR_SIZE 11
-
 /**
  *The type of encapsulation towards some next-hop. NoEncap if no encapsulation is used.
  */
