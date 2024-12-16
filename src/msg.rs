@@ -111,8 +111,8 @@ impl RpcRequest {
         }
     }
     #[allow(dead_code)]
-    pub fn set_object(&mut self, object: Option<RpcObject>) -> &mut Self {
-        self.obj = object;
+    pub fn set_object(mut self, object: RpcObject) -> Self {
+        self.obj = Some(object);
         self
     }
     #[allow(dead_code)]
