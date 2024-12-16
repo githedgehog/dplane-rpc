@@ -238,8 +238,8 @@ The dataplane should determine the mac of the next-hop and the mac of the local 
 
 ### GetFilter
 
-**Purpose**: When performing a Get request, it may be desirable the ability to retrieve only certain types of objects, or only those that meet some criteria.
-The GetFilter is the object used to that end and includes optional lists of `match types` A match type indicates a property of an object and the GetFilter can specify the set of values that such a property (and others) can have for objects to be eligible. For instance, if a match type is VrfId and the corresponding values (100, 200, 300), then only objects associated with those VRFs should be retrieved (logical OR). If more than a match type is specified, objects qualify when they match all of the match types. I.e. when they satisfy all the conditions (logical AND).
+**Purpose**: When performing a Get request, it may be desirable to retrieve only certain types of objects, or only those that meet some criteria.
+The GetFilter is the object used to that end and includes optional lists of `match types`. A match type indicates a property of an object and the `GetFilter` can specify the set of values that such a property (and others) can have for objects to be eligible. For instance, if a match type is `VrfId` with its corresponding values (100, 200, 300), then only objects associated with those VRFs should be retrieved (logical OR). If more than a match type is specified, objects qualify when they match all of the match types, in other words, when they satisfy all the conditions (logical AND).
 
 **format**: The format is as shown below. An octet (num Mtypes) indicates the number of distinct match types present, and appears once.
 That number is followed by a match type code (Mtype), the number of 'allowed' values, and the values themselves.
@@ -251,7 +251,7 @@ That number is followed by a match type code (Mtype), the number of 'allowed' va
 +-------+-------+-----+----------++-------+-----+-----+-----+-----++-------+-----+-----+-----+
    (1)
 ```
-For instance, to retrieve only objects of type 'route', the wire encoding of the GetFilter would be:
+For instance, to retrieve only objects of type `route`, the wire encoding of the `GetFilter` would be:
 
 ```
 +-------+-------+-----+-----+
@@ -259,8 +259,8 @@ For instance, to retrieve only objects of type 'route', the wire encoding of the
 |       | type  |     |route|
 +-------+-------+-----+-----+
 ```
-because there is only one match type Mtype = Object-type with one value 'type route'.
-If additional filtering was desired so that only the routes of VRFs 100, 200 and 300 were wanted, an additional match type VrfId could be added with those values and the encoding be would be:
+because there is only one match type `Mtype = Object-type` with one value `type route`.
+If additional filtering was desired so that only the routes of VRFs 100, 200 and 300 were wanted, an additional match type `VrfId` could be added with those values and the encoding be would be:
 
 ```
 +-------+-------+-----+-----++-------+-----+-----+-----+-----+
