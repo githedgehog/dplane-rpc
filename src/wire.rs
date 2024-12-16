@@ -1,4 +1,5 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
+use log::{debug, error};
 use mac_address::MacAddress;
 use num_traits::FromPrimitive;
 use std::mem::size_of;
@@ -573,7 +574,7 @@ impl Wire<MsgType> for MsgType {
 impl Wire<RpcMsg> for RpcMsg {
     fn decode(buf: &mut Bytes) -> WireResult<RpcMsg> {
         let rx_len = buf.len() as MsgLen;
-        println!("Decoding {} octets as RpcMsg...", rx_len);
+        debug!("Decoding {rx_len} octets as RpcMsg ...");
 
         /* decode message type */
         let mtype = MsgType::decode(buf)?;
@@ -584,7 +585,7 @@ impl Wire<RpcMsg> for RpcMsg {
             return Err(WireError::InconsistentMsgLen(msg_len, rx_len));
         }
         /* decode message */
-        let msg = match mtype {
+        let mut msg = match mtype {
             MsgType::Request => Ok(RpcMsg::Request(RpcRequest::decode(buf)?)),
             MsgType::Response => Ok(RpcMsg::Response(RpcResponse::decode(buf)?)),
             MsgType::Control => unimplemented!(),
@@ -592,17 +593,17 @@ impl Wire<RpcMsg> for RpcMsg {
         };
 
         /* check if we have leftovers: this may be a bug of ours, but it could also be
-        that the message was malformed internally: we checked msg-length and it matched
-        the number of octets available. For the time being, we'll be conservative and err,
-        discarding the message */
-        if buf.remaining() != 0 {
-            println!(
-                "Warning!, {} octets were not decoded. Msg is:\n {:#?}",
-                buf.remaining(),
-                msg.unwrap()
-            );
-            return Err(WireError::ExcessBytes(buf.remaining()));
-        };
+           that the message was malformed internally: we checked msg-length and it matched
+           the number of octets available. For the time being, we'll be conservative and err,
+           discarding the message
+        */
+        if msg.is_ok() && buf.remaining() != 0 {
+            msg = Err(WireError::ExcessBytes(buf.remaining()));
+        }
+
+        if let Err(e) = &msg {
+            error!("Error decoding message: {e:?}");
+        }
         msg
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
