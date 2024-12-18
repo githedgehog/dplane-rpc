@@ -91,9 +91,9 @@ pub enum EncapType {
 #[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]
 pub enum MatchType {
     #[default]
-    None = 0,
-    ObjType = 1,
-    Vrf = 2,
+    MtNone = 0,
+    MtObjType = 1,
+    MtVrf = 2,
     /*
        RoutePrefix = 3,
        RouteType = 4,

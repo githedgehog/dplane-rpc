@@ -44,6 +44,16 @@ enum IpVer {
 typedef uint8_t IpVer;
 
 /**
+ *A type of match indicated in a GetFilter object in a Get request.
+ */
+enum MatchType {
+  MtNone = 0,
+  MtObjType = 1,
+  MtVrf = 2,
+};
+typedef uint8_t MatchType;
+
+/**
  *Code for the type of a message
  */
 enum MsgType {

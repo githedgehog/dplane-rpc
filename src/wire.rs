@@ -295,13 +295,13 @@ impl Wire<GetFilter> for GetFilter {
             let mtype = MatchType::decode(buf)?;
             let num_matches = buf.sget_u8("num-matches")?;
             match mtype {
-                MatchType::None => {}
-                MatchType::ObjType => {
+                MatchType::MtNone => {}
+                MatchType::MtObjType => {
                     for _n in 1..=num_matches {
                         filter.otype.push(ObjType::decode(buf)?);
                     }
                 }
-                MatchType::Vrf => {
+                MatchType::MtVrf => {
                     for _n in 1..=num_matches {
                         filter.vrfid.push(VrfId::decode(buf)?);
                     }
@@ -321,7 +321,7 @@ impl Wire<GetFilter> for GetFilter {
                 return Err(WireError::MatchListTooLong);
             }
             num_mtypes += 1;
-            MatchType::ObjType.encode(buf)?;
+            MatchType::MtObjType.encode(buf)?;
             buf.put_u8(vec_len as u8);
             for o in &self.otype {
                 o.encode(buf)?;
@@ -334,7 +334,7 @@ impl Wire<GetFilter> for GetFilter {
                 return Err(WireError::MatchListTooLong);
             }
             num_mtypes += 1;
-            MatchType::Vrf.encode(buf)?;
+            MatchType::MtVrf.encode(buf)?;
             buf.put_u8(vec_len as u8);
             for o in &self.vrfid {
                 o.encode(buf)?;
