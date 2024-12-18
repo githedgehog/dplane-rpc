@@ -177,7 +177,7 @@ struct ip_route build_ipv4_route(const char *prefix, NumNhops num_nhops)
 {
     /* build route object */
     struct ip_route route = {0};
-    int r = set_ip_address(&route.prefix, prefix);
+    set_ip_address(&route.prefix, prefix);
     route.len = 24;
     route.vrfid = 1;
     route.tableid = 44;
@@ -195,7 +195,7 @@ struct ip_route build_ipv6_route(const char *prefix, NumNhops num_nhops)
 {
     /* build route object */
     struct ip_route route = {0};
-    int r = set_ip_address(&route.prefix, prefix);
+    set_ip_address(&route.prefix, prefix);
     route.len = 64;
     route.vrfid = 1;
     route.tableid = 44;
@@ -407,7 +407,6 @@ int test_msg_response_with_objects(buffer_t *buff)
     TEST();
     buffer_clear(buff);
 
-    int r;
     struct RpcMsg msg;
     memset(&msg, 0, sizeof(msg));
     struct RpcResponse resp = {0};

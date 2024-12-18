@@ -5,6 +5,7 @@ set(LIB_SRC
     wire.c
 	dp_objects.c
 	dp_msg.c
+	vec.c
 )
 set(VERBOSE false)
 set(CMAKE_VERBOSE_MAKEFILE false)

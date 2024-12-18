@@ -18,6 +18,7 @@ const char *err2str(int e)
         case E_TOO_MANY_NHOPS: return "Too many next-hops";
         case E_TOO_MANY_OBJECTS: return "Too many objects";
         case E_TOO_MANY_MATCH_VALUES: return "Too many match values";
+        case E_VEC_CAPACITY_EXCEEDED: return "Vector capacity exceeded";
         default: return "Other/Unknown";
     }
 }
