@@ -15,6 +15,7 @@ int check_object_type(ObjType type)
         case IfAddress:
         case Rmac:
         case IpRoute:
+        case GetFilter:
             return E_OK;
         default:
             BUG(false, E_INVAL);
@@ -82,6 +83,12 @@ int iproute_as_object(struct RpcObject *object, struct ip_route *route) {
     BUG(!object || !route, E_BUG);
     object->route = *route;
     object->type = IpRoute;
+    return E_OK;
+}
+int getfilter_as_object(struct RpcObject *object, struct get_filter *filter) {
+    BUG(!object || !filter, E_BUG);
+    object->get_filter = *filter;
+    object->type = GetFilter;
     return E_OK;
 }
 
@@ -416,6 +423,109 @@ static int decode_iproute(buffer_t *buff, struct ip_route *route)
     return E_OK;
 }
 
+static int encode_getfilter(buffer_t *buff, struct get_filter *filter)
+{
+    int r;
+    uint8_t i;
+    uint8_t num_mtypes = 0;
+
+    index_t num_mtypes_pos = buffer_get_woff(buff);
+
+    // make room for num mtypes
+    if ((r = put_u8(buff, 0)) != E_OK)
+        return r;
+
+    /* match on object type */
+    if (filter->otypes.len != 0) {
+        num_mtypes++;
+        /* add match type */
+        if ((r = put_u8(buff, MtObjType)) != E_OK)
+            return r;
+
+        /* add match type num values */
+        if ((r = put_u8(buff, filter->otypes.len)) != E_OK)
+            return r;
+
+        /* add match type values */
+        for (i = 0; i < filter->otypes.len; i++) {
+            if ((r = put_u8(buff, filter->otypes.data[i])) != E_OK)
+                return r;
+        }
+    }
+
+    if (filter->vrfIds.len != 0) {
+        num_mtypes++;
+
+        /* add match type */
+        if ((r = put_u8(buff, MtVrf)) != E_OK)
+            return r;
+
+        /* add match type num values */
+        if ((r = put_u8(buff, filter->vrfIds.len)) != E_OK)
+            return r;
+
+        /* add match type values */
+        for (i = 0; i < filter->vrfIds.len; i++) {
+            if ((r = put_u32(buff, filter->vrfIds.data[i])) != E_OK)
+                return r;
+        }
+    }
+
+    /* write number of mtypes */
+    return insert_u8(buff, num_mtypes_pos, num_mtypes);
+}
+static int decode_getfilter(buffer_t *buff, struct get_filter *filter)
+{
+    int r;
+    uint8_t num_mtypes;
+    if ((r = get_u8(buff, &num_mtypes)) != E_OK)
+        return r;
+
+    if (num_mtypes == 0)
+        return E_OK;
+
+    for (uint8_t i = 0; i < num_mtypes; i++){
+        /* read match type */
+        MatchType mtype;
+        if ((r = get_u8(buff, &mtype)) != E_OK)
+            return r;
+
+        /* read num match values */
+        uint8_t num_vals;
+        if ((r = get_u8(buff, &num_vals)) != E_OK)
+            return r;
+
+        switch(mtype) {
+            case MtNone:
+                break;
+            case MtObjType:
+            {
+                ObjType otype;
+                for (uint8_t j = 0; j < num_vals; j++)
+                    if ((r = get_u8(buff, &otype)) != E_OK)
+                        return r;
+                    else
+                        vec_push_u8(&filter->otypes, otype);
+                break;
+            }
+            case MtVrf:
+            {
+                VrfId vrf;
+                for (uint8_t j = 0; j < num_vals; j++)
+                    if ((r = get_u32(buff, &vrf)) != E_OK)
+                        return r;
+                    else
+                        vec_push_u32(&filter->vrfIds, vrf);
+                break;
+            }
+            default:
+                return E_INVALID_DATA;
+        }
+    }
+    return E_OK;
+}
+
+
 /* Object wrapper encoders / decoder */
 int encode_object(buffer_t *buff, struct RpcObject *object)
 {
@@ -436,6 +546,8 @@ int encode_object(buffer_t *buff, struct RpcObject *object)
             return encode_rmac(buff, &object->rmac);
         case IpRoute:
             return encode_iproute(buff, &object->route);
+        case GetFilter:
+            return encode_getfilter(buff, &object->get_filter);
         default:
             return E_INVAL;
     }
@@ -459,6 +571,8 @@ int decode_object(buffer_t *buff, struct RpcObject *object)
             return decode_rmac(buff, &object->rmac);
         case IpRoute:
             return decode_iproute(buff, &object->route);
+        case GetFilter:
+            return decode_getfilter(buff, &object->get_filter);
         default:
             return E_INVALID_DATA;
     }

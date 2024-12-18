@@ -25,7 +25,7 @@ Sequencing should help pairing responses and logging and troubleshooting.
 
 * All requests **MUST** be answered (as opposed to other messages like notifications or control).
 
-* The handling of requests **MUST be ordered** to avoid race conditions: a peer may not execute  request N before processing request K for any K<N.
+* The handling of requests **MUST be ordered** to avoid race conditions: a peer may not execute request N before processing request K for any K<N.
 
 * The interactions are expected to be mostly CRUD-like.
 Hence, requests may include a certain **object** to be `added`, `deleted`,  `updated` or retrieved (`get`).
@@ -157,13 +157,12 @@ Whether a next-hop has an ip address or not, on the wire:
 ### Endianness
 The endianness for the fields in the wire format is currently **native**.
 This is a natural choice considering that both CP and DP will run on the same platform.
-
 Enforcing a particular endianness can be easily done if needed.
 
 
 ## Object types
 Objects that we have identified so far include the following.
-These may appear in requests (and responses if we implement a "get/read").
+These may appear in requests (e.g. an object to be `add`ed) or in responses to a `get` request. They could also be added in other type of responses if that was needed.
 
 
 ### Interface address
