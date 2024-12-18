@@ -24,6 +24,7 @@ extern int loglevel;
 #define E_TOO_MANY_NHOPS        10  /* the maximum number of nexthops supported has been exceeded */
 #define E_TOO_MANY_OBJECTS      11  /* the maximum number of objects has been exceeded */
 #define E_TOO_MANY_MATCH_VALUES 12  /* the maximum number of match values has been reached */
+#define E_VEC_CAPACITY_EXCEEDED 13  /* the capacity of a vector has been exceeded */
 
 /* logging macro */
 #define LOG(level, fmt, ...)                           \

@@ -10,7 +10,7 @@ if (NOT DEFINED MAX_ECMP)
 endif ()
 
 message(STATUS "MAX_ECMP is ${MAX_ECMP}")
-add_definitions(-DMAX_ECMP=${MAX_ECMP})
+add_definitions(-DMAX_ECMP=${MAX_ECMP} -Wall -Werror)
 
 
 include(CTest)
