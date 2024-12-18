@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "dp_types.h"
 #include "buffer.h"
+#include "vec.h"
 
 // can override with cmake
 #ifndef MAX_ECMP
@@ -62,6 +63,13 @@ struct ip_route {
     struct next_hop nhops[MAX_NHOPS];
 };
 
+
+struct get_filter {
+    vec_u8 otypes;
+    vec_u32 vrfIds;
+};
+
+
 struct RpcObject {
     ObjType type;
     union {
@@ -69,6 +77,7 @@ struct RpcObject {
         struct rmac rmac;
         struct ifaddress ifaddress;
         struct ip_route route;
+        struct get_filter get_filter;
     };
 };
 
@@ -86,6 +95,7 @@ int rmac_as_object(struct RpcObject *request, struct rmac *rmac);
 int ifaddress_as_object(struct RpcObject *request, struct ifaddress *ifaddr);
 int verinfo_as_object(struct RpcObject *request, struct ver_info *info);
 int iproute_as_object(struct RpcObject *request, struct ip_route *route);
+int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
 /* object encoding */
 int encode_object(buffer_t *buff, struct RpcObject *object);
