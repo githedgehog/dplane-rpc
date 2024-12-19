@@ -27,5 +27,12 @@ pub mod wire;
 /*
   Contains tests for the rustland implementation
 */
+
 #[cfg(test)]
 mod tests;
+
+/*
+  Logging initialization
+*/
+pub mod log;
+
