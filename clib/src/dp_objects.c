@@ -4,6 +4,13 @@
 #include "wire.h"
 #include "dp_objects.h"
 
+/* initializers */
+const struct ver_info VER_INFO_INITIALIZER = {
+    .major = VER_DP_MAJOR,
+    .minor = VER_DP_MINOR,
+    .patch = VER_DP_PATCH
+};
+
 /* utils: checks */
 int check_object_type(ObjType type)
 {
@@ -547,9 +554,6 @@ void rpc_object_dispose(struct RpcObject *object)
             break;
     }
 }
-
-
-
 
 /* Object wrapper encoders / decoder */
 int encode_object(buffer_t *buff, struct RpcObject *object)

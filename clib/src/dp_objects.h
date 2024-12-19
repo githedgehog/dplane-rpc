@@ -91,10 +91,10 @@ int set_mac_address(struct mac_addr *mac, uint8_t addr[MAC_LEN]);
 int ip_route_add_nhop(struct ip_route *route, struct next_hop *nhop);
 
 /* utils to wrap objects */
-int rmac_as_object(struct RpcObject *request, struct rmac *rmac);
-int ifaddress_as_object(struct RpcObject *request, struct ifaddress *ifaddr);
-int verinfo_as_object(struct RpcObject *request, struct ver_info *info);
-int iproute_as_object(struct RpcObject *request, struct ip_route *route);
+int rmac_as_object(struct RpcObject *object, struct rmac *rmac);
+int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr);
+int verinfo_as_object(struct RpcObject *object, struct ver_info *info);
+int iproute_as_object(struct RpcObject *object, struct ip_route *route);
 int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
 /* object encoding */
@@ -103,5 +103,8 @@ int decode_object(buffer_t *buff, struct RpcObject *object);
 
 /* disposal */
 void rpc_object_dispose(struct RpcObject *object);
+
+/* version info initializer */
+extern const struct ver_info VER_INFO_INITIALIZER;
 
 #endif /* DP_OBJECTS_H_ */
