@@ -9,7 +9,7 @@ add_executable(test_vec test_vec.c)
 target_link_libraries(test_vec ${BUILD_LIB_DEPS})
 add_test(NAME test_vec COMMAND test_vec)
 
-add_executable(test_wire test_wire.c)
+add_executable(test_wire test_wire.c object_builders.c)
 target_link_libraries(test_wire ${BUILD_LIB_DEPS})
 add_test(NAME test_wire COMMAND test_wire)
 
