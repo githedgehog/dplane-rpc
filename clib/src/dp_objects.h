@@ -101,4 +101,7 @@ int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 int encode_object(buffer_t *buff, struct RpcObject *object);
 int decode_object(buffer_t *buff, struct RpcObject *object);
 
+/* disposal */
+void rpc_object_dispose(struct RpcObject *object);
+
 #endif /* DP_OBJECTS_H_ */

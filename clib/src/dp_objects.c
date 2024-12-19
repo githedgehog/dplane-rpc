@@ -423,6 +423,7 @@ static int decode_iproute(buffer_t *buff, struct ip_route *route)
     return E_OK;
 }
 
+/* get_filter: encode / decode */
 static int encode_getfilter(buffer_t *buff, struct get_filter *filter)
 {
     int r;
@@ -525,6 +526,30 @@ static int decode_getfilter(buffer_t *buff, struct get_filter *filter)
     return E_OK;
 }
 
+/* disposal of objects */
+static void get_filter_dispose(struct get_filter *filter)
+{
+    if (!filter)
+        return;
+    vec_dispose(&filter->otypes);
+    vec_dispose(&filter->vrfIds);
+}
+
+void rpc_object_dispose(struct RpcObject *object)
+{
+    if (!object)
+        return;
+    switch(object->type) {
+        case GetFilter:
+            get_filter_dispose(&object->get_filter);
+            break;
+        default:
+            break;
+    }
+}
+
+
+
 
 /* Object wrapper encoders / decoder */
 int encode_object(buffer_t *buff, struct RpcObject *object)
@@ -577,3 +602,4 @@ int decode_object(buffer_t *buff, struct RpcObject *object)
             return E_INVALID_DATA;
     }
 }
+

@@ -76,6 +76,9 @@ int check_object(buffer_t *buff, struct RpcObject *object)
         // this check is ordered
         CHECK(memcmp(f1->otypes.data, f2->otypes.data, f1->otypes.len * sizeof(ObjType)) == 0);
         CHECK(memcmp(f1->vrfIds.data, f2->vrfIds.data, f1->vrfIds.len * sizeof(VrfId)) == 0);
+
+        rpc_object_dispose(&recovered);
+        rpc_object_dispose(object);
         return EXIT_SUCCESS;
     }
 
