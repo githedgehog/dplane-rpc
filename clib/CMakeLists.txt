@@ -12,7 +12,7 @@ endif ()
 message(STATUS "MAX_ECMP is ${MAX_ECMP}")
 add_definitions(-DMAX_ECMP=${MAX_ECMP} -Wall -Werror)
 
-
 include(CTest)
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(bin)
