@@ -22,12 +22,24 @@ int test_vec_foo_push(void)
     TEST();
 
     vec_foo v = {0};
-    struct foo DATA[4] = {
-       [0] = {.i=1, .k=1789, .bar = "Luke"},
-       [1] = {.i=2, .k=1492, .bar = "Leia"},
-       [2] = {.i=3, .k=476,  .bar = "Darth"},
-       [3] = {.i=4, .k=1714, .bar = "r2d2"},
-    };
+    struct foo DATA[4];
+    memset(DATA, 0, sizeof(DATA));
+
+    DATA[0].i = 1;
+    DATA[0].k = 1789;
+    DATA[0].bar = "Luke";
+
+    DATA[1].i = 2;
+    DATA[1].k = 1492;
+    DATA[1].bar = "Leia";
+
+    DATA[2].i = 3;
+    DATA[2].k = 476;
+    DATA[2].bar = "Darth";
+
+    DATA[3].i = 4;
+    DATA[3].k = 1714;
+    DATA[3].bar = "r2d2";
 
     int i;
     for (i = 0; i < 4; i++)
@@ -49,7 +61,6 @@ int test_vec_u32_push(void)
 
     int r;
     for(size_t i = 0; i < UINT8_MAX; i++) {
-        fprintf(stderr,"%zu\n", i);
        r = vec_push_u32(&v, i);
        CHECK(r == E_OK);
     }
@@ -73,5 +84,6 @@ int main(int argc, char **argv)
     if (test_vec_foo_push() != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
+    fprintf(stderr, "Success!\n");
     return EXIT_SUCCESS;
 }
