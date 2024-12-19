@@ -27,4 +27,5 @@ pub mod wire;
 /*
   Contains tests for the rustland implementation
 */
-pub mod tests;
+#[cfg(test)]
+mod tests;
