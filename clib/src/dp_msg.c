@@ -94,13 +94,11 @@ static int decode_control(buffer_t *buff, struct RpcControl *ctl)
 /* msg:notification */
 static int encode_notification(buffer_t *buff, struct RpcNotification *notif)
 {
-    // TODO
-    return -1;
+    return E_OK;
 }
 static int decode_notification(buffer_t *buff, struct RpcNotification *notif)
 {
-    // TODO
-    return -1;
+    return E_OK;
 }
 
 /* encode / decode msg */

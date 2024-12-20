@@ -1,4 +1,4 @@
-use crate::objects::*;
+pub use crate::objects::*;
 use crate::wire::WireError;
 
 /* Msg definitions */

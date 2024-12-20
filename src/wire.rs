@@ -6,7 +6,6 @@ use std::mem::size_of;
 use std::net::IpAddr;
 
 use crate::msg::*;
-use crate::objects::*;
 use crate::proto::{EncapType, IpVer, MsgType, ObjType, RouteType, RpcOp, RpcResultCode};
 use crate::proto::{IPV4_ADDR_LEN, IPV6_ADDR_LEN, MAC_LEN};
 
@@ -559,6 +558,17 @@ impl Wire<RpcResponse> for RpcResponse {
     }
 }
 
+/* RpcNotification */
+impl Wire<RpcNotification> for RpcNotification {
+    fn decode(_buf: &mut Bytes) -> WireResult<RpcNotification> {
+        Ok(RpcNotification::default())
+    }
+    fn encode(&self, _buf: &mut BytesMut) -> Result<(), WireError> {
+        Ok(())
+    }
+}
+
+
 /* RpcMsg and MsgType */
 impl Wire<MsgType> for MsgType {
     fn decode(buf: &mut Bytes) -> WireResult<MsgType> {
@@ -589,7 +599,7 @@ impl Wire<RpcMsg> for RpcMsg {
             MsgType::Request => Ok(RpcMsg::Request(RpcRequest::decode(buf)?)),
             MsgType::Response => Ok(RpcMsg::Response(RpcResponse::decode(buf)?)),
             MsgType::Control => unimplemented!(),
-            MsgType::Notification => unimplemented!(),
+            MsgType::Notification => Ok(RpcMsg::Notification(RpcNotification::decode(buf)?)),
         };
 
         /* check if we have leftovers: this may be a bug of ours, but it could also be
@@ -614,6 +624,7 @@ impl Wire<RpcMsg> for RpcMsg {
         match self {
             RpcMsg::Request(m) => m.encode(buf)?,
             RpcMsg::Response(m) => m.encode(buf)?,
+            RpcMsg::Notification(m) => m.encode(buf)?,
             _ => unimplemented!(),
         };
         // set the actual length

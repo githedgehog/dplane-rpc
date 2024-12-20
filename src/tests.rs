@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod positive_tests {
     use crate::msg::*;
-    use crate::objects::*;
     use crate::wire::*;
     use bytes::{Bytes, BytesMut};
     use std::ops::Deref;
