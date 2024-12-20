@@ -1,5 +1,4 @@
-#ifndef RPC_DP_TYPES_H_
-#define RPC_DP_TYPES_H_
+#pragma once
 
 #include "proto.h"
 
@@ -7,7 +6,7 @@
 /**
  * @brief Type to represent a MAC address.
  *
- * MAC addresses always consist of MAC_ADDR_LEN octets.
+ * MAC addresses always consist of MAC_LEN octets.
  */
 struct mac_addr {
     uint8_t bytes[MAC_LEN];
@@ -26,5 +25,3 @@ struct ip_address {
         uint8_t ipv6[IPV6_ADDR_LEN];
     }addr;
 };
-
-#endif /* RPC_DP_TYPES_H_ */

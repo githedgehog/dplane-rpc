@@ -1,5 +1,4 @@
-#ifndef SRC_VEC_H_
-#define SRC_VEC_H_
+#pragma once
 
 #include <stdint.h>
 #include "common.h"
@@ -56,6 +55,3 @@ DECL_PUSH_VEC(u64, uint64_t);
 
 int vec_check_enlarge(vec_t *v, size_t type_size);
 void vec_dispose(void *v);
-
-
-#endif /* SRC_VEC_H_ */

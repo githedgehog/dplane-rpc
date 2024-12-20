@@ -1,30 +1,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../src/wire.h"
+#include "test_common.h"
 #include "object_builders.h"
+#include "../src/wire.h"
 
-#define TEST() fprintf(stderr, "Running test '%s'...........\n", __FUNCTION__)
-#define CHECK(cond) do { if (!(cond)) {assert(0); return EXIT_FAILURE;}   }while(0)
-
-#define SIZE_SHOW(type) fprintf(stderr, "%32.32s: %zu\n", #type, sizeof(type));
-void dump_obj_sizes(void)
-{
-    fprintf(stderr, "MAX_ECMP: %u\n", MAX_ECMP);
-    fprintf(stderr, "MAX_NHOPS: %u\n", MAX_NHOPS);
-
-    SIZE_SHOW(struct ver_info);
-    SIZE_SHOW(struct rmac);
-    SIZE_SHOW(struct ifaddress);
-    SIZE_SHOW(struct ip_route);
-    SIZE_SHOW(struct next_hop);
-    SIZE_SHOW(struct RpcObject);
-    SIZE_SHOW(struct RpcRequest);
-    SIZE_SHOW(struct RpcResponse);
-    SIZE_SHOW(struct RpcControl);
-    SIZE_SHOW(struct RpcNotification);
-    SIZE_SHOW(struct RpcMsg);
-}
 void dump(void *s, size_t len, char *disp)
 {
     uint8_t *octets = (uint8_t*)s;
@@ -412,8 +392,6 @@ int main (int argc, char **argv)
     buffer_t *buff = buffer_new(0);
     if (!buff)
         return EXIT_FAILURE;
-
-    dump_obj_sizes();
 
     /* test object encoding / decoding */
     if (test_object_encoding(buff) != EXIT_SUCCESS)

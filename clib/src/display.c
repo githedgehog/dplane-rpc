@@ -31,7 +31,7 @@ const char *str_rpc_op(RpcOp op)
     switch(op) {
         case Connect: return "Connect";
         case Add: return "Add";
-        case Del: return "Del";
+        case Del: return "Delete";
         case Update: return "Update";
         case Get: return "Get";
         default: return "Unknown";
