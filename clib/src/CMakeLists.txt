@@ -6,6 +6,7 @@ set(LIB_SRC
 	dp_objects.c
 	dp_msg.c
 	vec.c
+	display.c
 )
 set(VERBOSE false)
 set(CMAKE_VERBOSE_MAKEFILE false)
