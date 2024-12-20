@@ -1,5 +1,4 @@
-#ifndef SRC_WIRE_H_
-#define SRC_WIRE_H_
+#pragma once
 
 #include "buffer.h"
 
@@ -64,5 +63,3 @@ DECL_INSERT(u64, uint64_t);
 
 int put_raw(buffer_t *buff, void *data, size_t data_size);
 int get_raw(buffer_t *buff, void *data, size_t data_size);
-
-#endif /* SRC_WIRE_H_ */

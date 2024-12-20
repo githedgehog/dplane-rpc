@@ -1,5 +1,4 @@
-#ifndef DP_OBJECTS_H_
-#define DP_OBJECTS_H_
+#pragma once
 
 #include <stdbool.h>
 #include "dp_types.h"
@@ -81,7 +80,9 @@ struct RpcObject {
     };
 };
 
-/* utils: checks */
+/* utils: check object type
+ * (PLEASE update this function when new types are added)
+ */
 int check_object_type(ObjType type);
 
 /* utils to build objects */
@@ -106,5 +107,3 @@ void rpc_object_dispose(struct RpcObject *object);
 
 /* version info initializer */
 extern const struct ver_info VER_INFO_INITIALIZER;
-
-#endif /* DP_OBJECTS_H_ */

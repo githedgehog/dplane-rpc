@@ -60,7 +60,7 @@ int set_mac_address(struct mac_addr *mac, uint8_t addr[MAC_LEN])
 int ip_route_add_nhop(struct ip_route *route, struct next_hop *nhop)
 {
     BUG(!route || !nhop, E_BUG);
-    if (route->num_nhops == MAX_NHOPS)
+    if (route->num_nhops >= MAX_NHOPS)
         return E_TOO_MANY_NHOPS;
     *(route->nhops + route->num_nhops) = *nhop;
     route->num_nhops++;

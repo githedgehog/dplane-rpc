@@ -1,5 +1,4 @@
-#ifndef RPC_BUFFER_H_
-#define RPC_BUFFER_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -24,5 +23,3 @@ int buffer_cmp(buffer_t *b1, buffer_t *b2);
 
 index_t buffer_get_roff(buffer_t *buff);
 index_t buffer_get_woff(buffer_t *buff);
-
-#endif /* RPC_BUFFER_H_ */

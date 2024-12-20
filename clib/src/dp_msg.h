@@ -1,5 +1,4 @@
-#ifndef DP_MSG_H_
-#define DP_MSG_H_
+#pragma once
 
 #include "dp_objects.h"
 #include "buffer.h"
@@ -43,5 +42,3 @@ int decode_msg(buffer_t *buff, struct RpcMsg *msg);
 /* utils */
 int add_response_object(struct RpcResponse *response, struct RpcObject *object);
 void msg_dispose(struct RpcMsg *msg);
-
-#endif /* DP_MSG_H_ */

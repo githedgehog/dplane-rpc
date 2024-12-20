@@ -1,5 +1,4 @@
-#ifndef COMMON_H_
-#define COMMON_H_
+#pragma once
 
 #include <syslog.h>
 #include <stdio.h>
@@ -52,4 +51,3 @@ extern int loglevel;
 
 const char *err2str(int e);
 
-#endif /* COMMON_H_ */

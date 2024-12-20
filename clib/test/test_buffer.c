@@ -1,11 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "test_common.h"
 #include "../src/wire.h"
 
-#define TEST() fprintf(stderr, "Running test '%s'...........\n", __FUNCTION__)
-
-/** BUFFER tests **/
 int test_buffer_available_data(void)
 {
     TEST();
@@ -218,10 +216,6 @@ int test_buffer_raw_read_write(void)
     buffer_free(buff);
     return EXIT_SUCCESS;
 }
-
-
-/** ENCODE / DECODE **/
-
 
 int main(int argc, char **argv)
 {

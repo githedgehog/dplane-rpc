@@ -3,10 +3,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "test_common.h"
 #include "../src/vec.h"
-
-#define TEST() fprintf(stderr, "Running test '%s'...........\n", __FUNCTION__)
-#define CHECK(cond) do { if (!(cond)) {assert(0); return EXIT_FAILURE;}   }while(0)
 
 /* some custom object for which we want a vector */
 struct foo {
