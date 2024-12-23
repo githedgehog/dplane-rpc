@@ -1,5 +1,5 @@
-#include "wire.h"
 #include "dp_msg.h"
+#include "wire.h"
 
 /* msg:request */
 static int encode_request(buffer_t *buff, struct RpcRequest *req)
@@ -44,7 +44,7 @@ static int encode_response(buffer_t *buff, struct RpcResponse *resp)
 
     for (MsgNumObjects i = 0; i < resp->num_objects; i++)
         if ((r = encode_object(buff, &resp->objects[i])) != E_OK)
-                return r;
+            return r;
 
     return E_OK;
 }
@@ -117,20 +117,20 @@ int encode_msg(buffer_t *buff, struct RpcMsg *msg)
         return r;
 
     switch (msg->type) {
-        case Control:
-            r = encode_control(buff, &msg->control);
-            break;
-        case Request:
-            r = encode_request(buff, &msg->request);
-            break;
-        case Response:
-            r = encode_response(buff, &msg->response);
-            break;
-        case Notification:
-            r = encode_notification(buff, &msg->notification);
-            break;
-        default:
-            return -1;
+    case Control:
+        r = encode_control(buff, &msg->control);
+        break;
+    case Request:
+        r = encode_request(buff, &msg->request);
+        break;
+    case Response:
+        r = encode_response(buff, &msg->response);
+        break;
+    case Notification:
+        r = encode_notification(buff, &msg->notification);
+        break;
+    default:
+        return -1;
     }
     if (r == 0)
         r = insert_u16(buff, msglen_pos, buff->w);
@@ -156,20 +156,20 @@ int decode_msg(buffer_t *buff, struct RpcMsg *msg)
         return E_INCONSIST_LEN;
 
     switch (msg->type) {
-        case Control:
-            r = decode_control(buff, &msg->control);
-            break;
-        case Request:
-            r = decode_request(buff, &msg->request);
-            break;
-        case Response:
-            r = decode_response(buff, &msg->response);
-            break;
-        case Notification:
-            r = decode_notification(buff, &msg->notification);
-            break;
-        default:
-            return E_INVALID_MSG_TYPE;
+    case Control:
+        r = decode_control(buff, &msg->control);
+        break;
+    case Request:
+        r = decode_request(buff, &msg->request);
+        break;
+    case Response:
+        r = decode_response(buff, &msg->response);
+        break;
+    case Notification:
+        r = decode_notification(buff, &msg->notification);
+        break;
+    default:
+        return E_INVALID_MSG_TYPE;
     }
     /* check if there was data left over */
     if (r != E_OK) {
@@ -178,7 +178,6 @@ int decode_msg(buffer_t *buff, struct RpcMsg *msg)
     }
     return r;
 }
-
 
 /* Response utils: add objects */
 int add_response_object(struct RpcResponse *response, struct RpcObject *object)
@@ -206,8 +205,8 @@ static inline void msg_response_dispose(struct RpcResponse *response)
 void msg_dispose(struct RpcMsg *msg)
 {
     BUG(!msg);
-    switch(msg->type) {
-        case Control:
+    switch (msg->type) {
+    case Control:
         break;
     case Request:
         break;

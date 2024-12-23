@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dp_objects.h"
 #include "buffer.h"
+#include "dp_objects.h"
 
 struct RpcRequest {
     RpcOp op;
@@ -18,11 +18,9 @@ struct RpcResponse {
 };
 
 struct RpcControl {
-
 };
 
 struct RpcNotification {
-
 };
 
 struct RpcMsg {

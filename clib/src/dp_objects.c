@@ -1,31 +1,30 @@
-#include <string.h>
 #include <arpa/inet.h>
+#include <string.h>
 
-#include "wire.h"
 #include "dp_objects.h"
+#include "wire.h"
 
 /* initializers */
 const struct ver_info VER_INFO_INITIALIZER = {
     .major = VER_DP_MAJOR,
     .minor = VER_DP_MINOR,
-    .patch = VER_DP_PATCH
-};
+    .patch = VER_DP_PATCH};
 
 /* utils: checks */
 int check_object_type(ObjType type)
 {
     /* This needs to be updated when adding new types :-( */
-    switch(type) {
-        case None:
-            return E_INVAL;
-        case VerInfo:
-        case IfAddress:
-        case Rmac:
-        case IpRoute:
-        case GetFilter:
-            return E_OK;
-        default:
-            BUG(false, E_INVAL);
+    switch (type) {
+    case None:
+        return E_INVAL;
+    case VerInfo:
+    case IfAddress:
+    case Rmac:
+    case IpRoute:
+    case GetFilter:
+        return E_OK;
+    default:
+        BUG(false, E_INVAL);
     }
     return E_BUG;
 }
@@ -68,31 +67,36 @@ int ip_route_add_nhop(struct ip_route *route, struct next_hop *nhop)
 }
 
 /* utils: wrap objects */
-int rmac_as_object(struct RpcObject *object, struct rmac *rmac) {
+int rmac_as_object(struct RpcObject *object, struct rmac *rmac)
+{
     BUG(!object || !rmac, E_BUG);
     object->rmac = *rmac;
     object->type = Rmac;
     return E_OK;
 }
-int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr) {
+int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr)
+{
     BUG(!object || !ifaddr, E_BUG);
     object->ifaddress = *ifaddr;
     object->type = IfAddress;
     return E_OK;
 }
-int verinfo_as_object(struct RpcObject *object, struct ver_info *info) {
+int verinfo_as_object(struct RpcObject *object, struct ver_info *info)
+{
     BUG(!object || !info, E_BUG);
     object->ver_info = *info;
     object->type = VerInfo;
     return E_OK;
 }
-int iproute_as_object(struct RpcObject *object, struct ip_route *route) {
+int iproute_as_object(struct RpcObject *object, struct ip_route *route)
+{
     BUG(!object || !route, E_BUG);
     object->route = *route;
     object->type = IpRoute;
     return E_OK;
 }
-int getfilter_as_object(struct RpcObject *object, struct get_filter *filter) {
+int getfilter_as_object(struct RpcObject *object, struct get_filter *filter)
+{
     BUG(!object || !filter, E_BUG);
     object->get_filter = *filter;
     object->type = GetFilter;
@@ -107,12 +111,15 @@ static int encode_ipaddress(buffer_t *buff, struct ip_address *addr)
 
     if ((r = put_u8(buff, addr->ipver)))
         return r;
-    switch(addr->ipver) {
-        case NONE: return E_OK;
-        case IPV4: return put_raw(buff, &addr->addr.ipv4, IPV4_ADDR_LEN);
-        case IPV6: return put_raw(buff, &addr->addr.ipv6, IPV6_ADDR_LEN);
-        default:
-            return E_INVAL;
+    switch (addr->ipver) {
+    case NONE:
+        return E_OK;
+    case IPV4:
+        return put_raw(buff, &addr->addr.ipv4, IPV4_ADDR_LEN);
+    case IPV6:
+        return put_raw(buff, &addr->addr.ipv6, IPV6_ADDR_LEN);
+    default:
+        return E_INVAL;
     }
 }
 static int decode_ipaddress(buffer_t *buff, struct ip_address *addr)
@@ -124,12 +131,15 @@ static int decode_ipaddress(buffer_t *buff, struct ip_address *addr)
     if ((r = get_u8(buff, &addr->ipver)))
         return r;
 
-    switch(addr->ipver) {
-        case NONE: return E_OK;
-        case IPV4: return get_raw(buff, &addr->addr.ipv4, IPV4_ADDR_LEN);
-        case IPV6: return get_raw(buff, &addr->addr.ipv6, IPV6_ADDR_LEN);
-        default:
-            return E_INVALID_DATA;
+    switch (addr->ipver) {
+    case NONE:
+        return E_OK;
+    case IPV4:
+        return get_raw(buff, &addr->addr.ipv4, IPV4_ADDR_LEN);
+    case IPV6:
+        return get_raw(buff, &addr->addr.ipv6, IPV6_ADDR_LEN);
+    default:
+        return E_INVALID_DATA;
     }
 }
 static int encode_mac(buffer_t *buff, struct mac_addr *mac)
@@ -254,11 +264,13 @@ static int decode_rmac(buffer_t *buff, struct rmac *rmac)
 }
 
 /* nhop encap: encode / decode */
-static int encode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan) {
+static int encode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan)
+{
     BUG(!buff || !vxlan, E_BUG);
     return put_u32(buff, vxlan->vni);
 }
-static int decode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan) {
+static int decode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan)
+{
     BUG(!buff || !vxlan, E_BUG);
     return get_u32(buff, &vxlan->vni);
 }
@@ -271,9 +283,12 @@ static int encode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
         return r;
 
     switch (encap->type) {
-        case NoEncap: return E_OK;
-        case VXLAN: return encode_next_hop_encap_vxlan(buff, &encap->vxlan);
-        default: return E_INVAL;
+    case NoEncap:
+        return E_OK;
+    case VXLAN:
+        return encode_next_hop_encap_vxlan(buff, &encap->vxlan);
+    default:
+        return E_INVAL;
     }
 }
 static int decode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
@@ -285,9 +300,12 @@ static int decode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
         return r;
 
     switch (encap->type) {
-        case NoEncap: return E_OK;
-        case VXLAN: return decode_next_hop_encap_vxlan(buff, &encap->vxlan);
-        default: return E_INVALID_DATA;
+    case NoEncap:
+        return E_OK;
+    case VXLAN:
+        return decode_next_hop_encap_vxlan(buff, &encap->vxlan);
+    default:
+        return E_INVALID_DATA;
     }
 }
 
@@ -340,7 +358,7 @@ static int encode_next_hops(buffer_t *buff, NumNhops num, struct next_hop *nhops
     if ((r = put_u8(buff, num)) != E_OK)
         return r;
 
-    for (NumNhops i = 0; i < num ; i++)
+    for (NumNhops i = 0; i < num; i++)
         if ((r = encode_next_hop(buff, &nhops[i])) != E_OK)
             return r;
 
@@ -354,7 +372,7 @@ static int decode_next_hops(buffer_t *buff, NumNhops *num, struct next_hop *nhop
     if ((r = get_u8(buff, num)) != E_OK)
         return r;
 
-    for (NumNhops i = 0; i < *num ; i++)
+    for (NumNhops i = 0; i < *num; i++)
         if ((r = decode_next_hop(buff, &nhops[i])) != E_OK)
             return r;
 
@@ -492,7 +510,7 @@ static int decode_getfilter(buffer_t *buff, struct get_filter *filter)
     if (num_mtypes == 0)
         return E_OK;
 
-    for (uint8_t i = 0; i < num_mtypes; i++){
+    for (uint8_t i = 0; i < num_mtypes; i++) {
         /* read match type */
         MatchType mtype;
         if ((r = get_u8(buff, &mtype)) != E_OK)
@@ -503,31 +521,29 @@ static int decode_getfilter(buffer_t *buff, struct get_filter *filter)
         if ((r = get_u8(buff, &num_vals)) != E_OK)
             return r;
 
-        switch(mtype) {
-            case MtNone:
-                break;
-            case MtObjType:
-            {
-                ObjType otype;
-                for (uint8_t j = 0; j < num_vals; j++)
-                    if ((r = get_u8(buff, &otype)) != E_OK)
-                        return r;
-                    else
-                        vec_push_u8(&filter->otypes, otype);
-                break;
-            }
-            case MtVrf:
-            {
-                VrfId vrf;
-                for (uint8_t j = 0; j < num_vals; j++)
-                    if ((r = get_u32(buff, &vrf)) != E_OK)
-                        return r;
-                    else
-                        vec_push_u32(&filter->vrfIds, vrf);
-                break;
-            }
-            default:
-                return E_INVALID_DATA;
+        switch (mtype) {
+        case MtNone:
+            break;
+        case MtObjType: {
+            ObjType otype;
+            for (uint8_t j = 0; j < num_vals; j++)
+                if ((r = get_u8(buff, &otype)) != E_OK)
+                    return r;
+                else
+                    vec_push_u8(&filter->otypes, otype);
+            break;
+        }
+        case MtVrf: {
+            VrfId vrf;
+            for (uint8_t j = 0; j < num_vals; j++)
+                if ((r = get_u32(buff, &vrf)) != E_OK)
+                    return r;
+                else
+                    vec_push_u32(&filter->vrfIds, vrf);
+            break;
+        }
+        default:
+            return E_INVALID_DATA;
         }
     }
     return E_OK;
@@ -546,12 +562,12 @@ void rpc_object_dispose(struct RpcObject *object)
 {
     if (!object)
         return;
-    switch(object->type) {
-        case GetFilter:
-            get_filter_dispose(&object->get_filter);
-            break;
-        default:
-            break;
+    switch (object->type) {
+    case GetFilter:
+        get_filter_dispose(&object->get_filter);
+        break;
+    default:
+        break;
     }
 }
 
@@ -564,21 +580,21 @@ int encode_object(buffer_t *buff, struct RpcObject *object)
     if ((r = put_u8(buff, object->type)) != E_OK)
         return r;
 
-    switch(object->type) {
-        case None:
-            return E_OK;
-        case VerInfo:
-            return encode_verinfo(buff, &object->ver_info);
-        case IfAddress:
-            return encode_ifaddress(buff, &object->ifaddress);
-        case Rmac:
-            return encode_rmac(buff, &object->rmac);
-        case IpRoute:
-            return encode_iproute(buff, &object->route);
-        case GetFilter:
-            return encode_getfilter(buff, &object->get_filter);
-        default:
-            return E_INVAL;
+    switch (object->type) {
+    case None:
+        return E_OK;
+    case VerInfo:
+        return encode_verinfo(buff, &object->ver_info);
+    case IfAddress:
+        return encode_ifaddress(buff, &object->ifaddress);
+    case Rmac:
+        return encode_rmac(buff, &object->rmac);
+    case IpRoute:
+        return encode_iproute(buff, &object->route);
+    case GetFilter:
+        return encode_getfilter(buff, &object->get_filter);
+    default:
+        return E_INVAL;
     }
 }
 int decode_object(buffer_t *buff, struct RpcObject *object)
@@ -589,21 +605,20 @@ int decode_object(buffer_t *buff, struct RpcObject *object)
     if ((r = get_u8(buff, &object->type)) != E_OK)
         return r;
 
-    switch(object->type) {
-        case None:
-            return E_OK;
-        case VerInfo:
-            return decode_verinfo(buff, &object->ver_info);
-        case IfAddress:
-            return decode_ifaddress(buff, &object->ifaddress);
-        case Rmac:
-            return decode_rmac(buff, &object->rmac);
-        case IpRoute:
-            return decode_iproute(buff, &object->route);
-        case GetFilter:
-            return decode_getfilter(buff, &object->get_filter);
-        default:
-            return E_INVALID_DATA;
+    switch (object->type) {
+    case None:
+        return E_OK;
+    case VerInfo:
+        return decode_verinfo(buff, &object->ver_info);
+    case IfAddress:
+        return decode_ifaddress(buff, &object->ifaddress);
+    case Rmac:
+        return decode_rmac(buff, &object->rmac);
+    case IpRoute:
+        return decode_iproute(buff, &object->route);
+    case GetFilter:
+        return decode_getfilter(buff, &object->get_filter);
+    default:
+        return E_INVALID_DATA;
     }
 }
-

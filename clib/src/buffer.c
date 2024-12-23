@@ -1,6 +1,6 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include "buffer.h"
 
@@ -24,7 +24,7 @@ int buffer_enlarge(buffer_t *buff, size_t required)
     index_t new_size = (index_t)max;
     assert(new_size >= required);
 
-    uint8_t *x = (uint8_t*)realloc(buff->storage, (size_t)new_size);
+    uint8_t *x = (uint8_t *)realloc(buff->storage, (size_t)new_size);
     if (!x)
         return E_OOM;
 
@@ -78,10 +78,10 @@ void buffer_dump(buffer_t *buff)
     }
 
     fprintf(stderr, "(w: %u r:%u) [", buff->w, buff->r);
-    for(register index_t n = 0; n < buff->w; n++) {
+    for (register index_t n = 0; n < buff->w; n++) {
         fprintf(stderr, " %u%s", buff->storage[n], n < buff->w - 1 ? "," : "");
         if (n && (n % 64) == 0)
-            fprintf(stderr,"\n");
+            fprintf(stderr, "\n");
     }
     fprintf(stderr, "]\n");
 }
@@ -97,11 +97,13 @@ int buffer_cmp(buffer_t *b1, buffer_t *b2)
 
     return memcmp(b1->storage, b2->storage, b1->w);
 }
-index_t buffer_get_roff(buffer_t *buff) {
+index_t buffer_get_roff(buffer_t *buff)
+{
     BUG(!buff, 0);
     return buff->r;
 }
-index_t buffer_get_woff(buffer_t *buff) {
+index_t buffer_get_woff(buffer_t *buff)
+{
     BUG(!buff, 0);
     return buff->w;
 }

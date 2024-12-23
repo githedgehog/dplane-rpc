@@ -13,7 +13,7 @@ typedef struct buffer_s {
     uint8_t *storage;
 } buffer_t;
 
-#define MAX(a,b) (a) < (b) ? (b) : (a)
+#define MAX(a, b) (a) < (b) ? (b) : (a)
 
 buffer_t *buffer_new(index_t capacity);
 void buffer_free(buffer_t *buff);

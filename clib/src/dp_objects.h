@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdbool.h>
-#include "dp_types.h"
 #include "buffer.h"
+#include "dp_types.h"
 #include "vec.h"
+#include <stdbool.h>
 
 // can override with cmake
 #ifndef MAX_ECMP
@@ -62,12 +62,10 @@ struct ip_route {
     struct next_hop nhops[MAX_NHOPS];
 };
 
-
 struct get_filter {
     vec_u8 otypes;
     vec_u32 vrfIds;
 };
-
 
 struct RpcObject {
     ObjType type;

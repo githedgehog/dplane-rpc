@@ -3,8 +3,8 @@
 #include "common.h"
 #include "vec.h"
 
-
-void vec_dispose(void *v) {
+void vec_dispose(void *v)
+{
     vec_t *p = (vec_t *)v;
     if (p) {
         if (p->data)
@@ -14,12 +14,13 @@ void vec_dispose(void *v) {
         p->data = NULL;
     }
 }
-int vec_check_enlarge(vec_t *v, size_t type_size) {
+int vec_check_enlarge(vec_t *v, size_t type_size)
+{
     BUG(!v, E_BUG);
     if (v->len + 1 > MAX_VEC_SIZE)
         return E_VEC_CAPACITY_EXCEEDED;
     if (v->len + 1 >= v->capacity || !v->data) {
-        size_t new_capacity = (v->len + 1) *2 ;
+        size_t new_capacity = (v->len + 1) * 2;
         void *x = reallocarray(v->data, new_capacity, type_size);
         if (unlikely(!x))
             return E_OOM;
@@ -34,4 +35,3 @@ DEF_PUSH_VEC(u8, uint8_t);
 DEF_PUSH_VEC(u16, uint16_t);
 DEF_PUSH_VEC(u32, uint32_t);
 DEF_PUSH_VEC(u64, uint64_t);
-
