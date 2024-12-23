@@ -2,7 +2,7 @@
 #include "dp_msg.h"
 
 /* msg:request */
-static int encode_request(buffer_t *buff, struct RpcRequest *req)
+static int encode_request(buffer_t * buff, struct RpcRequest *req)
 {
     int r;
     if ((r = put_u8(buff, req->op)))
@@ -13,7 +13,8 @@ static int encode_request(buffer_t *buff, struct RpcRequest *req)
         return r;
     return E_OK;
 }
-static int decode_request(buffer_t *buff, struct RpcRequest *req)
+
+static int decode_request(buffer_t * buff, struct RpcRequest *req)
 {
     int r;
     if ((r = get_u8(buff, &req->op)))
@@ -26,7 +27,7 @@ static int decode_request(buffer_t *buff, struct RpcRequest *req)
 }
 
 /* msg:response */
-static int encode_response(buffer_t *buff, struct RpcResponse *resp)
+static int encode_response(buffer_t * buff, struct RpcResponse *resp)
 {
     int r;
 
@@ -44,11 +45,12 @@ static int encode_response(buffer_t *buff, struct RpcResponse *resp)
 
     for (MsgNumObjects i = 0; i < resp->num_objects; i++)
         if ((r = encode_object(buff, &resp->objects[i])) != E_OK)
-                return r;
+            return r;
 
     return E_OK;
 }
-static int decode_response(buffer_t *buff, struct RpcResponse *resp)
+
+static int decode_response(buffer_t * buff, struct RpcResponse *resp)
 {
     int r;
 
@@ -80,29 +82,31 @@ static int decode_response(buffer_t *buff, struct RpcResponse *resp)
 }
 
 /* msg:control */
-static int encode_control(buffer_t *buff, struct RpcControl *ctl)
+static int encode_control(buffer_t * buff, struct RpcControl *ctl)
 {
     // TODO
     return -1;
 }
-static int decode_control(buffer_t *buff, struct RpcControl *ctl)
+
+static int decode_control(buffer_t * buff, struct RpcControl *ctl)
 {
     // TODO
     return -1;
 }
 
 /* msg:notification */
-static int encode_notification(buffer_t *buff, struct RpcNotification *notif)
+static int encode_notification(buffer_t * buff, struct RpcNotification *notif)
 {
     return E_OK;
 }
-static int decode_notification(buffer_t *buff, struct RpcNotification *notif)
+
+static int decode_notification(buffer_t * buff, struct RpcNotification *notif)
 {
     return E_OK;
 }
 
 /* encode / decode msg */
-int encode_msg(buffer_t *buff, struct RpcMsg *msg)
+int encode_msg(buffer_t * buff, struct RpcMsg *msg)
 {
     BUG(!buff || !msg, E_BUG);
     int r;
@@ -137,7 +141,8 @@ int encode_msg(buffer_t *buff, struct RpcMsg *msg)
 
     return r;
 }
-int decode_msg(buffer_t *buff, struct RpcMsg *msg)
+
+int decode_msg(buffer_t * buff, struct RpcMsg *msg)
 {
     BUG(!buff || !msg, E_BUG);
     int r;
@@ -203,20 +208,21 @@ static inline void msg_response_dispose(struct RpcResponse *response)
         response->objects = NULL;
     }
 }
+
 void msg_dispose(struct RpcMsg *msg)
 {
     BUG(!msg);
-    switch(msg->type) {
+    switch (msg->type) {
         case Control:
-        break;
-    case Request:
-        break;
-    case Response:
-        msg_response_dispose(&msg->response);
-        break;
-    case Notification:
-        break;
-    default:
-        break;
+            break;
+        case Request:
+            break;
+        case Response:
+            msg_response_dispose(&msg->response);
+            break;
+        case Notification:
+            break;
+        default:
+            break;
     }
 }

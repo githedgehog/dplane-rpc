@@ -23,5 +23,5 @@ struct ip_address {
     union {
         uint32_t ipv4;
         uint8_t ipv6[IPV6_ADDR_LEN];
-    }addr;
+    } addr;
 };

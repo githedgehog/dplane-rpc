@@ -6,7 +6,7 @@
 
 #define DEFAULT_BUFFER_CAPACITY 1024
 
-int buffer_enlarge(buffer_t *buff, size_t required)
+int buffer_enlarge(buffer_t * buff, size_t required)
 {
     BUG(!buff, E_BUG);
 
@@ -21,10 +21,10 @@ int buffer_enlarge(buffer_t *buff, size_t required)
     if (max >= UINT16_MAX)
         max = UINT16_MAX;
 
-    index_t new_size = (index_t)max;
+    index_t new_size = (index_t) max;
     assert(new_size >= required);
 
-    uint8_t *x = (uint8_t*)realloc(buff->storage, (size_t)new_size);
+    uint8_t *x = (uint8_t *) realloc(buff->storage, (size_t)new_size);
     if (!x)
         return E_OOM;
 
@@ -33,6 +33,7 @@ int buffer_enlarge(buffer_t *buff, size_t required)
     buff->capacity = new_size;
     return E_OK;
 }
+
 buffer_t *buffer_new(index_t capacity)
 {
     buffer_t *buff = calloc(1, sizeof(buffer_t));
@@ -52,7 +53,8 @@ buffer_t *buffer_new(index_t capacity)
     buff->capacity = capacity;
     return buff;
 }
-void buffer_free(buffer_t *buff)
+
+void buffer_free(buffer_t * buff)
 {
     BUG(!buff);
     if (buff->storage)
@@ -60,7 +62,8 @@ void buffer_free(buffer_t *buff)
     memset(buff, 0, sizeof(buffer_t));
     free(buff);
 }
-void buffer_clear(buffer_t *buff)
+
+void buffer_clear(buffer_t * buff)
 {
     BUG(!buff);
     buff->w = 0;
@@ -68,7 +71,8 @@ void buffer_clear(buffer_t *buff)
     if (buff->storage != NULL)
         memset(buff->storage, 0, buff->capacity);
 }
-void buffer_dump(buffer_t *buff)
+
+void buffer_dump(buffer_t * buff)
 {
     BUG(!buff);
 
@@ -78,14 +82,15 @@ void buffer_dump(buffer_t *buff)
     }
 
     fprintf(stderr, "(w: %u r:%u) [", buff->w, buff->r);
-    for(register index_t n = 0; n < buff->w; n++) {
+    for (register index_t n = 0; n < buff->w; n++) {
         fprintf(stderr, " %u%s", buff->storage[n], n < buff->w - 1 ? "," : "");
         if (n && (n % 64) == 0)
-            fprintf(stderr,"\n");
+            fprintf(stderr, "\n");
     }
     fprintf(stderr, "]\n");
 }
-int buffer_cmp(buffer_t *b1, buffer_t *b2)
+
+int buffer_cmp(buffer_t * b1, buffer_t * b2)
 {
     BUG(!b1 || !b2, E_BUG);
 
@@ -97,11 +102,15 @@ int buffer_cmp(buffer_t *b1, buffer_t *b2)
 
     return memcmp(b1->storage, b2->storage, b1->w);
 }
-index_t buffer_get_roff(buffer_t *buff) {
+
+index_t buffer_get_roff(buffer_t * buff)
+{
     BUG(!buff, 0);
     return buff->r;
 }
-index_t buffer_get_woff(buffer_t *buff) {
+
+index_t buffer_get_woff(buffer_t * buff)
+{
     BUG(!buff, 0);
     return buff->w;
 }

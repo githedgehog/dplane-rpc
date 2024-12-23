@@ -61,5 +61,5 @@ DECL_INSERT(u16, uint16_t);
 DECL_INSERT(u32, uint32_t);
 DECL_INSERT(u64, uint64_t);
 
-int put_raw(buffer_t *buff, void *data, size_t data_size);
-int get_raw(buffer_t *buff, void *data, size_t data_size);
+int put_raw(buffer_t * buff, void *data, size_t data_size);
+int get_raw(buffer_t * buff, void *data, size_t data_size);

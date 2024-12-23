@@ -50,4 +50,3 @@ extern int loglevel;
     }} while (0)
 
 const char *err2str(int e);
-

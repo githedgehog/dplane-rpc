@@ -41,7 +41,7 @@
 /* vector type definitions for system types
  * commonly used. Vectors for custom types
  * can be declared identically. */
-DECL_VEC_TYPE(t, void); /* generic vec_t */
+DECL_VEC_TYPE(t, void);         /* generic vec_t */
 DECL_VEC_TYPE(u8, uint8_t);
 DECL_VEC_TYPE(u16, uint16_t);
 DECL_VEC_TYPE(u32, uint32_t);
@@ -53,5 +53,5 @@ DECL_PUSH_VEC(u16, uint16_t);
 DECL_PUSH_VEC(u32, uint32_t);
 DECL_PUSH_VEC(u64, uint64_t);
 
-int vec_check_enlarge(vec_t *v, size_t type_size);
+int vec_check_enlarge(vec_t * v, size_t type_size);
 void vec_dispose(void *v);
