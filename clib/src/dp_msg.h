@@ -4,17 +4,17 @@
 #include "dp_objects.h"
 
 struct RpcRequest {
-  RpcOp op;
-  MsgSeqn seqn;
-  struct RpcObject object;
+    RpcOp op;
+    MsgSeqn seqn;
+    struct RpcObject object;
 };
 
 struct RpcResponse {
-  RpcOp op;
-  MsgSeqn seqn;
-  RpcResultCode rescode;
-  MsgNumObjects num_objects;
-  struct RpcObject *objects;
+    RpcOp op;
+    MsgSeqn seqn;
+    RpcResultCode rescode;
+    MsgNumObjects num_objects;
+    struct RpcObject *objects;
 };
 
 struct RpcControl {
@@ -24,13 +24,13 @@ struct RpcNotification {
 };
 
 struct RpcMsg {
-  MsgType type;
-  union {
-    struct RpcRequest request;
-    struct RpcResponse response;
-    struct RpcControl control;
-    struct RpcNotification notification;
-  };
+    MsgType type;
+    union {
+        struct RpcRequest request;
+        struct RpcResponse response;
+        struct RpcControl control;
+        struct RpcNotification notification;
+    };
 };
 
 /* messages: encode / decode */

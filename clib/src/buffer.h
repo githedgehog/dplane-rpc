@@ -7,10 +7,10 @@
 typedef uint32_t index_t;
 
 typedef struct buffer_s {
-  index_t w;
-  index_t r;
-  index_t capacity;
-  uint8_t *storage;
+    index_t w;
+    index_t r;
+    index_t capacity;
+    uint8_t *storage;
 } buffer_t;
 
 #define MAX(a, b) (a) < (b) ? (b) : (a)

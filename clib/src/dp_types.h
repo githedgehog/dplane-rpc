@@ -8,7 +8,7 @@
  * MAC addresses always consist of MAC_LEN octets.
  */
 struct mac_addr {
-  uint8_t bytes[MAC_LEN];
+    uint8_t bytes[MAC_LEN];
 };
 
 /**
@@ -19,9 +19,9 @@ struct mac_addr {
  * to NONE.
  */
 struct ip_address {
-  IpVer ipver;
-  union {
-    uint32_t ipv4;
-    uint8_t ipv6[IPV6_ADDR_LEN];
-  } addr;
+    IpVer ipver;
+    union {
+        uint32_t ipv4;
+        uint8_t ipv6[IPV6_ADDR_LEN];
+    } addr;
 };
