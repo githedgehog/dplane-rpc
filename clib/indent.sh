@@ -30,7 +30,8 @@ function clib_indent() {
 # re-formatted.
 shopt -s extglob
 for file in src/!(proto.h|*.txt) ; do
-  clib_indent $file
+  #clib_indent $file //TODO: temporary jump to clang-format
+  clang-format-11 --Werror -i -style=file $file
 done
 shopt -u extglob
 

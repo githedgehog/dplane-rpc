@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdbool.h>
-#include "dp_types.h"
 #include "buffer.h"
+#include "dp_types.h"
 #include "vec.h"
+#include <stdbool.h>
 
 // can override with cmake
 #ifndef MAX_ECMP
@@ -16,68 +16,66 @@
 #endif
 
 struct ver_info {
-    uint8_t major;
-    uint8_t minor;
-    uint8_t patch;
+  uint8_t major;
+  uint8_t minor;
+  uint8_t patch;
 };
 
 struct rmac {
-    struct ip_address address;
-    struct mac_addr mac;
-    Vni vni;
+  struct ip_address address;
+  struct mac_addr mac;
+  Vni vni;
 };
 
 struct ifaddress {
-    struct ip_address address;
-    MaskLen len;
-    Ifindex ifindex;
-    VrfId vrfid;
+  struct ip_address address;
+  MaskLen len;
+  Ifindex ifindex;
+  VrfId vrfid;
 };
 
 struct next_hop_encap_vxlan {
-    Vni vni;
+  Vni vni;
 };
 struct next_hop_encap {
-    EncapType type;
-    union {
-        struct next_hop_encap_vxlan vxlan;
-    };
+  EncapType type;
+  union {
+    struct next_hop_encap_vxlan vxlan;
+  };
 };
 struct next_hop {
-    struct ip_address address;
-    Ifindex ifindex;
-    VrfId vrfid;
-    struct next_hop_encap encap;
+  struct ip_address address;
+  Ifindex ifindex;
+  VrfId vrfid;
+  struct next_hop_encap encap;
 };
 
 struct ip_route {
-    struct ip_address prefix;
-    MaskLen len;
-    VrfId vrfid;
-    RouteTableId tableid;
-    RouteType type;
-    RouteDistance distance;
-    RouteMetric metric;
-    NumNhops num_nhops;
-    struct next_hop nhops[MAX_NHOPS];
+  struct ip_address prefix;
+  MaskLen len;
+  VrfId vrfid;
+  RouteTableId tableid;
+  RouteType type;
+  RouteDistance distance;
+  RouteMetric metric;
+  NumNhops num_nhops;
+  struct next_hop nhops[MAX_NHOPS];
 };
-
 
 struct get_filter {
-    vec_u8 otypes;
-    vec_u32 vrfIds;
+  vec_u8 otypes;
+  vec_u32 vrfIds;
 };
 
-
 struct RpcObject {
-    ObjType type;
-    union {
-        struct ver_info ver_info;
-        struct rmac rmac;
-        struct ifaddress ifaddress;
-        struct ip_route route;
-        struct get_filter get_filter;
-    };
+  ObjType type;
+  union {
+    struct ver_info ver_info;
+    struct rmac rmac;
+    struct ifaddress ifaddress;
+    struct ip_route route;
+    struct get_filter get_filter;
+  };
 };
 
 /* utils: check object type
@@ -99,8 +97,8 @@ int iproute_as_object(struct RpcObject *object, struct ip_route *route);
 int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
 /* object encoding */
-int encode_object(buffer_t * buff, struct RpcObject *object);
-int decode_object(buffer_t * buff, struct RpcObject *object);
+int encode_object(buffer_t *buff, struct RpcObject *object);
+int decode_object(buffer_t *buff, struct RpcObject *object);
 
 /* disposal */
 void rpc_object_dispose(struct RpcObject *object);
