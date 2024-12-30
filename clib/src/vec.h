@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common.h"
 #include <stdint.h>
 
 /* 64K objects should be enough in all cases */

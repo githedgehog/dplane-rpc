@@ -1,4 +1,5 @@
 #include "dp_msg.h"
+#include "common.h"
 #include "wire.h"
 
 /* msg:request */

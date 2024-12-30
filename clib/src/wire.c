@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "common.h"
 #include "wire.h"
 
 /* internal only */

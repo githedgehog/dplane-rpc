@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "buffer.h"
+#include "common.h"
 
 #define DEFAULT_BUFFER_CAPACITY 1024
 

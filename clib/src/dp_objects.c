@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 
+#include "common.h"
 #include "dp_objects.h"
 #include "wire.h"
 

@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include "common.h"
-
 typedef uint32_t index_t;
 
 typedef struct buffer_s {

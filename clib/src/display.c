@@ -1,5 +1,5 @@
 #include "display.h"
-#include "common.h"
+#include "errors.h"
 
 /* Stringify message type */
 const char *str_msg_type(MsgType type)

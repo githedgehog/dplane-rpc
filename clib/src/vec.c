@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "common.h"
+#include "errors.h"
 #include "vec.h"
 
 void vec_dispose(void *v)
