@@ -14,7 +14,7 @@ int sock = -1;
 const char *cp_sock_path = "/tmp/CP.sock";
 const char *dp_sock_path = "/tmp/DP.sock";
 uint64_t seqnum = 1;
-buffer_t *buff = NULL;
+buff_t *buff = NULL;
 
 /* unix sock utils */
 static void unix_sock_disconnect(void)
@@ -111,7 +111,7 @@ fail:
 int send_msg(struct RpcMsg *msg)
 {
     int r;
-    buffer_clear(buff);
+    buff_clear(buff);
 
     r = encode_msg(buff, msg);
     if (r != E_OK )
@@ -150,7 +150,7 @@ static void log_msg(const char *prefix, struct RpcMsg *msg)
 static int send_msg_compare_echo(struct RpcMsg *msg)
 {
     int r;
-    buffer_clear(buff);
+    buff_clear(buff);
 
     log_msg("Sending ", msg);
 
@@ -163,7 +163,7 @@ static int send_msg_compare_echo(struct RpcMsg *msg)
         return EXIT_FAILURE;
 
     index_t size = buff->w;
-    buffer_clear(buff);
+    buff_clear(buff);
     r = recv(sock, buff->storage, size , 0);
     if (r != size)
         return EXIT_FAILURE;
@@ -185,7 +185,7 @@ static int send_msg_compare_echo(struct RpcMsg *msg)
     /* compare recovered vs original */
     r = memcmp(&recovered, msg, sizeof(recovered));
     if (r != 0) {
-        buffer_dump(buff);
+        buff_dump(buff);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -247,7 +247,7 @@ int main(int argc, char **argv)
     int r;
 
     /* initialize global buffer to serialize / deserialize */
-    buff = buffer_new(0);
+    buff = buff_new(0);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -292,7 +292,7 @@ int main(int argc, char **argv)
         return r;
 
     unix_sock_disconnect();
-    buffer_free(buff);
+    buff_free(buff);
 
     fprintf(stderr, "Success!\n");
 

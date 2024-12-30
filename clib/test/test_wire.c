@@ -27,7 +27,7 @@ void cmp(void *s1, void *s2, size_t len, bool show_all)
     }
 }
 
-int check_object(buffer_t *buff, struct RpcObject *object)
+int check_object(buff_t *buff, struct RpcObject *object)
 {
     int r;
 
@@ -65,17 +65,17 @@ int check_object(buffer_t *buff, struct RpcObject *object)
     /* compare recovered vs original */
     r = memcmp(&recovered, object, sizeof(recovered));
     if (r != 0) {
-        buffer_dump(buff);
+        buff_dump(buff);
         dump(object, sizeof(struct RpcObject), "original");
         dump(&recovered, sizeof(struct RpcObject), "recovered");
         cmp(object, &recovered, sizeof(struct RpcObject), false);
         assert(0);
         return EXIT_FAILURE;
     }
-    buffer_dump(buff);
+    buff_dump(buff);
     return EXIT_SUCCESS;
 }
-int check_msg(buffer_t *buff, struct RpcMsg *msg)
+int check_msg(buff_t *buff, struct RpcMsg *msg)
 {
     int r;
 
@@ -108,7 +108,7 @@ int check_msg(buffer_t *buff, struct RpcMsg *msg)
     /* compare recovered vs original */
     r = memcmp(&recovered, msg, sizeof(recovered));
     if (r != 0) {
-        buffer_dump(buff);
+        buff_dump(buff);
         //dump(msg, sizeof(struct RpcMsg), "original");
         //dump(&recovered, sizeof(struct RpcMsg), "recovered");
         cmp(msg, &recovered, sizeof(struct RpcMsg), false);
@@ -134,10 +134,10 @@ int check_msg(buffer_t *buff, struct RpcMsg *msg)
 }
 
 /* test object encoding / decoding */
-int test_object_rmac(buffer_t *buff)
+int test_object_rmac(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build rmac object */
     struct rmac rmac = build_rmac();
@@ -146,10 +146,10 @@ int test_object_rmac(buffer_t *buff)
     struct RpcObject object = {.type = Rmac, .rmac = rmac};
     return check_object(buff, &object);
 }
-int test_object_verinfo(buffer_t *buff)
+int test_object_verinfo(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build verinfo object */
     struct ver_info info = build_ver_info();
@@ -158,10 +158,10 @@ int test_object_verinfo(buffer_t *buff)
     struct RpcObject object = {.type = VerInfo, .ver_info = info};
     return check_object(buff, &object);
 }
-int test_object_ifaddr(buffer_t *buff)
+int test_object_ifaddr(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build ifaddress object */
     struct ifaddress ifaddr = build_ifaddress();
@@ -170,10 +170,10 @@ int test_object_ifaddr(buffer_t *buff)
     struct RpcObject object = {.type = IfAddress, .ifaddress = ifaddr};
     return check_object(buff, &object);
 }
-int test_object_iproute_v4(buffer_t *buff)
+int test_object_iproute_v4(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build route object */
     struct ip_route route = build_ipv4_route("192.168.1.0", 6);
@@ -184,10 +184,10 @@ int test_object_iproute_v4(buffer_t *buff)
     iproute_as_object(&object, &route);
     return check_object(buff, &object);
 }
-int test_object_iproute_v6(buffer_t *buff)
+int test_object_iproute_v6(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build route object */
     struct ip_route route = build_ipv6_route("2000:1:2:3:4::", 6);
@@ -198,10 +198,10 @@ int test_object_iproute_v6(buffer_t *buff)
     iproute_as_object(&object, &route);
     return check_object(buff, &object);
 }
-int test_object_get_filter(buffer_t *buff)
+int test_object_get_filter(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     struct get_filter filter = {0};
     vec_push_u8(&filter.otypes, IpRoute);
@@ -219,7 +219,7 @@ int test_object_get_filter(buffer_t *buff)
     getfilter_as_object(&object, &filter);
     return check_object(buff, &object);
 }
-int test_object_encoding(buffer_t *buff)
+int test_object_encoding(buff_t *buff)
 {
     if (test_object_rmac(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
@@ -243,10 +243,10 @@ int test_object_encoding(buffer_t *buff)
 }
 
 /* test msg:Request encoding / decoding */
-int test_msg_request_connect(buffer_t *buff)
+int test_msg_request_connect(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build rmac */
     struct ver_info info = build_ver_info();
@@ -256,10 +256,10 @@ int test_msg_request_connect(buffer_t *buff)
     verinfo_as_object(&msg.request.object, &info);
     return check_msg(buff, &msg);
 }
-int test_msg_request_rmac(buffer_t *buff)
+int test_msg_request_rmac(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build rmac */
     struct rmac rmac = build_rmac();
@@ -269,10 +269,10 @@ int test_msg_request_rmac(buffer_t *buff)
     rmac_as_object(&msg.request.object, &rmac);
     return check_msg(buff, &msg);
 }
-int test_msg_request_ifaddr(buffer_t *buff)
+int test_msg_request_ifaddr(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build ifaddr */
     struct ifaddress ifaddr = build_ifaddress();
@@ -282,10 +282,10 @@ int test_msg_request_ifaddr(buffer_t *buff)
     ifaddress_as_object(&msg.request.object, &ifaddr);
     return check_msg(buff, &msg);
 }
-int test_msg_request_ipv4_route(buffer_t *buff)
+int test_msg_request_ipv4_route(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build route */
     struct ip_route route = build_ipv4_route("192.168.1.0", MAX_NHOPS);
@@ -295,10 +295,10 @@ int test_msg_request_ipv4_route(buffer_t *buff)
     iproute_as_object(&msg.request.object, &route);
     return check_msg(buff, &msg);
 }
-int test_msg_request_ipv6_route(buffer_t *buff)
+int test_msg_request_ipv6_route(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     /* build rmac */
     struct ip_route route = build_ipv6_route("2000:1:2:3:4::", MAX_NHOPS);
@@ -308,7 +308,7 @@ int test_msg_request_ipv6_route(buffer_t *buff)
     iproute_as_object(&msg.request.object, &route);
     return check_msg(buff, &msg);
 }
-int test_msg_request(buffer_t *buff)
+int test_msg_request(buff_t *buff)
 {
     if (test_msg_request_connect(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
@@ -329,10 +329,10 @@ int test_msg_request(buffer_t *buff)
 }
 
 /* test msg:Response encoding / decoding */
-int test_msg_response_without_objects(buffer_t *buff)
+int test_msg_response_without_objects(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     struct RpcMsg msg = {0};
     struct RpcResponse resp = {0};
@@ -347,10 +347,10 @@ int test_msg_response_without_objects(buffer_t *buff)
 
     return check_msg(buff, &msg);
 }
-int test_msg_response_with_objects(buffer_t *buff)
+int test_msg_response_with_objects(buff_t *buff)
 {
     TEST();
-    buffer_clear(buff);
+    buff_clear(buff);
 
     struct RpcMsg msg;
     memset(&msg, 0, sizeof(msg));
@@ -375,7 +375,7 @@ int test_msg_response_with_objects(buffer_t *buff)
 
     return check_msg(buff, &msg);
 }
-int test_msg_response(buffer_t *buff)
+int test_msg_response(buff_t *buff)
 {
     if (test_msg_response_without_objects(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
@@ -389,7 +389,7 @@ int test_msg_response(buffer_t *buff)
 
 int main (int argc, char **argv)
 {
-    buffer_t *buff = buffer_new(0);
+    buff_t *buff = buff_new(0);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -405,7 +405,7 @@ int main (int argc, char **argv)
     if (test_msg_response(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
-    buffer_free(buff);
+    buff_free(buff);
     fprintf(stderr, "Success!\n");
     return EXIT_SUCCESS;
 }

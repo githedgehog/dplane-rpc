@@ -104,7 +104,7 @@ int getfilter_as_object(struct RpcObject *object, struct get_filter *filter)
 }
 
 /* Basic types encoders / decoders */
-static int encode_ipaddress(buffer_t *buff, struct ip_address *addr)
+static int encode_ipaddress(buff_t *buff, struct ip_address *addr)
 {
     BUG(!buff || !addr, E_BUG);
     int r;
@@ -122,7 +122,7 @@ static int encode_ipaddress(buffer_t *buff, struct ip_address *addr)
         return E_INVAL;
     }
 }
-static int decode_ipaddress(buffer_t *buff, struct ip_address *addr)
+static int decode_ipaddress(buff_t *buff, struct ip_address *addr)
 {
     BUG(!buff || !addr, E_BUG);
     memset(addr, 0, sizeof(*addr));
@@ -142,12 +142,12 @@ static int decode_ipaddress(buffer_t *buff, struct ip_address *addr)
         return E_INVALID_DATA;
     }
 }
-static int encode_mac(buffer_t *buff, struct mac_addr *mac)
+static int encode_mac(buff_t *buff, struct mac_addr *mac)
 {
     BUG(!buff || !mac, E_BUG);
     return put_raw(buff, mac->bytes, sizeof(mac->bytes));
 }
-static int decode_mac(buffer_t *buff, struct mac_addr *mac)
+static int decode_mac(buff_t *buff, struct mac_addr *mac)
 {
     BUG(!buff || !mac, E_BUG);
     memset(mac, 0, sizeof(*mac));
@@ -155,7 +155,7 @@ static int decode_mac(buffer_t *buff, struct mac_addr *mac)
 }
 
 /* ver_info: encode / decode */
-static int encode_verinfo(buffer_t *buff, struct ver_info *info)
+static int encode_verinfo(buff_t *buff, struct ver_info *info)
 {
     BUG(!buff || !info, E_BUG);
     int r;
@@ -167,7 +167,7 @@ static int encode_verinfo(buffer_t *buff, struct ver_info *info)
         return r;
     return E_OK;
 }
-static int decode_verinfo(buffer_t *buff, struct ver_info *info)
+static int decode_verinfo(buff_t *buff, struct ver_info *info)
 {
     BUG(!buff || !info, E_BUG);
     memset(info, 0, sizeof(*info));
@@ -183,7 +183,7 @@ static int decode_verinfo(buffer_t *buff, struct ver_info *info)
 }
 
 /* ifadddress: encode / decode */
-static int encode_ifaddress(buffer_t *buff, struct ifaddress *ifaddr)
+static int encode_ifaddress(buff_t *buff, struct ifaddress *ifaddr)
 {
     BUG(!buff || !ifaddr, E_BUG);
     int r;
@@ -204,7 +204,7 @@ static int encode_ifaddress(buffer_t *buff, struct ifaddress *ifaddr)
 
     return E_OK;
 }
-static int decode_ifaddress(buffer_t *buff, struct ifaddress *ifaddr)
+static int decode_ifaddress(buff_t *buff, struct ifaddress *ifaddr)
 {
     BUG(!buff || !ifaddr, E_BUG);
     memset(ifaddr, 0, sizeof(*ifaddr));
@@ -227,7 +227,7 @@ static int decode_ifaddress(buffer_t *buff, struct ifaddress *ifaddr)
 }
 
 /* rmac: encode / decode */
-static int encode_rmac(buffer_t *buff, struct rmac *rmac)
+static int encode_rmac(buff_t *buff, struct rmac *rmac)
 {
     BUG(!buff || !rmac, E_BUG);
     int r;
@@ -245,7 +245,7 @@ static int encode_rmac(buffer_t *buff, struct rmac *rmac)
 
     return E_OK;
 }
-static int decode_rmac(buffer_t *buff, struct rmac *rmac)
+static int decode_rmac(buff_t *buff, struct rmac *rmac)
 {
     BUG(!buff || !rmac, E_BUG);
     memset(rmac, 0, sizeof(*rmac));
@@ -264,17 +264,17 @@ static int decode_rmac(buffer_t *buff, struct rmac *rmac)
 }
 
 /* nhop encap: encode / decode */
-static int encode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan)
+static int encode_next_hop_encap_vxlan(buff_t *buff, struct next_hop_encap_vxlan *vxlan)
 {
     BUG(!buff || !vxlan, E_BUG);
     return put_u32(buff, vxlan->vni);
 }
-static int decode_next_hop_encap_vxlan(buffer_t *buff, struct next_hop_encap_vxlan *vxlan)
+static int decode_next_hop_encap_vxlan(buff_t *buff, struct next_hop_encap_vxlan *vxlan)
 {
     BUG(!buff || !vxlan, E_BUG);
     return get_u32(buff, &vxlan->vni);
 }
-static int encode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
+static int encode_next_hop_encap(buff_t *buff, struct next_hop_encap *encap)
 {
     BUG(!buff || !encap, E_BUG);
     int r;
@@ -291,7 +291,7 @@ static int encode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
         return E_INVAL;
     }
 }
-static int decode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
+static int decode_next_hop_encap(buff_t *buff, struct next_hop_encap *encap)
 {
     BUG(!buff || !encap, E_BUG);
     int r;
@@ -310,7 +310,7 @@ static int decode_next_hop_encap(buffer_t *buff, struct next_hop_encap *encap)
 }
 
 /* 1-nhop: encode / decode */
-static int encode_next_hop(buffer_t *buff, struct next_hop *nhop)
+static int encode_next_hop(buff_t *buff, struct next_hop *nhop)
 {
     BUG(!buff || !nhop, E_BUG);
     int r;
@@ -329,7 +329,7 @@ static int encode_next_hop(buffer_t *buff, struct next_hop *nhop)
 
     return E_OK;
 }
-static int decode_next_hop(buffer_t *buff, struct next_hop *nhop)
+static int decode_next_hop(buff_t *buff, struct next_hop *nhop)
 {
     BUG(!buff || !nhop, E_BUG);
     int r;
@@ -350,7 +350,7 @@ static int decode_next_hop(buffer_t *buff, struct next_hop *nhop)
 }
 
 /* nhops: encode / decode */
-static int encode_next_hops(buffer_t *buff, NumNhops num, struct next_hop *nhops)
+static int encode_next_hops(buff_t *buff, NumNhops num, struct next_hop *nhops)
 {
     BUG(!buff || !nhops, E_BUG);
 
@@ -364,7 +364,7 @@ static int encode_next_hops(buffer_t *buff, NumNhops num, struct next_hop *nhops
 
     return E_OK;
 }
-static int decode_next_hops(buffer_t *buff, NumNhops *num, struct next_hop *nhops)
+static int decode_next_hops(buff_t *buff, NumNhops *num, struct next_hop *nhops)
 {
     BUG(!buff || !nhops, E_BUG);
 
@@ -380,7 +380,7 @@ static int decode_next_hops(buffer_t *buff, NumNhops *num, struct next_hop *nhop
 }
 
 /* ip_route: encode / decode */
-static int encode_iproute(buffer_t *buff, struct ip_route *route)
+static int encode_iproute(buff_t *buff, struct ip_route *route)
 {
     BUG(!buff || !route, E_BUG);
 
@@ -415,7 +415,7 @@ static int encode_iproute(buffer_t *buff, struct ip_route *route)
 
     return E_OK;
 }
-static int decode_iproute(buffer_t *buff, struct ip_route *route)
+static int decode_iproute(buff_t *buff, struct ip_route *route)
 {
     BUG(!buff || !route, E_BUG);
 
@@ -449,13 +449,13 @@ static int decode_iproute(buffer_t *buff, struct ip_route *route)
 }
 
 /* get_filter: encode / decode */
-static int encode_getfilter(buffer_t *buff, struct get_filter *filter)
+static int encode_getfilter(buff_t *buff, struct get_filter *filter)
 {
     int r;
     uint8_t i;
     uint8_t num_mtypes = 0;
 
-    index_t num_mtypes_pos = buffer_get_woff(buff);
+    index_t num_mtypes_pos = buff_get_woff(buff);
 
     // make room for num mtypes
     if ((r = put_u8(buff, 0)) != E_OK)
@@ -500,7 +500,7 @@ static int encode_getfilter(buffer_t *buff, struct get_filter *filter)
     /* write number of mtypes */
     return insert_u8(buff, num_mtypes_pos, num_mtypes);
 }
-static int decode_getfilter(buffer_t *buff, struct get_filter *filter)
+static int decode_getfilter(buff_t *buff, struct get_filter *filter)
 {
     int r;
     uint8_t num_mtypes;
@@ -572,7 +572,7 @@ void rpc_object_dispose(struct RpcObject *object)
 }
 
 /* Object wrapper encoders / decoder */
-int encode_object(buffer_t *buff, struct RpcObject *object)
+int encode_object(buff_t *buff, struct RpcObject *object)
 {
     BUG(!buff || !object, E_BUG);
 
@@ -597,7 +597,7 @@ int encode_object(buffer_t *buff, struct RpcObject *object)
         return E_INVAL;
     }
 }
-int decode_object(buffer_t *buff, struct RpcObject *object)
+int decode_object(buff_t *buff, struct RpcObject *object)
 {
     BUG(!buff || !object, E_BUG);
 

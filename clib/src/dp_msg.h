@@ -34,8 +34,8 @@ struct RpcMsg {
 };
 
 /* messages: encode / decode */
-int encode_msg(buffer_t *buff, struct RpcMsg *msg);
-int decode_msg(buffer_t *buff, struct RpcMsg *msg);
+int encode_msg(buff_t *buff, struct RpcMsg *msg);
+int decode_msg(buff_t *buff, struct RpcMsg *msg);
 
 /* utils */
 int add_response_object(struct RpcResponse *response, struct RpcObject *object);

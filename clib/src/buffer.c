@@ -6,7 +6,7 @@
 
 #define DEFAULT_BUFFER_CAPACITY 1024
 
-int buffer_enlarge(buffer_t *buff, size_t required)
+int buffer_enlarge(buff_t *buff, size_t required)
 {
     BUG(!buff, E_BUG);
 
@@ -33,9 +33,9 @@ int buffer_enlarge(buffer_t *buff, size_t required)
     buff->capacity = new_size;
     return E_OK;
 }
-buffer_t *buffer_new(index_t capacity)
+buff_t *buff_new(index_t capacity)
 {
-    buffer_t *buff = calloc(1, sizeof(buffer_t));
+    buff_t *buff = calloc(1, sizeof(buff_t));
     if (!buff)
         return NULL;
 
@@ -46,21 +46,21 @@ buffer_t *buffer_new(index_t capacity)
 
     buff->storage = calloc(capacity, 1);
     if (!buff->storage) {
-        buffer_free(buff);
+        buff_free(buff);
         return NULL;
     }
     buff->capacity = capacity;
     return buff;
 }
-void buffer_free(buffer_t *buff)
+void buff_free(buff_t *buff)
 {
     BUG(!buff);
     if (buff->storage)
         free(buff->storage);
-    memset(buff, 0, sizeof(buffer_t));
+    memset(buff, 0, sizeof(buff_t));
     free(buff);
 }
-void buffer_clear(buffer_t *buff)
+void buff_clear(buff_t *buff)
 {
     BUG(!buff);
     buff->w = 0;
@@ -68,7 +68,7 @@ void buffer_clear(buffer_t *buff)
     if (buff->storage != NULL)
         memset(buff->storage, 0, buff->capacity);
 }
-void buffer_dump(buffer_t *buff)
+void buff_dump(buff_t *buff)
 {
     BUG(!buff);
 
@@ -85,7 +85,7 @@ void buffer_dump(buffer_t *buff)
     }
     fprintf(stderr, "]\n");
 }
-int buffer_cmp(buffer_t *b1, buffer_t *b2)
+int buff_cmp(buff_t *b1, buff_t *b2)
 {
     BUG(!b1 || !b2, E_BUG);
 
@@ -97,12 +97,12 @@ int buffer_cmp(buffer_t *b1, buffer_t *b2)
 
     return memcmp(b1->storage, b2->storage, b1->w);
 }
-index_t buffer_get_roff(buffer_t *buff)
+index_t buff_get_roff(buff_t *buff)
 {
     BUG(!buff, 0);
     return buff->r;
 }
-index_t buffer_get_woff(buffer_t *buff)
+index_t buff_get_woff(buff_t *buff)
 {
     BUG(!buff, 0);
     return buff->w;

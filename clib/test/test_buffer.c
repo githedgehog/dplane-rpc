@@ -9,7 +9,7 @@ int test_buffer_available_data(void)
     TEST();
 
     int r;
-    buffer_t *buff = buffer_new(2);
+    buff_t *buff = buff_new(2);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -39,7 +39,7 @@ int test_buffer_available_data(void)
     assert(r == E_NOT_ENOUGH_DATA);
 
 
-    buffer_free(buff);
+    buff_free(buff);
     return EXIT_SUCCESS;
 }
 int test_buffer_conds(void)
@@ -47,7 +47,7 @@ int test_buffer_conds(void)
     TEST();
 
     int r;
-    buffer_t *buff = buffer_new(0);
+    buff_t *buff = buff_new(0);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -61,7 +61,7 @@ int test_buffer_conds(void)
         uint8_t val_read = 0;
         r = put_u8(buff, val_write);
         if (r != E_OK) {
-            buffer_dump(buff);
+            buff_dump(buff);
             assert(0);
         }
         assert(buff->w == n);
@@ -74,13 +74,13 @@ int test_buffer_conds(void)
     /* next write attempt should fail */
     assert(put_u8(buff, 0) == E_TOO_BIG);
 
-    buffer_free(buff);
+    buff_free(buff);
     return EXIT_SUCCESS;
 }
 int test_buffer_resize(void)
 {
     TEST();
-    buffer_t *buff = buffer_new(1);
+    buff_t *buff = buff_new(1);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -89,15 +89,15 @@ int test_buffer_resize(void)
     assert(buff->capacity > 100);
     assert(buff->w == 100);
 
-    buffer_dump(buff);
+    buff_dump(buff);
 
-    buffer_free(buff);
+    buff_free(buff);
     return EXIT_SUCCESS;
 }
 int test_buffer_write_utils(void)
 {
     TEST();
-    buffer_t *buff = buffer_new(100);
+    buff_t *buff = buff_new(100);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -106,33 +106,33 @@ int test_buffer_write_utils(void)
     put_u8(buff, 3);
     put_u8(buff, 4);
     assert(buff->w == 4);
-    buffer_dump(buff);
+    buff_dump(buff);
 
     put_u16(buff, 0x5566);
     assert(buff->w == 6);
-    buffer_dump(buff);
+    buff_dump(buff);
 
     put_u32(buff, 0xaabbccdd);
     assert(buff->w == 10);
-    buffer_dump(buff);
+    buff_dump(buff);
 
     put_u64(buff, 0x00FF00FF00FF00FF);
     assert(buff->w == 18);
-    buffer_dump(buff);
+    buff_dump(buff);
 
-    buffer_clear(buff);
-    buffer_dump(buff);
-    buffer_free(buff);
+    buff_clear(buff);
+    buff_dump(buff);
+    buff_free(buff);
     return EXIT_SUCCESS;
 }
 int test_buffer_read_utils(void)
 {
     TEST();
-    buffer_t *b1 = buffer_new(0);
+    buff_t *b1 = buff_new(0);
     if (!b1)
         return EXIT_FAILURE;
 
-    buffer_t *b2 = buffer_new(0);
+    buff_t *b2 = buff_new(0);
     if (!b2)
         return EXIT_FAILURE;
 
@@ -177,21 +177,21 @@ int test_buffer_read_utils(void)
         put_u64(b2, u64);
 
     /* the two buffers must be identical */
-    if (buffer_cmp(b1, b2) != 0) {
-        buffer_dump(b1);
-        buffer_dump(b2);
+    if (buff_cmp(b1, b2) != 0) {
+        buff_dump(b1);
+        buff_dump(b2);
         return EXIT_FAILURE;
     }
 
-    buffer_free(b1);
-    buffer_free(b2);
+    buff_free(b1);
+    buff_free(b2);
     return EXIT_SUCCESS;
 }
 int test_buffer_raw_read_write(void)
 {
     TEST();
 
-    buffer_t *buff = buffer_new(0);
+    buff_t *buff = buff_new(0);
     if (!buff)
         return EXIT_FAILURE;
 
@@ -203,17 +203,17 @@ int test_buffer_raw_read_write(void)
     r = put_raw(buff, some_data, sizeof(some_data));
     assert(r == E_OK);
     assert(buff->w == sizeof(some_data));
-    buffer_dump(buff);
+    buff_dump(buff);
 
     uint8_t recovered[25] = {0};
     r = get_raw(buff, recovered, sizeof(recovered));
     assert(r == E_OK);
     assert(buff->r == sizeof(recovered));
-    buffer_dump(buff);
+    buff_dump(buff);
 
     assert(memcmp(recovered, some_data, sizeof(recovered)) == 0);
 
-    buffer_free(buff);
+    buff_free(buff);
     return EXIT_SUCCESS;
 }
 

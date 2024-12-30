@@ -97,8 +97,8 @@ int iproute_as_object(struct RpcObject *object, struct ip_route *route);
 int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
 /* object encoding */
-int encode_object(buffer_t *buff, struct RpcObject *object);
-int decode_object(buffer_t *buff, struct RpcObject *object);
+int encode_object(buff_t *buff, struct RpcObject *object);
+int decode_object(buff_t *buff, struct RpcObject *object);
 
 /* disposal */
 void rpc_object_dispose(struct RpcObject *object);
