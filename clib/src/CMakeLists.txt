@@ -18,4 +18,10 @@ set_property(TARGET dplane-rpc PROPERTY POSITION_INDEPENDENT_CODE ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 target_compile_options(dplane-rpc PRIVATE ${BUILD_OPTS})
 target_include_directories(dplane-rpc PRIVATE "${PROJECT_BINARY_DIR}")
-install(TARGETS dplane-rpc DESTINATION /usr/local/lib/frr/modules)
+
+set_target_properties(dplane-rpc PROPERTIES PUBLIC_HEADER
+ "buffer.h;common.h;display.h;dplane-rpc.h;dp_msg.h;dp_objects.h;dp_types.h;proto.h;vec.h;wire.h")
+
+install(TARGETS dplane-rpc LIBRARY DESTINATION /usr/local/lib
+	PUBLIC_HEADER DESTINATION /usr/include/dplane-rpc
+)
