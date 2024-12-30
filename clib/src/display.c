@@ -56,3 +56,20 @@ const char *str_rpc_op(RpcOp op)
         return "Unknown";
     }
 }
+
+/* stringify response result code */
+const char *str_rescode(RpcResultCode code)
+{
+    switch (code) {
+    case Ok:
+        return "Ok";
+    case Failure:
+        return "Failure";
+    case InvalidOperation:
+        return "InvalidOperation";
+    case ExpectMore:
+        return "ExpectMore";
+    default:
+        return "Unknown";
+    }
+}
