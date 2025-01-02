@@ -7,55 +7,55 @@ pub use std::net::IpAddr;
 #[doc = "A versioning information object."]
 #[derive(Debug, PartialEq)]
 pub struct VerInfo {
-    pub(crate) major: u8,
-    pub(crate) minor: u8,
-    pub(crate) patch: u8,
+    pub major: u8,
+    pub minor: u8,
+    pub patch: u8,
 }
 
 #[doc = "A connection information object identifying the requestor."]
 #[derive(Debug, PartialEq)]
 pub struct ConnectInfo {
-    pub(crate) pid: u32,
-    pub(crate) name: String,
-    pub(crate) verinfo: VerInfo,
+    pub pid: u32,
+    pub name: String,
+    pub verinfo: VerInfo,
 }
 
 #[doc = "A (IP, MAC, Vni) tuple"]
 #[derive(Debug, PartialEq)]
 pub struct Rmac {
-    pub(crate) address: IpAddr,
-    pub(crate) mac: MacAddress,
-    pub(crate) vni: Vni,
+    pub address: IpAddr,
+    pub mac: MacAddress,
+    pub vni: Vni,
 }
 
 #[doc = "An interface IP address/mask"]
 #[derive(Debug, PartialEq)]
 pub struct IfAddress {
-    pub(crate) ifname: String,
-    pub(crate) address: IpAddr,
-    pub(crate) mask_len: MaskLen,
-    pub(crate) ifindex: Ifindex,
-    pub(crate) vrfid: VrfId,
+    pub ifname: String,
+    pub address: IpAddr,
+    pub mask_len: MaskLen,
+    pub ifindex: Ifindex,
+    pub vrfid: VrfId,
 }
 
 #[doc = "An IP route. Routes can have 255 next-hops at the most."]
 #[derive(Debug, PartialEq)]
 pub struct IpRoute {
-    pub(crate) prefix: IpAddr,
-    pub(crate) prefix_len: MaskLen,
-    pub(crate) vrfid: VrfId,
-    pub(crate) tableid: RouteTableId,
-    pub(crate) rtype: RouteType,
-    pub(crate) distance: RouteDistance,
-    pub(crate) metric: RouteMetric,
-    pub(crate) nhops: Vec<NextHop>,
+    pub prefix: IpAddr,
+    pub prefix_len: MaskLen,
+    pub vrfid: VrfId,
+    pub tableid: RouteTableId,
+    pub rtype: RouteType,
+    pub distance: RouteDistance,
+    pub metric: RouteMetric,
+    pub nhops: Vec<NextHop>,
 }
 
 #[doc = "Encapsulation data for a VxLAN encapsulation."]
 #[repr(transparent)]
 #[derive(Debug, PartialEq)]
 pub struct VxlanEncap {
-    pub(crate) vni: Vni,
+    pub vni: Vni,
 }
 
 #[doc = "Type for distinct encapsulation types"]
@@ -67,10 +67,10 @@ pub enum NextHopEncap {
 #[doc = "An IP route next-hop"]
 #[derive(Debug, PartialEq)]
 pub struct NextHop {
-    pub(crate) address: Option<IpAddr>,
-    pub(crate) ifindex: Option<Ifindex>,
-    pub(crate) vrfid: VrfId,
-    pub(crate) encap: Option<NextHopEncap>,
+    pub address: Option<IpAddr>,
+    pub ifindex: Option<Ifindex>,
+    pub vrfid: VrfId,
+    pub encap: Option<NextHopEncap>,
 }
 
 #[doc = "An object that may be exchanged between DP and CP. All first-class objects are contained here."]
