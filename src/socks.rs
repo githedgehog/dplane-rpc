@@ -1,6 +1,8 @@
 use log::{debug, error};
+use std::os::unix::fs::PermissionsExt;
 pub use std::os::unix::net::UnixDatagram;
 pub use std::os::unix::net::SocketAddr;
+use std::fs;
 use std::path::Path;
 use bytes::BytesMut;
 use crate::msg::RpcMsg;
@@ -9,7 +11,15 @@ use crate::wire::Wire;
 pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
     let path = path.as_ref();
     let _ = std::fs::remove_file(path);
-    UnixDatagram::bind(path)
+    let sock = UnixDatagram::bind(path);
+    if let Ok(_sock) = &sock {
+        let mut perms = fs::metadata(path)?.permissions();
+        perms.set_mode(0o777);
+        /* may alternatively use perms.set_readonly(false),
+           but clippy complains */
+        fs::set_permissions(path, perms)?;
+    }
+    sock
 }
 
 pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) {
