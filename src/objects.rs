@@ -22,6 +22,7 @@ pub struct Rmac {
 #[doc = "An interface IP address/mask"]
 #[derive(Debug, PartialEq)]
 pub struct IfAddress {
+    pub(crate) ifname: String,
     pub(crate) address: IpAddr,
     pub(crate) mask_len: MaskLen,
     pub(crate) ifindex: Ifindex,
@@ -117,8 +118,9 @@ impl Rmac {
 }
 impl IfAddress {
     #[allow(dead_code)]
-    pub fn new(address: IpAddr, mask_len: MaskLen, ifindex: Ifindex, vrfid: VrfId) -> Self {
+    pub fn new(ifname: String, address: IpAddr, mask_len: MaskLen, ifindex: Ifindex, vrfid: VrfId) -> Self {
         Self {
+            ifname,
             address,
             mask_len,
             ifindex,

@@ -65,7 +65,7 @@ mod positive_tests {
 
     #[test]
     fn test_rpcmsg_request_ifaddr() {
-        let ifaddress = IfAddress::new("10.0.0.1".parse().unwrap(), 30, 987, 13);
+        let ifaddress = IfAddress::new("eth0".to_owned(), "10.0.0.1".parse().unwrap(), 30, 987, 13);
         let req = RpcRequest::new(RpcOp::Del, 11223344)
         .set_object(RpcObject::IfAddress(ifaddress));
         let msg = req.wrap_in_msg();
@@ -237,7 +237,7 @@ mod positive_tests {
             3000,
         );
         // crate ifaddress object
-        let ifaddress = IfAddress::new("10.0.0.1".parse().unwrap(), 30, 987, 13);
+        let ifaddress = IfAddress::new("GE1/1/0".to_owned(), "10.0.0.1".parse().unwrap(), 30, 987, 13);
 
         // wrap them as objects and add them to the response
         let object1 = RpcObject::Rmac(rmac);

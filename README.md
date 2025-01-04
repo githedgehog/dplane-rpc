@@ -118,9 +118,8 @@ In order to be able to send objects of distinct types, each object is preceded b
 
 ### To TLV or not
 
-The objects exchanged within request/responses may be of distinct size.
-Moreover, objects may have a variable number of subobjects (e.g.
-routes may have a variable number of next-hops), or optional properties / fields.
+The objects exchanged within request/responses may be of distinct sizes.
+Moreover, objects may have a variable number of subobjects (e.g. routes may have a variable number of next-hops), or optional properties / fields.
 For instance, next-hops may optionally include encapsulation information whose size and encoding may depend on the type of encapsulation.
 One approach to encode such variability is defining a basic set of types and encoding each object as a collection of TLVs.
 While valid, that approach may unnecessarily complicate (and slow down) the building and decoding of objects.
@@ -129,8 +128,7 @@ For instance, a router-mac must have an IP address (v4 or v6), a MAC and a VNI.
 Therefore, not using TLVs may be more efficient and faster: unlike with TLVs, object properties may have a fixed position within the wire format.
 The caveat is that all of the fields, present or not, need to be encoded on the wire in order to unambiguously recreate the original object back.
 To signal the presence of optional values (or their absence), a code will be used, whose value will indicate the size of the field.
-For instance, next-hops may include a next-hop IP address or not (e.g.
-in directly-connected routes).
+For instance, next-hops may include a next-hop IP address or not (e.g. in directly-connected routes).
 If present, the IP address may be either IPv4 or IPv6.
 Whether a next-hop has an ip address or not, on the wire:
 
@@ -154,6 +152,16 @@ Whether a next-hop has an ip address or not, on the wire:
 +----+----------------------------------------------+
 ```
 
+Similarly, fields containing text or strings of are represented by a variable-sized number of octets, preceded by their number (not including trailing \0), encoded as one octet, as shown next.
+```
++----------+---------------+
+| text-len |     text      |
+|   (1)    |   (variab)    |
++----------+---------------+
+```
+Since one octet is used to encode the string length, this imposes the restriction of 255 characters for a string. As before, the string length shall always be present.
+Therefore, an empty string is encoded as a zero-valued single octet.
+
 ### Endianness
 The endianness for the fields in the wire format is currently **native**.
 This is a natural choice considering that both CP and DP will run on the same platform.
@@ -176,10 +184,10 @@ In this case, however, the decoder will complain if the address is no-address si
 
 
 ```
-+------------+-----+----------+-----------+
-| IpAddress  | len |  ifindex |  vrfid    |
-|  (variab)  | (1) |    (4)   |   (4)     |
-+------------+-----+----------+-----------+
++------------+-----+----------+-----------+----------------+
+| IpAddress  | len |  ifindex |  vrfid    |     ifname     |
+|  (variab)  | (1) |    (4)   |   (4)     |    (variab)    |
++------------+-----+----------+-----------+----------------+
 ```
 
 ### Route

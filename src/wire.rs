@@ -47,6 +47,8 @@ pub enum WireError {
     TooManyObjects,
     /// The match list for a particular match type is too long
     MatchListTooLong,
+    /// Attempted to encode a string that exceeds the maximum allowed size
+    StringTooLong,
 }
 
 #[doc = "Type to represent possible errors when decoding a blob in wire format"]
@@ -64,7 +66,19 @@ trait SafeReads {
     fn sget_u32_ne(&mut self, hint: &'static str) -> Result<u32, WireError>;
     fn sget_u64_ne(&mut self, hint: &'static str) -> Result<u64, WireError>;
     fn scopy_to_slice(&mut self, dst: &mut [u8], hint: &'static str) -> Result<(), WireError>;
+    fn sget_string(&mut self, hint: &'static str) -> Result<String, WireError>;
 }
+
+fn put_string(buf: &mut BytesMut, string: &String) -> Result<(), WireError> {
+    if string.len() > u8::MAX as usize {
+        Err(WireError::StringTooLong)
+    } else {
+        buf.put_u8(string.len() as u8);
+        buf.extend_from_slice(string.as_bytes());
+        Ok(())
+    }
+}
+
 
 impl SafeReads for Bytes {
     #[rustfmt::skip]
@@ -112,6 +126,16 @@ impl SafeReads for Bytes {
             self.advance(cnt);
         }
         Ok(())
+    }
+    #[rustfmt::skip]
+    fn sget_string(&mut self, hint: &'static str) -> Result<String, WireError> {
+        let slen = self.sget_u8("string-length")? as usize;
+        if self.remaining() < slen {
+            return Err(WireError::NotEnoughBytes(self.remaining(), slen, hint));
+        }
+        let b = self.copy_to_bytes(slen);
+        let string = String::from_utf8(b.to_vec()).unwrap_or_default();
+        Ok(string)
     }
 }
 
@@ -366,7 +390,9 @@ impl Wire<IfAddress> for IfAddress {
         let mask_len: MaskLen = buf.sget_u8("mask-len")?;
         let ifindex: Ifindex = buf.sget_u32_ne("ifindex")?;
         let vrfid = VrfId::decode(buf)?;
+        let ifname = buf.sget_string("ifname")?;
         Ok(IfAddress {
+            ifname,
             address,
             mask_len,
             ifindex,
@@ -378,6 +404,7 @@ impl Wire<IfAddress> for IfAddress {
         buf.put_u8(self.mask_len);
         buf.put_u32_ne(self.ifindex);
         self.vrfid.encode(buf)?;
+        put_string(buf, &self.ifname)?;
         Ok(())
     }
 }
