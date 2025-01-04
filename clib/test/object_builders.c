@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "object_builders.h"
 
 /* Build objects */
@@ -20,6 +22,7 @@ struct ver_info build_ver_info(void)
 struct ifaddress build_ifaddress(void)
 {
     struct ifaddress ifaddr = {0};
+    strcpy(ifaddr.ifname, "FastEthernet1/2/3");
     set_ip_address(&ifaddr.address, "10.0.0.1");
     ifaddr.len = 30;
     ifaddr.ifindex = 111;

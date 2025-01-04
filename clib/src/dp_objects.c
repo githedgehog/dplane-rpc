@@ -105,6 +105,32 @@ int getfilter_as_object(struct RpcObject *object, struct get_filter *filter)
 }
 
 /* Basic types encoders / decoders */
+static int encode_string(buff_t *buff, char *string)
+{
+    BUG(!buff || !string, E_BUG);
+    int r;
+    size_t len = strlen(string);
+    if (len > UINT8_MAX)
+        return E_STRING_TOO_LONG;
+
+    if ((r = put_u8(buff, len)))
+        return r;
+
+    if (len)
+        return put_raw(buff, string, len);
+    return E_OK;
+}
+static int decode_string(buff_t *buff, char *string)
+{
+    BUG(!buff || !string, E_BUG);
+
+    int r;
+    uint8_t len;
+    if ((r = get_u8(buff, &len)))
+        return r;
+
+    return get_raw(buff, string, len);
+}
 static int encode_ipaddress(buff_t *buff, struct ip_address *addr)
 {
     BUG(!buff || !addr, E_BUG);
@@ -203,6 +229,9 @@ static int encode_ifaddress(buff_t *buff, struct ifaddress *ifaddr)
     if ((r = put_u32(buff, ifaddr->vrfid)) != E_OK)
         return r;
 
+    if ((r = encode_string(buff, ifaddr->ifname)) != E_OK)
+        return r;
+
     return E_OK;
 }
 static int decode_ifaddress(buff_t *buff, struct ifaddress *ifaddr)
@@ -222,6 +251,9 @@ static int decode_ifaddress(buff_t *buff, struct ifaddress *ifaddr)
         return r;
 
     if ((r = get_u32(buff, &ifaddr->vrfid)) != E_OK)
+        return r;
+
+    if ((r = decode_string(buff, ifaddr->ifname)) != E_OK)
         return r;
 
     return E_OK;

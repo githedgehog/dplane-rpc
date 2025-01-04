@@ -15,6 +15,8 @@
 #error The maximum ecmp is 255
 #endif
 
+#define MAX_STRING_LEN 255
+
 struct ver_info {
     uint8_t major;
     uint8_t minor;
@@ -28,6 +30,7 @@ struct rmac {
 };
 
 struct ifaddress {
+    char ifname[MAX_STRING_LEN + 1];
     struct ip_address address;
     MaskLen len;
     Ifindex ifindex;

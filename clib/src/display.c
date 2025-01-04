@@ -107,6 +107,8 @@ const char *err2str(int e)
         return "Too many match values";
     case E_VEC_CAPACITY_EXCEEDED:
         return "Vector capacity exceeded";
+    case E_STRING_TOO_LONG:
+        return "String is too long";
     default:
         return "Other/Unknown";
     }

@@ -15,3 +15,4 @@
 #define E_TOO_MANY_OBJECTS 11      /* the maximum number of objects has been exceeded */
 #define E_TOO_MANY_MATCH_VALUES 12 /* the maximum number of match values has been reached */
 #define E_VEC_CAPACITY_EXCEEDED 13 /* the capacity of a vector has been exceeded */
+#define E_STRING_TOO_LONG 14       /* attempted to encode a string that exceeds the maximum allowed length */
