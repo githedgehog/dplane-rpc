@@ -82,8 +82,10 @@ typedef uint8_t ObjType;
 enum RouteType {
   Connected = 1,
   Static = 2,
-  Bgp = 3,
-  Other = 4,
+  Ospf = 3,
+  Isis = 4,
+  Bgp = 5,
+  Other = 6,
 };
 typedef uint8_t RouteType;
 

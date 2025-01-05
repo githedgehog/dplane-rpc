@@ -72,9 +72,11 @@ pub enum ObjType {
 pub enum RouteType {
     Connected = 1,
     Static = 2,
-    Bgp = 3,
+    Ospf = 3,
+    Isis = 4,
+    Bgp = 5,
     #[default]
-    Other = 4,
+    Other = 6,
 }
 
 #[doc = "The type of encapsulation towards some next-hop. NoEncap if no encapsulation is used."]
