@@ -152,15 +152,16 @@ Whether a next-hop has an ip address or not, on the wire:
 +----+----------------------------------------------+
 ```
 
-Similarly, fields containing text or strings of are represented by a variable-sized number of octets, preceded by their number (not including trailing \0), encoded as one octet, as shown next.
+Similarly, fields containing text or strings are represented by a variable-sized number of octets, preceded by their number (not including trailing \0), encoded as one octet, as shown next.
 ```
 +----------+---------------+
 | text-len |     text      |
 |   (1)    |   (variab)    |
 +----------+---------------+
 ```
-Since one octet is used to encode the string length, this imposes the restriction of 255 characters for a string. As before, the string length shall always be present.
-Therefore, an empty string is encoded as a zero-valued single octet.
+Since one octet is used to encode the string length, only strings up to 255 characters are allowed.
+The string length shall always be present, as occurs with IP address types.
+Therefore, an empty string is encoded as a zero-valued octet.
 
 ### Endianness
 The endianness for the fields in the wire format is currently **native**.
