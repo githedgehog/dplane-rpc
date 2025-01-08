@@ -1,3 +1,4 @@
+use std::fmt::Display;
 pub use crate::objects::*;
 use crate::wire::WireError;
 
@@ -204,5 +205,45 @@ impl WrapMsg for RpcControl {
     }
     fn msg_type(&self) -> MsgType {
         MsgType::Control
+    }
+}
+
+/* Display for terser logs */
+impl Display for RpcRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"Request #{} {:?}", self.seqn, self.op)?;
+        if let Some(object) = &self.obj {
+            write!(f," {}", object)?;
+        }
+        Ok(())
+    }
+}
+impl Display for RpcResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"Response to #{} result: {:?}", self.seqn, self.rescode)?;
+        for object in &self.objs {
+            write!(f," {}", object)?;
+        }
+        Ok(())
+    }
+}
+impl Display for RpcNotification {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Notification")
+    }
+}
+impl Display for RpcControl {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Control")
+    }
+}
+impl Display for RpcMsg {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RpcMsg::Control(m) => m.fmt(f),
+            RpcMsg::Request(m) => m.fmt(f),
+            RpcMsg::Response(m) => m.fmt(f),
+            RpcMsg::Notification(m) => m.fmt(f),
+        }
     }
 }
