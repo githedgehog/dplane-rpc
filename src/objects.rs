@@ -1,3 +1,4 @@
+use std::fmt::Display;
 pub use crate::proto::*;
 use crate::wire::WireError;
 pub use mac_address::MacAddress;
@@ -145,6 +146,98 @@ impl IpRoute {
         } else {
             self.nhops.push(nhop);
             Ok(())
+        }
+    }
+}
+
+/* Display for terser logs */
+impl Display for VerInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Verinfo ─── v{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
+impl Display for Rmac {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Rmac ─── vni:{} ip:{} mac:{}",
+            self.vni, self.address, self.mac
+        )
+    }
+}
+impl Display for IfAddress {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "IfAddress ─── ifname:{} ip:{}/{} ifindex:{} vrfid:{}",
+            self.ifname, self.address, self.mask_len, self.ifindex, self.vrfid
+        )
+    }
+}
+impl Display for NextHopEncap {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NextHopEncap::VXLAN(e)=> {
+                write!(f, "Vxlan (vni:{})", e.vni)
+            }
+        }
+    }
+}
+impl Display for NextHop {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, " via")?;
+        if let Some(address) = &self.address {
+            write!(f, " {}", address)?;
+        }
+        if let Some(ifindex) = &self.ifindex {
+            write!(f, " ifindex:{}", ifindex)?;
+        }
+        write!(f, " vrfid: {}", self.vrfid)?;
+        if let Some(encap) = &self.encap {
+            write!(f, " encap: {}", encap)?;
+        } else {
+            write!(f, " encap: None")?;
+        }
+        Ok(())
+    }
+}
+impl Display for IpRoute {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "IpRoute ─── vrf:{} tbl:{} {:?}[{}/{}] {}/{}",
+            self.vrfid, self.tableid,
+            self.rtype,
+            self.distance,
+            self.metric,
+            self.prefix, self.prefix_len)?;
+
+        for nhop in &self.nhops {
+            write!(f," {}", nhop)?;
+        }
+        Ok(())
+    }
+}
+impl Display for GetFilter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetFilter ─── ")?;
+        write!(f, "  ObjType: ")?;
+        for otype in &self.otype {
+            write!(f, " {:?}", otype)?;
+        }
+        write!(f, "  vrfId: ")?;
+        for vrfid in &self.vrfid {
+            write!(f, " {:?}", vrfid)?;
+        }
+        Ok(())
+    }
+}
+impl Display for RpcObject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RpcObject::VerInfo(o)=> o.fmt(f),
+            RpcObject::IfAddress(o) => o.fmt(f),
+            RpcObject::Rmac(o) => o.fmt(f),
+            RpcObject::IpRoute(o) => o.fmt(f),
+            RpcObject::GetFilter(o)=> o.fmt(f),
         }
     }
 }
