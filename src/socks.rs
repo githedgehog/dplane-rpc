@@ -1,4 +1,4 @@
-use log::{debug, error};
+use log::{debug, error, trace};
 use std::os::unix::fs::PermissionsExt;
 pub use std::os::unix::net::UnixDatagram;
 pub use std::os::unix::net::SocketAddr;
@@ -23,13 +23,13 @@ pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
 }
 
 pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) {
-    debug!("Sending {:#?}", msg);
+    debug!("Sending {}", msg);
     let mut buf = BytesMut::with_capacity(128);
     match msg.encode(&mut buf) {
         Ok(_) => {
             match sock.send_to_addr(&buf, peer) {
                 Ok(len) => {
-                    debug!("Sent {} octets to {:?}", len, peer);
+                    trace!("Sent {} octets to {:?}", len, peer);
                 },
                 Err(e) => {
                     error!("Failed to send data to {:?}:{}", peer, e)
