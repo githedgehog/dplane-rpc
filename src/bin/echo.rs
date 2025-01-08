@@ -1,12 +1,12 @@
 use log::{debug, info, warn};
-use std::os::unix::net::{UnixDatagram ,SocketAddr};
+use std::os::unix::net::{SocketAddr, UnixDatagram};
 use std::process;
 
-use dplane_rpc::log::init_dplane_rpc_log;
-use dplane_rpc::socks::{send_msg, ux_sock_bind};
-use dplane_rpc::msg::*;
-use dplane_rpc::wire::Wire;
 use bytes::Bytes;
+use dplane_rpc::log::init_dplane_rpc_log;
+use dplane_rpc::msg::*;
+use dplane_rpc::socks::{send_msg, ux_sock_bind};
+use dplane_rpc::wire::Wire;
 
 fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
     let mut buf_rx = Bytes::copy_from_slice(data);
@@ -17,7 +17,7 @@ fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
                 process::exit(0)
             }
             send_msg(sock, &msg, peer)
-        },
+        }
         Err(e) => panic!("Error decoding message received from {:?}: {:?}", peer, e),
     }
 }
@@ -34,7 +34,7 @@ fn main() {
             Ok((len, peer)) => {
                 debug!("Received {} octets of data from {:?}...", len, &peer);
                 process_rx_data(&sock, &peer, &buf[..len]);
-            },
+            }
             Err(e) => {
                 panic!("Error receiving from unix sock: {}", e);
             }

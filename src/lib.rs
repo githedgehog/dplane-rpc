@@ -36,6 +36,6 @@ mod tests;
 pub mod log;
 
 /*
-  Sock utils
- */
+ Sock utils
+*/
 pub mod socks;

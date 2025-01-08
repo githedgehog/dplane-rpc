@@ -44,8 +44,7 @@ mod positive_tests {
             minor: 66,
             patch: 99,
         };
-        let req = RpcRequest::new(RpcOp::Connect, 999)
-        .set_object(RpcObject::VerInfo(verinfo));
+        let req = RpcRequest::new(RpcOp::Connect, 999).set_object(RpcObject::VerInfo(verinfo));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
@@ -57,8 +56,7 @@ mod positive_tests {
             MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
             3000,
         );
-        let req = RpcRequest::new(RpcOp::Add, 98765)
-        .set_object(RpcObject::Rmac(rmac));
+        let req = RpcRequest::new(RpcOp::Add, 98765).set_object(RpcObject::Rmac(rmac));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
@@ -66,8 +64,7 @@ mod positive_tests {
     #[test]
     fn test_rpcmsg_request_ifaddr() {
         let ifaddress = IfAddress::new("eth0".to_owned(), "10.0.0.1".parse().unwrap(), 30, 987, 13);
-        let req = RpcRequest::new(RpcOp::Del, 11223344)
-        .set_object(RpcObject::IfAddress(ifaddress));
+        let req = RpcRequest::new(RpcOp::Del, 11223344).set_object(RpcObject::IfAddress(ifaddress));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
@@ -93,8 +90,7 @@ mod positive_tests {
         };
         assert_eq!(route.add_next_hop(nhop), Ok(()));
 
-        let req = RpcRequest::new(RpcOp::Update, 3210)
-        .set_object(RpcObject::IpRoute(route));
+        let req = RpcRequest::new(RpcOp::Update, 3210).set_object(RpcObject::IpRoute(route));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
@@ -120,8 +116,7 @@ mod positive_tests {
         };
         assert_eq!(route.add_next_hop(nhop), Ok(()));
 
-        let req = RpcRequest::new(RpcOp::Update, 3210)
-        .set_object(RpcObject::IpRoute(route));
+        let req = RpcRequest::new(RpcOp::Update, 3210).set_object(RpcObject::IpRoute(route));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
@@ -155,8 +150,7 @@ mod positive_tests {
         };
         assert_eq!(route.add_next_hop(nhop), Ok(()));
 
-        let req = RpcRequest::new(RpcOp::Add, 7777)
-        .set_object(RpcObject::IpRoute(route));
+        let req = RpcRequest::new(RpcOp::Add, 7777).set_object(RpcObject::IpRoute(route));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
@@ -193,8 +187,7 @@ mod positive_tests {
             nhops: vec![],
         };
         assert_eq!(add_next_hops(&mut route, 10, 20), Ok(()));
-        let req = RpcRequest::new(RpcOp::Add, 7777)
-        .set_object(RpcObject::IpRoute(route));
+        let req = RpcRequest::new(RpcOp::Add, 7777).set_object(RpcObject::IpRoute(route));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
@@ -237,7 +230,13 @@ mod positive_tests {
             3000,
         );
         // crate ifaddress object
-        let ifaddress = IfAddress::new("GE1/1/0".to_owned(), "10.0.0.1".parse().unwrap(), 30, 987, 13);
+        let ifaddress = IfAddress::new(
+            "GE1/1/0".to_owned(),
+            "10.0.0.1".parse().unwrap(),
+            30,
+            987,
+            13,
+        );
 
         // wrap them as objects and add them to the response
         let object1 = RpcObject::Rmac(rmac);
@@ -290,8 +289,7 @@ mod positive_tests {
     #[test]
     fn test_rpcmsg_request_get_with_empty_filter() {
         let filter = GetFilter::default();
-        let req = RpcRequest::new(RpcOp::Get, 11223344)
-        .set_object(RpcObject::GetFilter(filter));
+        let req = RpcRequest::new(RpcOp::Get, 11223344).set_object(RpcObject::GetFilter(filter));
 
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
@@ -303,8 +301,7 @@ mod positive_tests {
             otype: vec![ObjType::IpRoute, ObjType::IfAddress, ObjType::Rmac],
             vrfid: vec![11, 21, 31, 41],
         };
-        let req = RpcRequest::new(RpcOp::Get, 13)
-        .set_object(RpcObject::GetFilter(filter));
+        let req = RpcRequest::new(RpcOp::Get, 13).set_object(RpcObject::GetFilter(filter));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }

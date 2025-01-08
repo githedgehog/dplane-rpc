@@ -1,6 +1,6 @@
-use std::fmt::Display;
 pub use crate::objects::*;
 use crate::wire::WireError;
+use std::fmt::Display;
 
 /* Msg definitions */
 #[doc = "A request message"]
@@ -211,18 +211,18 @@ impl WrapMsg for RpcControl {
 /* Display for terser logs */
 impl Display for RpcRequest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"Request #{} {:?}", self.seqn, self.op)?;
+        write!(f, "Request #{} {:?}", self.seqn, self.op)?;
         if let Some(object) = &self.obj {
-            write!(f," {}", object)?;
+            write!(f, " {}", object)?;
         }
         Ok(())
     }
 }
 impl Display for RpcResponse {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"Response to #{} result: {:?}", self.seqn, self.rescode)?;
+        write!(f, "Response to #{} result: {:?}", self.seqn, self.rescode)?;
         for object in &self.objs {
-            write!(f," {}", object)?;
+            write!(f, " {}", object)?;
         }
         Ok(())
     }

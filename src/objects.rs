@@ -1,7 +1,7 @@
-use std::fmt::Display;
 pub use crate::proto::*;
 use crate::wire::WireError;
 pub use mac_address::MacAddress;
+use std::fmt::Display;
 pub use std::net::IpAddr;
 
 #[doc = "A versioning information object."]
@@ -119,7 +119,13 @@ impl Rmac {
 }
 impl IfAddress {
     #[allow(dead_code)]
-    pub fn new(ifname: String, address: IpAddr, mask_len: MaskLen, ifindex: Ifindex, vrfid: VrfId) -> Self {
+    pub fn new(
+        ifname: String,
+        address: IpAddr,
+        mask_len: MaskLen,
+        ifindex: Ifindex,
+        vrfid: VrfId,
+    ) -> Self {
         Self {
             ifname,
             address,
@@ -153,7 +159,11 @@ impl IpRoute {
 /* Display for terser logs */
 impl Display for VerInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Verinfo ─── v{}.{}.{}", self.major, self.minor, self.patch)
+        write!(
+            f,
+            "Verinfo ─── v{}.{}.{}",
+            self.major, self.minor, self.patch
+        )
     }
 }
 impl Display for Rmac {
@@ -177,7 +187,7 @@ impl Display for IfAddress {
 impl Display for NextHopEncap {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            NextHopEncap::VXLAN(e)=> {
+            NextHopEncap::VXLAN(e) => {
                 write!(f, "Vxlan (vni:{})", e.vni)
             }
         }
@@ -203,15 +213,20 @@ impl Display for NextHop {
 }
 impl Display for IpRoute {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IpRoute ─── vrf:{} tbl:{} {:?}[{}/{}] {}/{}",
-            self.vrfid, self.tableid,
+        write!(
+            f,
+            "IpRoute ─── vrf:{} tbl:{} {:?}[{}/{}] {}/{}",
+            self.vrfid,
+            self.tableid,
             self.rtype,
             self.distance,
             self.metric,
-            self.prefix, self.prefix_len)?;
+            self.prefix,
+            self.prefix_len
+        )?;
 
         for nhop in &self.nhops {
-            write!(f," {}", nhop)?;
+            write!(f, " {}", nhop)?;
         }
         Ok(())
     }
@@ -233,11 +248,11 @@ impl Display for GetFilter {
 impl Display for RpcObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RpcObject::VerInfo(o)=> o.fmt(f),
+            RpcObject::VerInfo(o) => o.fmt(f),
             RpcObject::IfAddress(o) => o.fmt(f),
             RpcObject::Rmac(o) => o.fmt(f),
             RpcObject::IpRoute(o) => o.fmt(f),
-            RpcObject::GetFilter(o)=> o.fmt(f),
+            RpcObject::GetFilter(o) => o.fmt(f),
         }
     }
 }

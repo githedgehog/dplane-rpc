@@ -79,7 +79,6 @@ fn put_string(buf: &mut BytesMut, string: &String) -> Result<(), WireError> {
     }
 }
 
-
 impl SafeReads for Bytes {
     #[rustfmt::skip]
     fn sget_u8(&mut self, hint: &'static str) -> Result<u8, WireError> {
@@ -594,7 +593,6 @@ impl Wire<RpcNotification> for RpcNotification {
         Ok(())
     }
 }
-
 
 /* RpcMsg and MsgType */
 impl Wire<MsgType> for MsgType {
