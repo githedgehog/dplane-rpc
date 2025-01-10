@@ -489,6 +489,7 @@ impl Wire<Option<RpcObject>> for RpcObject {
             ObjType::IpRoute => Some(RpcObject::IpRoute(IpRoute::decode(buf)?)),
             ObjType::GetFilter => Some(RpcObject::GetFilter(GetFilter::decode(buf)?)),
             ObjType::None => None,
+            _ => return Err(WireError::InvalidObjTtype(otype as u8))
         };
         Ok(obj)
     }

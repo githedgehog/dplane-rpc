@@ -73,6 +73,7 @@ enum ObjType {
   Rmac = 3,
   IpRoute = 4,
   GetFilter = 5,
+  MaxObjType,
 };
 typedef uint8_t ObjType;
 
@@ -98,6 +99,7 @@ enum RpcOp {
   Del = 3,
   Update = 4,
   Get = 5,
+  MaxRpcOp,
 };
 typedef uint8_t RpcOp;
 
@@ -107,8 +109,9 @@ typedef uint8_t RpcOp;
 enum RpcResultCode {
   Ok = 1,
   Failure = 2,
-  InvalidOperation = 3,
-  ExpectMore = 4,
+  ExpectMore = 3,
+  InvalidRequest = 4,
+  RpcResultCodeMax,
 };
 typedef uint8_t RpcResultCode;
 

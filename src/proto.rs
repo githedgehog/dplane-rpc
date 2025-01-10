@@ -28,8 +28,9 @@ pub enum MsgType {
 pub enum RpcResultCode {
     Ok = 1,
     Failure = 2,
-    InvalidOperation = 3,
-    ExpectMore = 4,
+    ExpectMore = 3,
+    InvalidRequest = 4,
+    RpcResultCodeMax, /* sentinel, keep last */
 }
 
 #[doc = "Ip version for an address or prefix. None if not present."]
@@ -51,6 +52,7 @@ pub enum RpcOp {
     Del = 3,
     Update = 4,
     Get = 5,
+    MaxRpcOp, /* sentinel, keep last */
 }
 
 #[doc = "The type of object that a request operation refers to, such as a route."]
@@ -64,6 +66,7 @@ pub enum ObjType {
     Rmac = 3,
     IpRoute = 4,
     GetFilter = 5,
+    MaxObjType, /* sentinel, keep last */
 }
 
 #[doc = "A type of route."]
