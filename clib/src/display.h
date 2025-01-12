@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dp_msg.h"
 #include "dp_objects.h"
 #include "fmt_buff.h"
 #include "proto.h"
@@ -25,3 +26,10 @@ char *fmt_ifaddress(struct fmt_buff *fb, bool clear, struct ifaddress *ifaddr);
 char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route);
 char *fmt_getfilter(struct fmt_buff *fb, bool clear, struct get_filter *filter);
 char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object);
+
+/* message formatters (in fmt_buff) */
+char *fmt_rpc_request(struct fmt_buff *fb, bool clear, struct RpcRequest *req);
+char *fmt_rpc_response(struct fmt_buff *fb, bool clear, struct RpcResponse *res);
+char *fmt_rpc_control(struct fmt_buff *fb, bool clear, struct RpcControl *ctl);
+char *fmt_rpc_notification(struct fmt_buff *fb, bool clear, struct RpcNotification *ctl);
+char *fmt_rpc_msg(struct fmt_buff *fb, bool clear, struct RpcMsg *msg);

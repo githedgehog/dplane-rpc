@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "display.h"
+#include "dp_msg.h"
 #include "dp_objects.h"
 #include "errors.h"
 #include "fmt_buff.h"
@@ -300,5 +301,61 @@ char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object)
         if (clear)
             clear_fmt_buff(fb);
         return fmt_buff(fb, "unknown object type '%u'", object->type);
+    }
+}
+
+/* Msg formatters */
+char *fmt_rpc_request(struct fmt_buff *fb, bool clear, struct RpcRequest *req)
+{
+    BUG(!fb || !req, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+
+    fmt_buff(fb, "Request #%lu %s ", req->seqn, str_rpc_op(req->op));
+    return fmt_rpcobject(fb, false, &req->object);
+}
+char *fmt_rpc_response(struct fmt_buff *fb, bool clear, struct RpcResponse *res)
+{
+    BUG(!fb || !res, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+
+    fmt_buff(fb, "Response #%lu: %s", res->seqn, str_rescode(res->rescode));
+    for (uint8_t i = 0; i < res->num_objects; i++) {
+        fmt_buff(fb, " [%u]: ", i);
+        fmt_rpcobject(fb, false, &res->objects[i]);
+    }
+    return fb->buff;
+}
+char *fmt_rpc_control(struct fmt_buff *fb, bool clear, struct RpcControl *ctl)
+{
+    BUG(!fb || !ctl, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+    return fmt_buff(fb, "Control");
+}
+char *fmt_rpc_notification(struct fmt_buff *fb, bool clear, struct RpcNotification *ctl)
+{
+    BUG(!fb || !ctl, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+    return fmt_buff(fb, "Notification");
+}
+char *fmt_rpc_msg(struct fmt_buff *fb, bool clear, struct RpcMsg *msg)
+{
+    BUG(!fb || !msg, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+    switch (msg->type) {
+    case Control:
+        return fmt_rpc_control(fb, false, &msg->control);
+    case Request:
+        return fmt_rpc_request(fb, false, &msg->request);
+    case Response:
+        return fmt_rpc_response(fb, false, &msg->response);
+    case Notification:
+        return fmt_rpc_notification(fb, false, &msg->notification);
+    default:
+        return fmt_buff(fb, "Unknown msg type '%u'", msg->type);
     }
 }
