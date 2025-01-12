@@ -76,5 +76,20 @@ struct ip_route build_ipv6_route(const char *prefix, NumNhops num_nhops)
     }
     return route;
 }
+struct get_filter build_get_filter(void)
+{
+    struct get_filter filter = {0};
 
+    vec_push_u8(&filter.otypes, IfAddress);
+    vec_push_u8(&filter.otypes, Rmac);
+    vec_push_u8(&filter.otypes, IpRoute);
 
+    vec_push_u32(&filter.vrfIds, 1);
+    vec_push_u32(&filter.vrfIds, 2);
+    vec_push_u32(&filter.vrfIds, 3);
+    vec_push_u32(&filter.vrfIds, 4);
+    vec_push_u32(&filter.vrfIds, 5);
+    vec_push_u32(&filter.vrfIds, 6);
+
+    return filter;
+}
