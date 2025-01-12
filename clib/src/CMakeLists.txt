@@ -7,6 +7,7 @@ set(LIB_SRC
 	dp_msg.c
 	vec.c
 	display.c
+	fmt_buff.c
 )
 set(VERBOSE false)
 set(CMAKE_VERBOSE_MAKEFILE false)
