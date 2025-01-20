@@ -11,9 +11,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define VER_DP_MAJOR 0
+#define VER_DP_MAJOR 1
 
-#define VER_DP_MINOR 1
+#define VER_DP_MINOR 0
 
 #define VER_DP_PATCH 0
 

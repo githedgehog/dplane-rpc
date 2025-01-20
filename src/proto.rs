@@ -1,8 +1,8 @@
 use num_derive::FromPrimitive;
 
 /* The version of this wire format */
-pub const VER_DP_MAJOR: u8 = 0;
-pub const VER_DP_MINOR: u8 = 1;
+pub const VER_DP_MAJOR: u8 = 1;
+pub const VER_DP_MINOR: u8 = 0;
 pub const VER_DP_PATCH: u8 = 0;
 
 /* Some constants */
