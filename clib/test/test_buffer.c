@@ -19,25 +19,24 @@ int test_buffer_available_data(void)
     uint64_t val_u64;
 
     r = get_u8(buff, &val_u8);
-    assert(r == E_NOT_ENOUGH_DATA);
+    CHECK(r == E_NOT_ENOUGH_DATA);
 
     put_u8(buff, 1);
 
     r = get_u16(buff, &val_u16);
-    assert(r == E_NOT_ENOUGH_DATA);
+    CHECK(r == E_NOT_ENOUGH_DATA);
 
     put_u8(buff, 2);
     put_u8(buff, 3);
 
     r = get_u32(buff, &val_u32);
-    assert(r == E_NOT_ENOUGH_DATA);
+    CHECK(r == E_NOT_ENOUGH_DATA);
 
     put_u8(buff, 4);
     put_u8(buff, 5);
 
     r = get_u64(buff, &val_u64);
-    assert(r == E_NOT_ENOUGH_DATA);
-
+    CHECK(r == E_NOT_ENOUGH_DATA);
 
     buff_free(buff);
     return EXIT_SUCCESS;
@@ -63,16 +62,17 @@ int test_buffer_conds(void)
         if (r != E_OK) {
             buff_dump(buff);
             assert(0);
+            return EXIT_FAILURE;
         }
-        assert(buff->w == n);
-        assert(get_u8(buff, &val_read) == E_OK);
-        assert(val_read == val_write);
+        CHECK(buff->w == n);
+        CHECK(get_u8(buff, &val_read) == E_OK);
+        CHECK(val_read == val_write);
     }
-    assert(buff->w == UINT16_MAX);
-    assert(buff->capacity==UINT16_MAX);
+    CHECK(buff->w == UINT16_MAX);
+    CHECK(buff->capacity==UINT16_MAX);
 
     /* next write attempt should fail */
-    assert(put_u8(buff, 0) == E_TOO_BIG);
+    CHECK(put_u8(buff, 0) == E_TOO_BIG);
 
     buff_free(buff);
     return EXIT_SUCCESS;
@@ -86,8 +86,8 @@ int test_buffer_resize(void)
 
     for(uint16_t i = 1; i <= 100; i++)
         put_u8(buff, 0xFF);
-    assert(buff->capacity > 100);
-    assert(buff->w == 100);
+    CHECK(buff->capacity > 100);
+    CHECK(buff->w == 100);
 
     buff_dump(buff);
 
@@ -105,19 +105,19 @@ int test_buffer_write_utils(void)
     put_u8(buff, 2);
     put_u8(buff, 3);
     put_u8(buff, 4);
-    assert(buff->w == 4);
+    CHECK(buff->w == 4);
     buff_dump(buff);
 
     put_u16(buff, 0x5566);
-    assert(buff->w == 6);
+    CHECK(buff->w == 6);
     buff_dump(buff);
 
     put_u32(buff, 0xaabbccdd);
-    assert(buff->w == 10);
+    CHECK(buff->w == 10);
     buff_dump(buff);
 
     put_u64(buff, 0x00FF00FF00FF00FF);
-    assert(buff->w == 18);
+    CHECK(buff->w == 18);
     buff_dump(buff);
 
     buff_clear(buff);
@@ -201,17 +201,17 @@ int test_buffer_raw_read_write(void)
         some_data[i] = i;
 
     r = put_raw(buff, some_data, sizeof(some_data));
-    assert(r == E_OK);
-    assert(buff->w == sizeof(some_data));
+    CHECK(r == E_OK);
+    CHECK(buff->w == sizeof(some_data));
     buff_dump(buff);
 
     uint8_t recovered[25] = {0};
     r = get_raw(buff, recovered, sizeof(recovered));
-    assert(r == E_OK);
-    assert(buff->r == sizeof(recovered));
+    CHECK(r == E_OK);
+    CHECK(buff->r == sizeof(recovered));
     buff_dump(buff);
 
-    assert(memcmp(recovered, some_data, sizeof(recovered)) == 0);
+    CHECK(memcmp(recovered, some_data, sizeof(recovered)) == 0);
 
     buff_free(buff);
     return EXIT_SUCCESS;
