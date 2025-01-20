@@ -20,7 +20,7 @@ char *fmt_ipaddr(struct fmt_buff *fb, bool clear, const char *disp_prefix, struc
 char *fmt_prefix(struct fmt_buff *fb, bool clear, const char *disp_prefix, struct ip_address *ip, uint8_t pref_len);
 
 /* object formatters */
-char *fmt_verinfo(struct fmt_buff *fb, bool clear, struct ver_info *vinfo);
+char *fmt_conninfo(struct fmt_buff *fb, bool clear, struct conn_info *c);
 char *fmt_rmac(struct fmt_buff *fb, bool clear, struct rmac *rmac);
 char *fmt_ifaddress(struct fmt_buff *fb, bool clear, struct ifaddress *ifaddr);
 char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route);

@@ -16,7 +16,17 @@ struct rmac build_rmac(void)
 struct ver_info build_ver_info(void)
 {
     /* build verinfo object */
-    struct ver_info info = {.major = 1, .minor = 2, .patch = 3};
+    struct ver_info info = VER_INFO_INITIALIZER;
+    return info;
+}
+struct conn_info build_conn_info(void)
+{
+    /* build connect info object */
+    struct conn_info info = {
+       .name = "test",
+       .pid = 1234,
+       .verinfo = build_ver_info()
+    };
     return info;
 }
 struct ifaddress build_ifaddress(void)

@@ -18,7 +18,7 @@ int check_object_type(ObjType type)
     switch (type) {
     case None:
         return E_INVAL;
-    case VerInfo:
+    case ConnectInfo:
     case IfAddress:
     case Rmac:
     case IpRoute:
@@ -82,11 +82,11 @@ int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr)
     object->type = IfAddress;
     return E_OK;
 }
-int verinfo_as_object(struct RpcObject *object, struct ver_info *info)
+int conninfo_as_object(struct RpcObject *object, struct conn_info *info)
 {
     BUG(!object || !info, E_BUG);
-    object->ver_info = *info;
-    object->type = VerInfo;
+    object->conn_info = *info;
+    object->type = ConnectInfo;
     return E_OK;
 }
 int iproute_as_object(struct RpcObject *object, struct ip_route *route)
@@ -207,6 +207,34 @@ static int decode_verinfo(buff_t *buff, struct ver_info *info)
     if ((r = get_u8(buff, &info->patch)) != E_OK)
         return r;
     return E_OK;
+}
+
+/* conn_info: encode / decode */
+static int encode_conn_info(buff_t *buff, struct conn_info *info)
+{
+    BUG(!buff || !info, E_BUG);
+    int r;
+
+    if ((r = encode_string(buff, info->name)) != E_OK)
+        return r;
+    if ((r = put_u32(buff, info->pid)) != E_OK)
+        return r;
+
+    return encode_verinfo(buff, &info->verinfo);
+}
+static int decode_conn_info(buff_t *buff, struct conn_info *info)
+{
+    BUG(!buff || !info, E_BUG);
+    memset(info, 0, sizeof(*info));
+
+    int r;
+
+    if ((r = decode_string(buff, info->name)) != E_OK)
+        return r;
+    if ((r = get_u32(buff, &info->pid)) != E_OK)
+        return r;
+
+    return decode_verinfo(buff, &info->verinfo);
 }
 
 /* ifadddress: encode / decode */
@@ -616,8 +644,8 @@ int encode_object(buff_t *buff, struct RpcObject *object)
     switch (object->type) {
     case None:
         return E_OK;
-    case VerInfo:
-        return encode_verinfo(buff, &object->ver_info);
+    case ConnectInfo:
+        return encode_conn_info(buff, &object->conn_info);
     case IfAddress:
         return encode_ifaddress(buff, &object->ifaddress);
     case Rmac:
@@ -641,8 +669,8 @@ int decode_object(buff_t *buff, struct RpcObject *object)
     switch (object->type) {
     case None:
         return E_OK;
-    case VerInfo:
-        return decode_verinfo(buff, &object->ver_info);
+    case ConnectInfo:
+        return decode_conn_info(buff, &object->conn_info);
     case IfAddress:
         return decode_ifaddress(buff, &object->ifaddress);
     case Rmac:

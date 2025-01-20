@@ -30,8 +30,8 @@ const char *str_object_type(ObjType type)
     switch (type) {
     case None:
         return "None";
-    case VerInfo:
-        return "Verinfo";
+    case ConnectInfo:
+        return "ConnectInfo";
     case IfAddress:
         return "IfAddress";
     case Rmac:
@@ -200,12 +200,21 @@ char *fmt_prefix(struct fmt_buff *fb, bool clear, const char *disp_prefix, struc
 }
 
 /* object formatters */
-char *fmt_verinfo(struct fmt_buff *fb, bool clear, struct ver_info *v)
+static char *fmt_verinfo(struct fmt_buff *fb, bool clear, struct ver_info *v)
 {
     BUG(!fb || !v, NULL);
     if (clear)
         clear_fmt_buff(fb);
-    return fmt_buff(fb, "verinfo ─── v%u.%u.%u", v->major, v->minor, v->patch);
+    return fmt_buff(fb, "verinfo: %u.%u.%u", v->major, v->minor, v->patch);
+}
+char *fmt_conninfo(struct fmt_buff *fb, bool clear, struct conn_info *c)
+{
+    BUG(!fb || !c, NULL);
+    if (clear)
+        clear_fmt_buff(fb);
+
+    fmt_buff(fb, "ConnInfo ─── name: %s pid: %u ", c->name, c->pid);
+    return fmt_verinfo(fb, false, &c->verinfo);
 }
 char *fmt_rmac(struct fmt_buff *fb, bool clear, struct rmac *rmac)
 {
@@ -287,8 +296,8 @@ char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object)
         if (clear)
             clear_fmt_buff(fb);
         return fmt_buff(fb, "none");
-    case VerInfo:
-        return fmt_verinfo(fb, clear, &object->ver_info);
+    case ConnectInfo:
+        return fmt_conninfo(fb, clear, &object->conn_info);
     case IfAddress:
         return fmt_ifaddress(fb, clear, &object->ifaddress);
     case Rmac:

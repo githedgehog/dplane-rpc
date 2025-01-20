@@ -193,9 +193,9 @@ static int send_msg_compare_echo(struct RpcMsg *msg)
 
 static int send_connect(void)
 {
-    struct ver_info info = build_ver_info();
+    struct conn_info info = build_conn_info();
     struct RpcMsg msg = {.type = Request, .request.op = Connect, .request.seqn = seqnum++};
-    verinfo_as_object(&msg.request.object, &info);
+    conninfo_as_object(&msg.request.object, &info);
 
     return send_msg_compare_echo(&msg);
 }

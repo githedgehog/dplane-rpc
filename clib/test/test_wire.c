@@ -152,10 +152,10 @@ int test_object_verinfo(buff_t *buff)
     buff_clear(buff);
 
     /* build verinfo object */
-    struct ver_info info = build_ver_info();
+    struct conn_info info = build_conn_info();
 
     /* wrap it */
-    struct RpcObject object = {.type = VerInfo, .ver_info = info};
+    struct RpcObject object = {.type = ConnectInfo, .conn_info = info};
     return check_object(buff, &object);
 }
 int test_object_ifaddr(buff_t *buff)
@@ -248,12 +248,12 @@ int test_msg_request_connect(buff_t *buff)
     TEST();
     buff_clear(buff);
 
-    /* build rmac */
-    struct ver_info info = build_ver_info();
+    /* build connect info */
+    struct conn_info info = build_conn_info();
 
     /* build request with object */
     struct RpcMsg msg = {.type = Request, .request.op = Connect, .request.seqn = 1234};
-    verinfo_as_object(&msg.request.object, &info);
+    conninfo_as_object(&msg.request.object, &info);
     return check_msg(buff, &msg);
 }
 int test_msg_request_rmac(buff_t *buff)

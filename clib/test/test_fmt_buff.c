@@ -13,10 +13,10 @@ int fmt_object_samples(void)
 {
     clear_fmt_buff(&fb);
 
-    /* verinfo */
-    fprintf(stderr, "\n────────────────── fmt verinfo ──────────────────\n");
-    struct ver_info vinfo = build_ver_info();
-    fprintf(stderr, "%s\n", fmt_verinfo(&fb, true, &vinfo));
+    /* Conn info */
+    fprintf(stderr, "\n────────────────── fmt conninfo ──────────────────\n");
+    struct conn_info vinfo = build_conn_info();
+    fprintf(stderr, "%s\n", fmt_conninfo(&fb, true, &vinfo));
 
     /* rmac */
     fprintf(stderr, "\n────────────────── fmt Rmac ──────────────────\n");
