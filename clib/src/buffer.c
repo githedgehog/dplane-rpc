@@ -66,8 +66,10 @@ void buff_clear(buff_t *buff)
     BUG(!buff);
     buff->w = 0;
     buff->r = 0;
+#if 0 /* not needed */
     if (buff->storage != NULL)
-        memset(buff->storage, 0, buff->capacity);
+        memset(buff->storage, 0, buff->capacity); // not needed
+#endif
 }
 void buff_dump(buff_t *buff)
 {
