@@ -61,7 +61,7 @@ pub enum RpcOp {
 pub enum ObjType {
     #[default]
     None = 0,
-    VerInfo = 1,
+    ConnectInfo = 1,
     IfAddress = 2,
     Rmac = 3,
     IpRoute = 4,

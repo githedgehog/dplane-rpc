@@ -315,10 +315,15 @@ Adding new message types is simple and requires:
 ## Handling versioning, updates and backwards compatibility
 
 For the time being an operation `Connect` within a request has been added.
-This request contains a version information object (`VerInfo`) that the peer (e.g.
-DP) may use to double check that the CP uses the same version of the wire format/protocol.
-The wire format of Verinfo is 3 octets (Major|Minor|Patch).
-
-
+This request contains the `name` of the connecting entity, its `pid` and a version information object (`VerInfo`) that the peer (e.g. DP) may use to double check that the CP uses the same version of the wire format/protocol.
+The name (string) and pid are informational and may allow the DP to know if a peer has restarted.
+The wire format of Verinfo is as follows:
+```
++------------+---------+------------+
+|   name     |  pid    |version info|
+| (variable) |  (4)    |    (3)     |
++------------+---------+------------+
+```
+ .. where the version info is 3 octets (Major|Minor|Patch).
 
 

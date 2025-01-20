@@ -39,12 +39,16 @@ mod positive_tests {
 
     #[test]
     fn test_rpcmsg_request_connect() {
-        let verinfo = VerInfo {
-            major: 44,
-            minor: 66,
-            patch: 99,
+        let coninfo = ConnectInfo {
+            name: "test".to_owned(),
+            pid: 12345,
+            verinfo:  VerInfo {
+                major: 44,
+                minor: 66,
+                patch: 99,
+            }
         };
-        let req = RpcRequest::new(RpcOp::Connect, 999).set_object(RpcObject::VerInfo(verinfo));
+        let req = RpcRequest::new(RpcOp::Connect, 999).set_object(RpcObject::ConnectInfo(coninfo));
         let msg = req.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }

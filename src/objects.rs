@@ -12,6 +12,14 @@ pub struct VerInfo {
     pub(crate) patch: u8,
 }
 
+#[doc = "A connection information object identifying the requestor."]
+#[derive(Debug, PartialEq)]
+pub struct ConnectInfo {
+    pub(crate) pid: u32,
+    pub(crate) name: String,
+    pub(crate) verinfo: VerInfo,
+}
+
 #[doc = "A (IP, MAC, Vni) tuple"]
 #[derive(Debug, PartialEq)]
 pub struct Rmac {
@@ -68,7 +76,7 @@ pub struct NextHop {
 #[doc = "An object that may be exchanged between DP and CP. All first-class objects are contained here."]
 #[derive(Debug, PartialEq)]
 pub enum RpcObject {
-    VerInfo(VerInfo),
+    ConnectInfo(ConnectInfo),
     IfAddress(IfAddress),
     Rmac(Rmac),
     IpRoute(IpRoute),
@@ -80,7 +88,7 @@ impl RpcObject {
         match obj {
             RpcObject::IfAddress(_) => ObjType::IfAddress,
             RpcObject::Rmac(_) => ObjType::Rmac,
-            RpcObject::VerInfo(_) => ObjType::VerInfo,
+            RpcObject::ConnectInfo(_) => ObjType::ConnectInfo,
             RpcObject::IpRoute(_) => ObjType::IpRoute,
             RpcObject::GetFilter(_) => ObjType::GetFilter,
         }
@@ -159,10 +167,16 @@ impl IpRoute {
 /* Display for terser logs */
 impl Display for VerInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Verinfo ─── v{}.{}.{}",
+        write!(f, "v{}.{}.{}",
             self.major, self.minor, self.patch
+        )
+    }
+}
+impl Display for ConnectInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,
+            "ConnectInfo ─── name:{} pid:{} verinfo:{}",
+            &self.name, self.pid, self.verinfo
         )
     }
 }
@@ -248,7 +262,7 @@ impl Display for GetFilter {
 impl Display for RpcObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RpcObject::VerInfo(o) => o.fmt(f),
+            RpcObject::ConnectInfo(o) => o.fmt(f),
             RpcObject::IfAddress(o) => o.fmt(f),
             RpcObject::Rmac(o) => o.fmt(f),
             RpcObject::IpRoute(o) => o.fmt(f),

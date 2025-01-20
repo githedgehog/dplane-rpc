@@ -309,6 +309,24 @@ impl Wire<VerInfo> for VerInfo {
         Ok(())
     }
 }
+impl Wire<ConnectInfo> for ConnectInfo {
+    fn decode(buf: &mut Bytes) -> WireResult<ConnectInfo> {
+        let name = buf.sget_string("name")?;
+        let pid = buf.sget_u32_ne("pid")?;
+        let verinfo = VerInfo::decode(buf)?;
+        Ok(ConnectInfo{
+            name,
+            pid,
+            verinfo,
+        })
+    }
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        put_string(buf, &self.name)?;
+        buf.put_u32_ne(self.pid);
+        self.verinfo.encode(buf)?;
+        Ok(())
+    }
+}
 impl Wire<GetFilter> for GetFilter {
     fn decode(buf: &mut Bytes) -> WireResult<GetFilter> {
         let num_mtypes = buf.sget_u8("num-mtypes")?;
@@ -483,7 +501,7 @@ impl Wire<Option<RpcObject>> for RpcObject {
     fn decode(buf: &mut Bytes) -> WireResult<Option<RpcObject>> {
         let otype = ObjType::decode(buf)?;
         let obj = match otype {
-            ObjType::VerInfo => Some(RpcObject::VerInfo(VerInfo::decode(buf)?)),
+            ObjType::ConnectInfo => Some(RpcObject::ConnectInfo(ConnectInfo::decode(buf)?)),
             ObjType::IfAddress => Some(RpcObject::IfAddress(IfAddress::decode(buf)?)),
             ObjType::Rmac => Some(RpcObject::Rmac(Rmac::decode(buf)?)),
             ObjType::IpRoute => Some(RpcObject::IpRoute(IpRoute::decode(buf)?)),
@@ -497,7 +515,7 @@ impl Wire<Option<RpcObject>> for RpcObject {
         let otype: ObjType = RpcObject::wire_type(self);
         otype.encode(buf)?;
         match self {
-            RpcObject::VerInfo(o) => o.encode(buf),
+            RpcObject::ConnectInfo(o) => o.encode(buf),
             RpcObject::IfAddress(o) => o.encode(buf),
             RpcObject::Rmac(o) => o.encode(buf),
             RpcObject::IpRoute(o) => o.encode(buf),

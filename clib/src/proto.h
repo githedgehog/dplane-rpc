@@ -68,7 +68,7 @@ typedef uint8_t MsgType;
  */
 enum ObjType {
   None = 0,
-  VerInfo = 1,
+  ConnectInfo = 1,
   IfAddress = 2,
   Rmac = 3,
   IpRoute = 4,
