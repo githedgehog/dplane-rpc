@@ -53,6 +53,7 @@ struct next_hop_encap {
     };
 };
 struct next_hop {
+    ForwardAction fwaction;
     struct ip_address address;
     Ifindex ifindex;
     VrfId vrfid;

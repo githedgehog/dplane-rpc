@@ -376,6 +376,9 @@ static int encode_next_hop(buff_t *buff, struct next_hop *nhop)
     BUG(!buff || !nhop, E_BUG);
     int r;
 
+    if ((r = put_u8(buff, nhop->fwaction)) != E_OK)
+        return r;
+
     if ((r = encode_ipaddress(buff, &nhop->address)) != E_OK)
         return r;
 
@@ -394,6 +397,9 @@ static int decode_next_hop(buff_t *buff, struct next_hop *nhop)
 {
     BUG(!buff || !nhop, E_BUG);
     int r;
+
+    if ((r = get_u8(buff, &nhop->fwaction)) != E_OK)
+        return r;
 
     if ((r = decode_ipaddress(buff, &nhop->address)) != E_OK)
         return r;

@@ -141,6 +141,16 @@ const char *route_type_str(RouteType rt)
     }
 }
 
+/* stringify iproute forward action */
+const char *route_fwaction_str(ForwardAction a)
+{
+    switch (a) {
+    case Forward: return "forward";
+    case Drop: return "drop";
+    default: return "unknown";
+    }
+}
+
 /* basic type formatters */
 char *fmt_mac(struct fmt_buff *fb, bool clear, const char *prefix, struct mac_addr *mac)
 {
@@ -247,16 +257,16 @@ char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route)
     struct next_hop *nhop;
     for (unsigned int i = 0; i < route->num_nhops; i++) {
         nhop = &route->nhops[i];
-        fmt_buff(fb, " via");
         if (nhop->address.ipver == IPV4 || nhop->address.ipver == IPV6)
-            fmt_ipaddr(fb, false, " ", &nhop->address);
+            fmt_ipaddr(fb, false, " via", &nhop->address);
         if (nhop->ifindex)
             fmt_buff(fb, " ifindex:%u", nhop->ifindex);
         fmt_buff(fb, " vrfid:%u", nhop->vrfid);
+        if (nhop->fwaction != Forward)
+            fmt_buff(fb, " action: %s", route_fwaction_str(nhop->fwaction));
 
         switch (nhop->encap.type) {
         case NoEncap:
-            fmt_buff(fb, " encap:None");
             break;
         case VXLAN:
             fmt_buff(fb, " encap: VxLAN(vni:%u)", nhop->encap.vxlan.vni);
