@@ -32,6 +32,8 @@ pub enum WireError {
     InvalidMatchTtype(u8),
     /// The version for an IP address is invalid
     InvalidIpVersion(u8),
+    /// The action associated to a route is invalid
+    InvalidForwardAction(u8),
     /// A mandatory IP address is missing
     MissingIpAddress,
     /// A mandatory IP prefix is missing
@@ -276,6 +278,17 @@ impl Wire<ObjType> for ObjType {
         Ok(())
     }
 }
+impl Wire<ForwardAction> for ForwardAction {
+    fn decode(buf: &mut Bytes) -> WireResult<ForwardAction> {
+        let a = buf.sget_u8("fwaction")?;
+        let fwaction = ForwardAction::from_u8(a).ok_or(WireError::InvalidForwardAction(a))?;
+        Ok(fwaction)
+    }
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        buf.put_u8(*self as u8);
+        Ok(())
+    }
+}
 
 impl Wire<MatchType> for MatchType {
     fn decode(buf: &mut Bytes) -> WireResult<MatchType> {
@@ -427,12 +440,14 @@ impl Wire<IfAddress> for IfAddress {
 }
 impl Wire<NextHop> for NextHop {
     fn decode(buf: &mut Bytes) -> WireResult<NextHop> {
+        let fwaction = ForwardAction::decode(buf)?;
         let address = IpAddr::decode(buf)?;
         let ifindex: Ifindex = buf.sget_u32_ne("ifindex")?;
         let ifindex = if ifindex != 0 { Some(ifindex) } else { None };
         let vrfid = VrfId::decode(buf)?;
         let encap = Option::<NextHopEncap>::decode(buf)?;
         Ok(NextHop {
+            fwaction,
             address,
             ifindex,
             vrfid,
@@ -440,6 +455,7 @@ impl Wire<NextHop> for NextHop {
         })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        self.fwaction.encode(buf)?;
         self.address.encode(buf)?;
         if let Some(ifindex) = self.ifindex {
             buf.put_u32_ne(ifindex);

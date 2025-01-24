@@ -67,6 +67,7 @@ pub enum NextHopEncap {
 #[doc = "An IP route next-hop"]
 #[derive(Debug, PartialEq)]
 pub struct NextHop {
+    pub fwaction: ForwardAction,
     pub address: Option<IpAddr>,
     pub ifindex: Option<Ifindex>,
     pub vrfid: VrfId,
@@ -209,18 +210,18 @@ impl Display for NextHopEncap {
 }
 impl Display for NextHop {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, " via")?;
         if let Some(address) = &self.address {
-            write!(f, " {}", address)?;
+            write!(f, " via {}", address)?;
         }
         if let Some(ifindex) = &self.ifindex {
             write!(f, " ifindex:{}", ifindex)?;
         }
         write!(f, " vrfid: {}", self.vrfid)?;
+        if self.fwaction != ForwardAction::Forward {
+            write!(f, " action: {:?}", self.fwaction)?;
+        }
         if let Some(encap) = &self.encap {
             write!(f, " encap: {}", encap)?;
-        } else {
-            write!(f, " encap: None")?;
         }
         Ok(())
     }

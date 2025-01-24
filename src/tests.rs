@@ -87,6 +87,7 @@ mod positive_tests {
         };
 
         let nhop = NextHop {
+            fwaction: ForwardAction::default(),
             address: Some("7.0.0.1".parse().unwrap()),
             ifindex: None,
             vrfid: 0,
@@ -113,6 +114,7 @@ mod positive_tests {
         };
 
         let nhop = NextHop {
+            fwaction: ForwardAction::default(),
             address: None,
             ifindex: Some(123),
             vrfid: 0,
@@ -139,6 +141,7 @@ mod positive_tests {
             nhops: vec![],
         };
         let nhop = NextHop {
+            fwaction: ForwardAction::default(),
             address: Some("10.0.0.3".parse().unwrap()),
             ifindex: None,
             vrfid: 0,
@@ -147,6 +150,7 @@ mod positive_tests {
         assert_eq!(route.add_next_hop(nhop), Ok(()));
 
         let nhop = NextHop {
+            fwaction: ForwardAction::default(),
             address: Some("10.0.0.6".parse().unwrap()),
             ifindex: None,
             vrfid: 0,
@@ -166,6 +170,7 @@ mod positive_tests {
                 let a = format!("10.0.{}.{}", i, j);
                 let vni: Vni = j as Vni * i as Vni;
                 let nhop = NextHop {
+                    fwaction: ForwardAction::default(),
                     address: Some(a.parse().unwrap()),
                     ifindex: None,
                     vrfid: 0,

@@ -82,6 +82,15 @@ pub enum RouteType {
     Other = 6,
 }
 
+#[doc = "Action associated to a route"]
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]
+pub enum ForwardAction {
+    #[default]
+    Forward = 0,
+    Drop = 1,
+}
+
 #[doc = "The type of encapsulation towards some next-hop. NoEncap if no encapsulation is used."]
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]

@@ -33,6 +33,15 @@ enum EncapType {
 typedef uint8_t EncapType;
 
 /**
+ *Action associated to a route
+ */
+enum ForwardAction {
+  Forward = 0,
+  Drop = 1,
+};
+typedef uint8_t ForwardAction;
+
+/**
  *Ip version for an address or prefix. None if not present.
  */
 enum IpVer {
