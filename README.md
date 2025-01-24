@@ -201,27 +201,34 @@ This limits the number of next-hops to 255, which should suffice in all cases.
 **format**: The format is as follows.
 
 ```
-+------------+-----+---------+-----------+-----+----+---------+-----+-----------+ - - -------+
-|  Prefix    | len |  vrfid  | tableid   |type | AD | metric  |numNH|  next-hop |  next-hop  |
-| (address)  | (1) |   (4)   |    (4)    | (1) |(1) |  (4)    | (1) |           |            |
-+------------+-----+---------+-----------+-----+----+---------+-----+-----------+ - - -------+
++------------+-----+--------+-----------+-----+----+---------+-----+-----------+ - - -------+
+|  Prefix    | len |  vrfid | tableid   |type | AD | metric  |numNH|  next-hop |  next-hop  |
+| (address)  | (1) |   (4)  |    (4)    | (1) |(1) |  (4)    | (1) |           |            |
++------------+-----+--------+-----------+-----+----+---------+-----+-----------+ - - -------+
 ```
 Prefix is encoded `exactly as an IP address` and is mandatory in routes.
 Len is one octet.
+The meaning of the rest of fields is the following:
+  * `vrfid` is the Id of the VRF where the route resides.
+  * `tableid` is the Id of the corresponding kernel table. This field is mostly for diagnostics.
+  * `type` is the type of route (e.g. protocol) and admits several values (Connected, Static, Bgp...)
+  * `AD` is administrative distance of the route.
+  * `metric` is the protocol-dependant cost associated to the route.
+  * `numNH` is the number of next-hops that this route has.
+
 The encoding of each next-hop is as follows:
 ```
-+------------+----------+-----------+-------+----------+
-| IpAddress  | ifindex  |  vrfid    |encType|  encap   |
-|  (variab)  |   (4)    |   (4)     |  (1)  | specific |
-+------------+----------+-----------+-------+----------+
++-----+------------+----------+-----------+-------+----------+
+|fwAct| IpAddress  | ifindex  |  vrfid    |encType|  encap   |
+|     |  (variab)  |   (4)    |   (4)     |  (1)  | specific |
++-----+------------+----------+-----------+-------+----------+
 ```
-The IP address in next-hops is optional and may be no-address.
-
-The encType indicates the encapsulation type.
-The octets that follow depend on this type.
-
-Two types are defined so far: ``n-encap`` and ``VxLAN``.
-If ``VxLAN``, the encap specific chunk is 4 octets in length and includes the VNI.
+  * `fwAct` indicates the action associated with the next-hop (should be `forward` in most cases, but `drop` is allowed too).
+  * `IPAddress` is optional.
+  * `ifindex` is optional.
+  * `encType` indicates the type of encapsulation. The octets that follow depend on this type.
+     Two types are defined so far: ``no-encap`` and ``VxLAN``.
+     If ``VxLAN``, the encap-specific chunk is 4 octets in length and contains the VNI.
 
 
 
