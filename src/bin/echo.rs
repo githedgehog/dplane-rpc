@@ -3,7 +3,7 @@ use std::os::unix::net::{SocketAddr, UnixDatagram};
 use std::process;
 
 use bytes::Bytes;
-use dplane_rpc::log::init_dplane_rpc_log;
+use dplane_rpc::log::{init_dplane_rpc_log, LogConfig};
 use dplane_rpc::msg::*;
 use dplane_rpc::socks::{send_msg, ux_sock_bind};
 use dplane_rpc::wire::Wire;
@@ -23,7 +23,12 @@ fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
 }
 
 fn main() {
-    init_dplane_rpc_log(tracing::Level::DEBUG);
+    let mut cfg = LogConfig::new(tracing::Level::DEBUG);
+    cfg.display_thread_names = true;
+    cfg.display_thread_ids = true;
+    cfg.display_target = true;
+    cfg.show_line_numbers = true;
+    init_dplane_rpc_log(&cfg);
 
     info!("Echo server: I will decode every message received, re-encode it and send it back...");
     let sock = ux_sock_bind("/tmp/DP.sock").expect("Unable to bind socket");

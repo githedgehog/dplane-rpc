@@ -1,24 +1,44 @@
 pub use log::{debug, error, info, warn};
 pub use tracing::Level;
 
-pub fn init_dplane_rpc_log(loglevel: tracing::Level) {
-    if loglevel == tracing::Level::DEBUG {
-        tracing_subscriber::fmt()
-            .with_level(true)
-            .with_max_level(loglevel)
-            .with_target(true)
-            .with_thread_ids(true)
-            .pretty()
-            .compact()
-            .init();
-    } else {
-        tracing_subscriber::fmt()
-            .with_level(true)
-            .with_max_level(loglevel)
-            .with_target(false)
-            .with_thread_ids(false)
-            .with_line_number(false)
-            .compact()
-            .init();
+pub struct LogConfig {
+    pub display_level: bool,
+    pub loglevel: tracing::Level,
+    pub display_target: bool,
+    pub display_thread_names: bool,
+    pub display_thread_ids: bool,
+    pub show_line_numbers: bool
+}
+impl Default for LogConfig {
+    fn default() -> Self {
+        LogConfig {
+            display_level: true,
+            loglevel: tracing::Level::ERROR,
+            display_target: false,
+            display_thread_names: false,
+            display_thread_ids: false,
+            show_line_numbers: false,
+        }
     }
+}
+
+impl LogConfig {
+    pub fn new(loglevel: Level) -> Self {
+        Self {
+            loglevel,
+            ..Default::default()
+        }
+    }
+}
+
+pub fn init_dplane_rpc_log(cfg: &LogConfig) {
+    tracing_subscriber::fmt()
+        .with_level(cfg.display_level)
+        .with_max_level(cfg.loglevel)
+        .with_target(cfg.display_target)
+        .with_thread_ids(cfg.display_thread_ids)
+        .with_thread_names(cfg.display_thread_names)
+        .with_line_number(cfg.show_line_numbers)
+        .compact()
+        .init();
 }
