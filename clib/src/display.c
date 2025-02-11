@@ -74,6 +74,8 @@ const char *str_rescode(RpcResultCode code)
         return "Failure";
     case InvalidRequest:
         return "InvalidRequest";
+    case Unsupported:
+        return "Unsupported";
     case ExpectMore:
         return "ExpectMore";
     default:
