@@ -168,14 +168,13 @@ impl IpRoute {
 /* Display for terser logs */
 impl Display for VerInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "v{}.{}.{}",
-            self.major, self.minor, self.patch
-        )
+        write!(f, "v{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
 impl Display for ConnectInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,
+        write!(
+            f,
             "ConnectInfo ─── name:{} pid:{} verinfo:{}",
             &self.name, self.pid, self.verinfo
         )
