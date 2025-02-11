@@ -39,3 +39,8 @@ pub mod log;
  Sock utils
 */
 pub mod socks;
+
+/*
+  Utility traits
+*/
+pub mod traits;
