@@ -9,25 +9,25 @@ pub trait RpcOperation {
     where
         Self: Sized,
     {
-        RpcResultCode::InvalidRequest
+        RpcResultCode::Unsupported
     }
     fn add(&self, db: &mut Self::ObjectStore) -> RpcResultCode
     where
         Self: Sized,
     {
-        RpcResultCode::InvalidRequest
+        RpcResultCode::Unsupported
     }
     fn del(&self, db: &mut Self::ObjectStore) -> RpcResultCode
     where
         Self: Sized,
     {
-        RpcResultCode::InvalidRequest
+        RpcResultCode::Unsupported
     }
     fn update(&self, db: &mut Self::ObjectStore) -> RpcResultCode
     where
         Self: Sized,
     {
-        RpcResultCode::InvalidRequest
+        RpcResultCode::Unsupported
     }
 }
 
