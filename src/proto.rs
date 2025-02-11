@@ -30,6 +30,7 @@ pub enum RpcResultCode {
     Failure = 2,
     ExpectMore = 3,
     InvalidRequest = 4,
+    Unsupported = 5,
     RpcResultCodeMax, /* sentinel, keep last */
 }
 
