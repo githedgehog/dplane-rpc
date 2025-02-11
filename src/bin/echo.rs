@@ -5,7 +5,7 @@ use std::process;
 use bytes::Bytes;
 use dplane_rpc::log::{init_dplane_rpc_log, LogConfig};
 use dplane_rpc::msg::*;
-use dplane_rpc::socks::{send_msg, ux_sock_bind};
+use dplane_rpc::socks::ux_sock_bind;
 use dplane_rpc::wire::Wire;
 
 fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
@@ -16,7 +16,7 @@ fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
                 warn!("Got notification! Terminating....");
                 process::exit(0)
             }
-            send_msg(sock, &msg, peer)
+            msg.send(sock, peer)
         }
         Err(e) => panic!("Error decoding message received from {:?}: {:?}", peer, e),
     }
