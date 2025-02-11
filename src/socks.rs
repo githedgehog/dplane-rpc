@@ -39,3 +39,9 @@ pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) {
         }
     }
 }
+
+impl RpcMsg {
+    pub fn send(&self, sock:&UnixDatagram, peer: &SocketAddr) {
+        send_msg(sock, self, peer);
+    }
+}
