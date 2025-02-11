@@ -7,7 +7,7 @@ pub struct LogConfig {
     pub display_target: bool,
     pub display_thread_names: bool,
     pub display_thread_ids: bool,
-    pub show_line_numbers: bool
+    pub show_line_numbers: bool,
 }
 impl Default for LogConfig {
     fn default() -> Self {

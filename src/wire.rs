@@ -327,11 +327,7 @@ impl Wire<ConnectInfo> for ConnectInfo {
         let name = buf.sget_string("name")?;
         let pid = buf.sget_u32_ne("pid")?;
         let verinfo = VerInfo::decode(buf)?;
-        Ok(ConnectInfo{
-            name,
-            pid,
-            verinfo,
-        })
+        Ok(ConnectInfo { name, pid, verinfo })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         put_string(buf, &self.name)?;
@@ -523,7 +519,7 @@ impl Wire<Option<RpcObject>> for RpcObject {
             ObjType::IpRoute => Some(RpcObject::IpRoute(IpRoute::decode(buf)?)),
             ObjType::GetFilter => Some(RpcObject::GetFilter(GetFilter::decode(buf)?)),
             ObjType::None => None,
-            _ => return Err(WireError::InvalidObjTtype(otype as u8))
+            _ => return Err(WireError::InvalidObjTtype(otype as u8)),
         };
         Ok(obj)
     }

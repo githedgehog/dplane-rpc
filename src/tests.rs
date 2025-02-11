@@ -42,11 +42,11 @@ mod positive_tests {
         let coninfo = ConnectInfo {
             name: "test".to_owned(),
             pid: 12345,
-            verinfo:  VerInfo {
+            verinfo: VerInfo {
                 major: 44,
                 minor: 66,
                 patch: 99,
-            }
+            },
         };
         let req = RpcRequest::new(RpcOp::Connect, 999).set_object(RpcObject::ConnectInfo(coninfo));
         let msg = req.wrap_in_msg();
