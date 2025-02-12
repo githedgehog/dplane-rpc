@@ -5,7 +5,7 @@ use std::process;
 use bytes::Bytes;
 use dplane_rpc::log::{init_dplane_rpc_log, LogConfig};
 use dplane_rpc::msg::*;
-use dplane_rpc::socks::ux_sock_bind;
+use dplane_rpc::socks::{ux_sock_bind, Pretty};
 use dplane_rpc::wire::Wire;
 
 fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
@@ -16,7 +16,7 @@ fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
                 warn!("Got notification! Terminating....");
                 process::exit(0)
             }
-            msg.send(sock, peer)
+            let _ = msg.send(sock, peer);
         }
         Err(e) => panic!("Error decoding message received from {:?}: {:?}", peer, e),
     }
@@ -37,7 +37,11 @@ fn main() {
         let mut buf = vec![0; 1000];
         match sock.recv_from(buf.as_mut_slice()) {
             Ok((len, peer)) => {
-                debug!("Received {} octets of data from {:?}...", len, &peer);
+                debug!(
+                    "Received {} octets of data from '{}'...",
+                    len,
+                    (&peer).pretty()
+                );
                 process_rx_data(&sock, &peer, &buf[..len]);
             }
             Err(e) => {

@@ -3,9 +3,13 @@ use crate::wire::Wire;
 use bytes::BytesMut;
 use log::{debug, error, trace};
 use std::fs;
+use std::io::Error;
+use std::io::ErrorKind;
+use std::io::Result;
 use std::os::unix::fs::PermissionsExt;
 pub use std::os::unix::net::SocketAddr;
 pub use std::os::unix::net::UnixDatagram;
+use std::path::Display;
 use std::path::Path;
 
 pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
@@ -22,26 +26,42 @@ pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
     sock
 }
 
-pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) {
+pub trait Pretty {
+    fn pretty(&self) -> Display;
+}
+impl Pretty for &SocketAddr {
+    fn pretty(&self) -> Display {
+        self.as_pathname()
+            .unwrap_or(Path::new("anonymous"))
+            .display()
+    }
+}
+
+pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) -> Result<usize> {
     debug!("Sending {}", msg);
     let mut buf = BytesMut::with_capacity(128);
     match msg.encode(&mut buf) {
         Ok(_) => match sock.send_to_addr(&buf, peer) {
             Ok(len) => {
-                trace!("Sent {} octets to {:?}", len, peer);
+                trace!("Sent {} octets to {}", len, peer.pretty());
+                Ok(len)
             }
             Err(e) => {
-                error!("Failed to send data to {:?}:{}", peer, e)
+                if e.kind() != ErrorKind::WouldBlock {
+                    error!("Failed to send data to '{}':{}", peer.pretty(), e);
+                }
+                Err(e)
             }
         },
-        Err(e) => {
-            error!("Failed to encode message: {:?} ", e);
-        }
+        Err(e) => Err(Error::new(
+            ErrorKind::Other,
+            format!("Fatal: Encoding failure: {e:?}"),
+        )),
     }
 }
 
 impl RpcMsg {
-    pub fn send(&self, sock:&UnixDatagram, peer: &SocketAddr) {
-        send_msg(sock, self, peer);
+    pub fn send(&self, sock: &UnixDatagram, peer: &SocketAddr) -> Result<usize> {
+        send_msg(sock, self, peer)
     }
 }
