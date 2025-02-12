@@ -7,6 +7,7 @@ use std::fs;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::io::Result;
+use std::net::Shutdown;
 use std::os::unix::fs::PermissionsExt;
 pub use std::os::unix::net::SocketAddr;
 pub use std::os::unix::net::UnixDatagram;
@@ -94,7 +95,8 @@ impl RpcMsg {
 
 #[derive(Debug)]
 /// An RpcMsg cache to cache outgoing messages in order
-pub struct MsgCache(VecDeque<(RpcMsg, SocketAddr)>);
+struct MsgCache(VecDeque<(RpcMsg, SocketAddr)>);
+#[allow(unused)]
 impl MsgCache {
     pub fn new() -> Self {
         Self(VecDeque::new())
@@ -182,6 +184,17 @@ impl RpcCachedSock {
     }
 }
 
+impl Drop for RpcCachedSock {
+    fn drop(&mut self) {
+        let _ = self.sock.shutdown(Shutdown::Both);
+        if let Ok(addr) = self.sock.local_addr() {
+            if let Some(path) = addr.as_pathname() {
+                let _ = std::fs::remove_file(path);
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod cached_sock_test {
     use super::RpcCachedSock;
@@ -192,6 +205,7 @@ mod cached_sock_test {
     fn msg_cache() {
         let mut csock =
             RpcCachedSock::new("/tmp/test.sock").expect("Should be able to create sock");
+
         let peer = SocketAddr::from_pathname("nowhere").expect("Should succeed");
 
         // send sequenced responses, starting from 1.
