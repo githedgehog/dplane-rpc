@@ -1,0 +1,61 @@
+name: Rust and CMake Test
+
+on:
+    pull_request: {}
+    push:
+        branches:
+        - "master"
+
+concurrency:
+    group: "${{ github.workflow }}:${{ github.event.pull_request.number || github.event.after }}"
+    cancel-in-progress: true
+
+
+jobs:
+
+    check_changes:
+        name: "Deduce required tests from code changes"
+        runs-on: "ubuntu-latest"
+        outputs:
+          devfiles: "${{ steps.changes.outputs.devfiles }}"
+        steps:
+          - name: "Checkout"
+            if: "${{ !github.event.pull_request }}"
+            uses: "actions/checkout@v4"
+            with:
+              persist-credentials: "false"
+              fetch-depth: "0"
+          - name: "Check code changes"
+            uses: "dorny/paths-filter@v3"
+            id: "changes"
+            with:
+              filters: |
+                devfiles:
+                  - '!(README.md|.gitignore|.github/**)'
+                  - '.github/workflows/test.yml'
+
+    test:
+        name: "Build libraries and run echo test"
+        needs: [ check_changes ]
+        if: "${{ needs.check_changes.outputs.devfiles == 'true' }}"
+        runs-on: "lab"
+        strategy:
+            fail-fast: true
+
+        steps:
+        - name: "Checkout repository"
+          uses: "actions/checkout@v2"
+
+        - name: "Install rust"
+          uses: "dtolnay/rust-toolchain@master"
+          with:
+            toolchain: "stable"
+            targets: "x86_64-unknown-linux-gnu"
+
+        - name: Setup cmake
+          uses: jwlawson/actions-setup-cmake@v2
+          with:
+            cmake-version: '3.24.x'
+
+        - name: "Run tests"
+          run: ./test.sh
