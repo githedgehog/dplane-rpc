@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 pub use crate::objects::*;
 use crate::wire::WireError;
 use std::fmt::Display;

@@ -9,6 +9,10 @@ However, it avoids the need to generate bindings from C to Rust or Rust to C, th
 It is expected that the communication happens locally over a unix socket, in a message (datagram) oriented fashion.
 Still, the wire format is such that other transports could be used if needed.
 
+## License
+
+This package is licensed under the
+[Apache License, Version 2.0](LICENSE).
 
 ## General considerations, patterns, semantics and rules
 * The communication between the CP and DP can be thought of as an **RPC**  consisting, mostly, of **request-response** pairs.

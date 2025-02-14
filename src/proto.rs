@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 use num_derive::FromPrimitive;
 
 /* The version of this wire format */

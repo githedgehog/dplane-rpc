@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 pub use crate::proto::*;
 use crate::wire::WireError;
 pub use mac_address::MacAddress;

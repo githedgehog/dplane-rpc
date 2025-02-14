@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 use crate::msg::RpcMsg;
 use crate::wire::Wire;
 use bytes::BytesMut;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 #[rustfmt::skip]
 
 use cbindgen::{Config, EnumConfig, ExportConfig, ItemType, Language, RenameRule};

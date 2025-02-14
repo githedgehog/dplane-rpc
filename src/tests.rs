@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 #[cfg(test)]
 mod positive_tests {
     use crate::msg::*;

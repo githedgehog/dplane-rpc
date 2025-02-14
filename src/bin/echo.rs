@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 use log::{debug, info, warn};
 use std::os::unix::net::{SocketAddr, UnixDatagram};
 use std::process;

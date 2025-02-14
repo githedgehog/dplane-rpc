@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright Open Network Fabric Authors
+
 #include "dp_msg.h"
 #include "common.h"
 #include "wire.h"
