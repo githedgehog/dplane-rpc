@@ -7,9 +7,7 @@ use bytes::BytesMut;
 use log::{debug, error, trace};
 use std::collections::VecDeque;
 use std::fs;
-use std::io::Error;
-use std::io::ErrorKind;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 use std::net::Shutdown;
 use std::os::unix::fs::PermissionsExt;
 pub use std::os::unix::net::SocketAddr;
@@ -148,6 +146,11 @@ impl RpcCachedSock {
     pub fn new(path: impl AsRef<Path>) -> std::io::Result<RpcCachedSock> {
         let sock = ux_sock_bind(path)?;
         Ok(Self::from_sock(sock))
+    }
+
+    /// Receive over the cached sock. This is just a wrapper to the rx method of unix sock
+    pub fn recv_from(&self, buf: &mut [u8]) -> Result<(usize, SocketAddr)> {
+        self.sock.recv_from(buf)
     }
 
     /// Attempt to send a message. If cache is not empty, queue and send

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Open Network Fabric Authors
 
+#![deny(clippy::all)]
+
 /*!
   Contains definitions and constants used in the wire format. This is the
   source of truth for the codes used in the serialization, their values and
