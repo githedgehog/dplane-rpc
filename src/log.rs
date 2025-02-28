@@ -35,7 +35,7 @@ impl LogConfig {
 }
 
 pub fn init_dplane_rpc_log(cfg: &LogConfig) {
-    tracing_subscriber::fmt()
+    let _ = tracing_subscriber::fmt()
         .with_level(cfg.display_level)
         .with_max_level(cfg.loglevel)
         .with_target(cfg.display_target)
@@ -43,5 +43,5 @@ pub fn init_dplane_rpc_log(cfg: &LogConfig) {
         .with_thread_names(cfg.display_thread_names)
         .with_line_number(cfg.show_line_numbers)
         .compact()
-        .init();
+        .try_init();
 }
