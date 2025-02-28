@@ -2,7 +2,7 @@
 // Copyright Open Network Fabric Authors
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use log::{debug, error};
+use log::{error, trace};
 use mac_address::MacAddress;
 use num_traits::FromPrimitive;
 use std::mem::size_of;
@@ -643,7 +643,7 @@ impl Wire<MsgType> for MsgType {
 impl Wire<RpcMsg> for RpcMsg {
     fn decode(buf: &mut Bytes) -> WireResult<RpcMsg> {
         let rx_len = buf.len() as MsgLen;
-        debug!("Decoding {rx_len} octets as RpcMsg ...");
+        trace!("Decoding {rx_len} octets as RpcMsg ...");
 
         /* decode message type */
         let mtype = MsgType::decode(buf)?;
