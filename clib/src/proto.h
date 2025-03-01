@@ -90,12 +90,13 @@ typedef uint8_t ObjType;
  *A type of route.
  */
 enum RouteType {
-  Connected = 1,
-  Static = 2,
-  Ospf = 3,
-  Isis = 4,
-  Bgp = 5,
-  Other = 6,
+  Local = 1,
+  Connected = 2,
+  Static = 3,
+  Ospf = 4,
+  Isis = 5,
+  Bgp = 6,
+  Other = 7,
 };
 typedef uint8_t RouteType;
 

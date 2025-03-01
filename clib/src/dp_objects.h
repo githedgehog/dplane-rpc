@@ -27,7 +27,7 @@ struct ver_info {
 };
 
 struct conn_info {
-    char name [MAX_STRING_LEN + 1];
+    char name[MAX_STRING_LEN + 1];
     uint32_t pid;
     struct ver_info verinfo;
 };
@@ -105,7 +105,7 @@ int ip_route_add_nhop(struct ip_route *route, struct next_hop *nhop);
 /* utils to wrap objects */
 int rmac_as_object(struct RpcObject *object, struct rmac *rmac);
 int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr);
-int conninfo_as_object(struct RpcObject *object,struct conn_info *info);
+int conninfo_as_object(struct RpcObject *object, struct conn_info *info);
 int iproute_as_object(struct RpcObject *object, struct ip_route *route);
 int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
