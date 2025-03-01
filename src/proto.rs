@@ -77,13 +77,14 @@ pub enum ObjType {
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]
 pub enum RouteType {
-    Connected = 1,
-    Static = 2,
-    Ospf = 3,
-    Isis = 4,
-    Bgp = 5,
+    Local = 1,
+    Connected = 2,
+    Static = 3,
+    Ospf = 4,
+    Isis = 5,
+    Bgp = 6,
     #[default]
-    Other = 6,
+    Other = 7,
 }
 
 #[doc = "Action associated to a route"]

@@ -129,6 +129,8 @@ const char *err2str(int e)
 const char *route_type_str(RouteType rt)
 {
     switch (rt) {
+    case Local:
+        return "Local";
     case Connected:
         return "connected";
     case Static:
@@ -150,9 +152,12 @@ const char *route_type_str(RouteType rt)
 const char *route_fwaction_str(ForwardAction a)
 {
     switch (a) {
-    case Forward: return "forward";
-    case Drop: return "drop";
-    default: return "unknown";
+    case Forward:
+        return "forward";
+    case Drop:
+        return "drop";
+    default:
+        return "unknown";
     }
 }
 
