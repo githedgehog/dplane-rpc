@@ -95,7 +95,7 @@ impl SafeReads for Bytes {
     }
     #[rustfmt::skip]
     fn sget_u16_ne(&mut self, hint: &'static str) -> Result<u16, WireError> {
-        if self.remaining() < 1 {
+        if self.remaining() < 2 {
             Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u16>(), hint))
         } else {
             Ok(self.get_u16_ne())
@@ -103,7 +103,7 @@ impl SafeReads for Bytes {
     }
     #[rustfmt::skip]
     fn sget_u32_ne(&mut self, hint: &'static str) -> Result<u32, WireError> {
-        if self.remaining() < 1 {
+        if self.remaining() < 4 {
             Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u32>(), hint))
         } else {
             Ok(self.get_u32_ne())
@@ -111,7 +111,7 @@ impl SafeReads for Bytes {
     }
     #[rustfmt::skip]
     fn sget_u64_ne(&mut self, hint: &'static str) -> Result<u64, WireError> {
-        if self.remaining() < 1 {
+        if self.remaining() < 8 {
             Err(WireError::NotEnoughBytes(self.remaining(), size_of::<u64>(), hint))
         } else {
             Ok(self.get_u64_ne())
