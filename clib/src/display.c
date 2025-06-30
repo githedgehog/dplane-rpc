@@ -268,7 +268,7 @@ char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route)
     for (unsigned int i = 0; i < route->num_nhops; i++) {
         nhop = &route->nhops[i];
         if (nhop->address.ipver == IPV4 || nhop->address.ipver == IPV6)
-            fmt_ipaddr(fb, false, " via", &nhop->address);
+            fmt_ipaddr(fb, false, " via ", &nhop->address);
         if (nhop->ifindex)
             fmt_buff(fb, " ifindex:%u", nhop->ifindex);
         fmt_buff(fb, " vrfid:%u", nhop->vrfid);
