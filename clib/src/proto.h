@@ -103,10 +103,10 @@ typedef uint8_t RouteType;
  *The operation to perform in a request.
  */
 enum RpcOp {
-  Connect = 1,
-  Add = 2,
-  Del = 3,
-  Update = 4,
+  Connect = 0,
+  Add = 1,
+  Del = 2,
+  Update = 3,
   MaxRpcOp,
 };
 typedef uint8_t RpcOp;
@@ -115,11 +115,11 @@ typedef uint8_t RpcOp;
  *Code for the result within a response.
  */
 enum RpcResultCode {
-  Ok = 1,
+  Ok = 0,
+  Ignored = 1,
   Failure = 2,
   InvalidRequest = 3,
   Unsupported = 4,
-  Ignored = 5,
   RpcResultCodeMax,
 };
 typedef uint8_t RpcResultCode;

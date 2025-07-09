@@ -29,11 +29,11 @@ pub enum MsgType {
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, FromPrimitive, PartialEq)]
 pub enum RpcResultCode {
-    Ok = 1,
+    Ok = 0,
+    Ignored = 1,
     Failure = 2,
     InvalidRequest = 3,
     Unsupported = 4,
-    Ignored = 5,
     RpcResultCodeMax, /* sentinel, keep last */
 }
 
@@ -51,10 +51,10 @@ pub enum IpVer {
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, FromPrimitive, PartialEq)]
 pub enum RpcOp {
-    Connect = 1,
-    Add = 2,
-    Del = 3,
-    Update = 4,
+    Connect = 0,
+    Add = 1,
+    Del = 2,
+    Update = 3,
     MaxRpcOp, /* sentinel, keep last */
 }
 
