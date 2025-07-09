@@ -31,10 +31,9 @@ pub enum MsgType {
 pub enum RpcResultCode {
     Ok = 1,
     Failure = 2,
-    ExpectMore = 3,
-    InvalidRequest = 4,
-    Unsupported = 5,
-    Ignored = 6,
+    InvalidRequest = 3,
+    Unsupported = 4,
+    Ignored = 5,
     RpcResultCodeMax, /* sentinel, keep last */
 }
 
