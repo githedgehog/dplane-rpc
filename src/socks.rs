@@ -56,10 +56,7 @@ pub fn send_msg(sock: &UnixDatagram, msg: &RpcMsg, peer: &SocketAddr) -> Result<
                 Err(e)
             }
         },
-        Err(e) => Err(Error::new(
-            ErrorKind::Other,
-            format!("Fatal: Encoding failure: {e:?}"),
-        )),
+        Err(e) => Err(Error::other(format!("Fatal: Encoding failure: {e:?}"))),
     }
 }
 

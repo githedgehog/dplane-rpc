@@ -250,3 +250,18 @@ impl Display for RpcMsg {
         }
     }
 }
+
+/* utility */
+impl RpcResultCode {
+    #[allow(unused)]
+    pub fn as_usize(&self) -> usize {
+        match self {
+            RpcResultCode::Ok => 0,
+            RpcResultCode::Ignored => 1,
+            RpcResultCode::Failure => 2,
+            RpcResultCode::InvalidRequest => 3,
+            RpcResultCode::Unsupported => 4,
+            RpcResultCode::RpcResultCodeMax => unreachable!(),
+        }
+    }
+}

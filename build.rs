@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Open Network Fabric Authors
 
-#[rustfmt::skip]
-
 use cbindgen::{Config, EnumConfig, ExportConfig, ItemType, Language, RenameRule};
 
 const DPLANE_PROTO_FILE: &str = "src/proto.rs";
@@ -13,6 +11,7 @@ fn regenerate_check() {
     println!("cargo:rerun-if-changed={}", DPLANE_PROTO_FILE);
 }
 
+#[rustfmt::skip]
 fn gen_proto_c_header() {
     /* enum config */
     let enumeration = EnumConfig {
