@@ -5,7 +5,7 @@ use num_derive::FromPrimitive;
 
 /* The version of this wire format */
 pub const VER_DP_MAJOR: u8 = 1;
-pub const VER_DP_MINOR: u8 = 0;
+pub const VER_DP_MINOR: u8 = 1;
 pub const VER_DP_PATCH: u8 = 0;
 
 /* Some constants */
@@ -55,7 +55,6 @@ pub enum RpcOp {
     Add = 2,
     Del = 3,
     Update = 4,
-    Get = 5,
     MaxRpcOp, /* sentinel, keep last */
 }
 
@@ -69,7 +68,6 @@ pub enum ObjType {
     IfAddress = 2,
     Rmac = 3,
     IpRoute = 4,
-    GetFilter = 5,
     MaxObjType, /* sentinel, keep last */
 }
 

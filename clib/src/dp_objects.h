@@ -107,7 +107,6 @@ int rmac_as_object(struct RpcObject *object, struct rmac *rmac);
 int ifaddress_as_object(struct RpcObject *object, struct ifaddress *ifaddr);
 int conninfo_as_object(struct RpcObject *object, struct conn_info *info);
 int iproute_as_object(struct RpcObject *object, struct ip_route *route);
-int getfilter_as_object(struct RpcObject *object, struct get_filter *filter);
 
 /* object encoding */
 int encode_object(buff_t *buff, struct RpcObject *object);

@@ -84,7 +84,6 @@ pub enum RpcObject {
     IfAddress(IfAddress),
     Rmac(Rmac),
     IpRoute(IpRoute),
-    GetFilter(GetFilter),
 }
 impl RpcObject {
     #[doc = "Return the code (wire code) for an object"]
@@ -94,32 +93,8 @@ impl RpcObject {
             RpcObject::Rmac(_) => ObjType::Rmac,
             RpcObject::ConnectInfo(_) => ObjType::ConnectInfo,
             RpcObject::IpRoute(_) => ObjType::IpRoute,
-            RpcObject::GetFilter(_) => ObjType::GetFilter,
         }
     }
-}
-
-#[doc = "A struct to indicate a filter for the objects to retrieve (e.g. from dataplane). Unlike the other objects,
-this struct is not intended to represent any piece of state. Each field is optional and represents a match criteria
-with distinct options. Hence, the semantics are a logical OR. If multiple fields are present only objects satisfying
-all matches shall be returned. The structure is kept flat for simplicity and reuse and for flexibility. E.g. specifying
-no object type and a given Ifindex, the DP should return interface addresses configured on the interface specified as
-well as routes using that interface. If a combination of fields is meaningless, the ObjType takes precedence and the
-spurious filter be ignored. E.g. setting ObjecType to match routes and a MAC address (although in this case, the
-DP could return the routes with next-hops resolving to some MAC at L2)."]
-#[derive(Debug, PartialEq, Default)]
-pub struct GetFilter {
-    pub otype: Vec<ObjType>,
-    pub vrfid: Vec<VrfId>,
-    /*
-       pub prefix: Option<Vec<IpAddr>>,
-       pub routetype: Option<Vec<RouteType>>,
-       pub address: Option<Vec<IpAddr>>,
-       pub ifindex: Option<Vec<Ifindex>>,
-       pub mac: Option<Vec<MacAddress>>,
-       pub vni: Option<Vec<Vni>>,
-       pub nexthop_address: Option<Vec<IpAddr>>,
-    */
 }
 
 /* Utils */
@@ -248,20 +223,6 @@ impl Display for IpRoute {
         Ok(())
     }
 }
-impl Display for GetFilter {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetFilter ─── ")?;
-        write!(f, "  ObjType: ")?;
-        for otype in &self.otype {
-            write!(f, " {:?}", otype)?;
-        }
-        write!(f, "  vrfId: ")?;
-        for vrfid in &self.vrfid {
-            write!(f, " {:?}", vrfid)?;
-        }
-        Ok(())
-    }
-}
 impl Display for RpcObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -269,7 +230,6 @@ impl Display for RpcObject {
             RpcObject::IfAddress(o) => o.fmt(f),
             RpcObject::Rmac(o) => o.fmt(f),
             RpcObject::IpRoute(o) => o.fmt(f),
-            RpcObject::GetFilter(o) => o.fmt(f),
         }
     }
 }

@@ -48,23 +48,6 @@ int check_object(buff_t *buff, struct RpcObject *object)
     CHECK(buff->r == buff->w);
     CHECK(recovered.type == object->type);
 
-    /* getfilter objects have internal pointers (vectors)
-     * which can't be mem compared.
-     */
-    if (recovered.type == GetFilter) {
-        struct get_filter *f1 = &object->get_filter;
-        struct get_filter *f2 = &recovered.get_filter;
-        CHECK(f1->otypes.len == f2->otypes.len);
-        CHECK(f1->vrfIds.len == f2->vrfIds.len);
-        // this check is ordered
-        CHECK(memcmp(f1->otypes.data, f2->otypes.data, f1->otypes.len * sizeof(ObjType)) == 0);
-        CHECK(memcmp(f1->vrfIds.data, f2->vrfIds.data, f1->vrfIds.len * sizeof(VrfId)) == 0);
-
-        rpc_object_dispose(&recovered);
-        rpc_object_dispose(object);
-        return EXIT_SUCCESS;
-    }
-
     /* compare recovered vs original */
     r = memcmp(&recovered, object, sizeof(recovered));
     if (r != 0) {
@@ -201,27 +184,6 @@ int test_object_iproute_v6(buff_t *buff)
     iproute_as_object(&object, &route);
     return check_object(buff, &object);
 }
-int test_object_get_filter(buff_t *buff)
-{
-    TEST();
-    buff_clear(buff);
-
-    struct get_filter filter = {0};
-    vec_push_u8(&filter.otypes, IpRoute);
-    vec_push_u8(&filter.otypes, IfAddress);
-    vec_push_u8(&filter.otypes, Rmac);
-    vec_push_u32(&filter.vrfIds, 1000);
-    vec_push_u32(&filter.vrfIds, 2000);
-    vec_push_u32(&filter.vrfIds, 3000);
-    vec_push_u32(&filter.vrfIds, 4000);
-    vec_push_u32(&filter.vrfIds, 5000);
-
-    /* wrap it */
-    struct RpcObject object;
-    memset(&object, 0, sizeof(object));
-    getfilter_as_object(&object, &filter);
-    return check_object(buff, &object);
-}
 int test_object_encoding(buff_t *buff)
 {
     if (test_object_rmac(buff) != EXIT_SUCCESS)
@@ -237,9 +199,6 @@ int test_object_encoding(buff_t *buff)
         return EXIT_FAILURE;
 
     if (test_object_iproute_v6(buff) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
-
-    if (test_object_get_filter(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;

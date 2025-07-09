@@ -32,8 +32,7 @@ Sequencing should help pairing responses and logging and troubleshooting.
 * The handling of requests **MUST be ordered** to avoid race conditions: a peer may not execute request N before processing request K for any K<N.
 
 * The interactions are expected to be mostly CRUD-like.
-Hence, requests may include a certain **object** to be `added`, `deleted`,  `updated` or retrieved (`get`).
-The  `get` operation is included so that this same wire format can be used to retrieve the internal state of the DP on request.
+Hence, requests may include a certain **object** to be `added`, `deleted` or `updated`.
 In addition, a `connect` operation is included as part of a request.
 The purpose of this is to check that both ends use the same version of the protocol.
 
@@ -65,9 +64,6 @@ Type indicates the type of message (Request, Response, Notification or Control) 
 Type has only one octet.
 This allows for 256 message types, which should suffice in all cases.
 A message length of 2 octets allows to encode messages of up to 64K, which should be sufficient in most cases.
-The only case where that may impose a limit is in state-retrieval operations.
-While we could extend it to 4 octets, sending huge messages may not be ideal for memory reasons at the receiving side.
-In order to handle such a situation, we may just add some flag in a response (to a get operation) indicating if more response messages follow.
 
 ```
 +-------+-----------+-------------------------- - - - -------------------+
@@ -88,7 +84,7 @@ The format of a request is as shown below:
 
 where:
 
-* **op**: 1 octet, indicates the type of request (Add, Delete, Update, Get)
+* **op**: 1 octet, indicates the type of request (Add, Delete, Update, Connect)
 * **sequence-number**: 8 octets, is the request number which may be unlimited in practice.
 
 * **oType**: 1 octet, encodes the type of object that follows.
@@ -175,7 +171,7 @@ Enforcing a particular endianness can be easily done if needed.
 
 ## Object types
 Objects that we have identified so far include the following.
-These may appear in requests (e.g. an object to be `add`ed) or in responses to a `get` request. They could also be added in other type of responses if that was needed.
+These may appear in requests (e.g. an object to be `add`ed).
 
 
 ### Interface address
@@ -254,44 +250,6 @@ The dataplane should determine the mac of the next-hop and the mac of the local 
 |  (variab) |     (6)       |    (4)     |
 +-----------+---------------+------------+
 ```
-
-### GetFilter
-
-**Purpose**: When performing a Get request, it may be desirable to retrieve only certain types of objects, or only those that meet some criteria.
-The GetFilter is the object used to that end and includes optional lists of `match types`. A match type indicates a property of an object and the `GetFilter` can specify the set of values that such a property (and others) can have for objects to be eligible. For instance, if a match type is `VrfId` with its corresponding values (100, 200, 300), then only objects associated with those VRFs should be retrieved (logical OR). If more than a match type is specified, objects qualify when they match all of the match types, in other words, when they satisfy all the conditions (logical AND).
-
-**format**: The format is as shown below. An octet (num Mtypes) indicates the number of distinct match types present, and appears once.
-That number is followed by a match type code (Mtype), the number of 'allowed' values, and the values themselves.
-
-```
-+-------+-------+-----+----------++-------+-----+-----+-----+-----++-------+-----+-----+-----+
-|  num  | Mtype | num | value(s) || Mtype | num |  values(s)      || Mtype | num | value(s)  |
-| Mtypes|  (1)  | (1) |          ||  (1)  | (1) |                 ||  (1)  | (1) |           |
-+-------+-------+-----+----------++-------+-----+-----+-----+-----++-------+-----+-----+-----+
-   (1)
-```
-For instance, to retrieve only objects of type `route`, the wire encoding of the `GetFilter` would be:
-
-```
-+-------+-------+-----+-----+
-|  1    | object| 1   |type |
-|       | type  |     |route|
-+-------+-------+-----+-----+
-```
-because there is only one match type `Mtype = Object-type` with one value `type route`.
-If additional filtering was desired so that only the routes of VRFs 100, 200 and 300 were wanted, an additional match type `VrfId` could be added with those values and the encoding be would be:
-
-```
-+-------+-------+-----+-----++-------+-----+-----+-----+-----+
-|  2    | object| 1   |type || vrfid |  3  | 100 | 200 | 300 |
-|       | type  |     |route||       |     |     |     |     |
-+-------+-------+-----+-----++-------+-----+-----+-----+-----+
-```
-Note:
-* The order of match types does not matter, nor does that of the values within each match type.
-
-* On the wire, the size of the **values** for a given match type is implied by the type of match. E.g. if a match type is a vrfId, the vrf Ids that follow are 4 octets in length since that is the size that is used throughout to encode VRF Ids.
-
 
 ## Code organization
 

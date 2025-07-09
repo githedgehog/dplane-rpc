@@ -339,64 +339,6 @@ impl Wire<ConnectInfo> for ConnectInfo {
         Ok(())
     }
 }
-impl Wire<GetFilter> for GetFilter {
-    fn decode(buf: &mut Bytes) -> WireResult<GetFilter> {
-        let num_mtypes = buf.sget_u8("num-mtypes")?;
-        let mut filter = GetFilter::default();
-
-        for _k in 1..=num_mtypes {
-            let mtype = MatchType::decode(buf)?;
-            let num_matches = buf.sget_u8("num-matches")?;
-            match mtype {
-                MatchType::MtNone => {}
-                MatchType::MtObjType => {
-                    for _n in 1..=num_matches {
-                        filter.otype.push(ObjType::decode(buf)?);
-                    }
-                }
-                MatchType::MtVrf => {
-                    for _n in 1..=num_matches {
-                        filter.vrfid.push(VrfId::decode(buf)?);
-                    }
-                }
-            };
-        }
-        Ok(filter)
-    }
-    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        let offset = buf.len();
-        let mut num_mtypes = 0_u8;
-        buf.put_u8(0); // reserve
-
-        let vec_len = self.otype.len();
-        if vec_len > 0 {
-            if vec_len > u8::MAX as usize {
-                return Err(WireError::MatchListTooLong);
-            }
-            num_mtypes += 1;
-            MatchType::MtObjType.encode(buf)?;
-            buf.put_u8(vec_len as u8);
-            for o in &self.otype {
-                o.encode(buf)?;
-            }
-        }
-
-        let vec_len = self.vrfid.len();
-        if vec_len > 0 {
-            if vec_len > u8::MAX as usize {
-                return Err(WireError::MatchListTooLong);
-            }
-            num_mtypes += 1;
-            MatchType::MtVrf.encode(buf)?;
-            buf.put_u8(vec_len as u8);
-            for o in &self.vrfid {
-                o.encode(buf)?;
-            }
-        }
-        buf[offset..offset + size_of::<u8>()].copy_from_slice(&num_mtypes.to_ne_bytes());
-        Ok(())
-    }
-}
 impl Wire<Rmac> for Rmac {
     fn decode(buf: &mut Bytes) -> WireResult<Rmac> {
         let address = IpAddr::decode(buf)?;
@@ -520,7 +462,6 @@ impl Wire<Option<RpcObject>> for RpcObject {
             ObjType::IfAddress => Some(RpcObject::IfAddress(IfAddress::decode(buf)?)),
             ObjType::Rmac => Some(RpcObject::Rmac(Rmac::decode(buf)?)),
             ObjType::IpRoute => Some(RpcObject::IpRoute(IpRoute::decode(buf)?)),
-            ObjType::GetFilter => Some(RpcObject::GetFilter(GetFilter::decode(buf)?)),
             ObjType::None => None,
             _ => return Err(WireError::InvalidObjTtype(otype as u8)),
         };
@@ -534,7 +475,6 @@ impl Wire<Option<RpcObject>> for RpcObject {
             RpcObject::IfAddress(o) => o.encode(buf),
             RpcObject::Rmac(o) => o.encode(buf),
             RpcObject::IpRoute(o) => o.encode(buf),
-            RpcObject::GetFilter(o) => o.encode(buf),
         }
     }
 }

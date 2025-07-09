@@ -47,13 +47,6 @@ int fmt_object_samples(void)
     iproute_as_object(&object, &route6);
     fprintf(stderr, "%s\n", fmt_rpcobject(&fb, true, &object));
 
-    /* getfilter as Rpcobject */
-    fprintf(stderr, "\n────────────────── fmt getfilter ──────────────────\n");
-    struct get_filter filter = build_get_filter();
-    fprintf(stderr, "%s\n", fmt_getfilter(&fb, true, &filter));
-    vec_dispose(&filter.otypes);
-    vec_dispose(&filter.vrfIds);
-
     return EXIT_SUCCESS;
 }
 

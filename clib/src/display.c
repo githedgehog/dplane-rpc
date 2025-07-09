@@ -41,8 +41,6 @@ const char *str_object_type(ObjType type)
         return "Rmac";
     case IpRoute:
         return "Iproute";
-    case GetFilter:
-        return "Getfilter";
     default:
         return "Unknown";
     }
@@ -60,8 +58,6 @@ const char *str_rpc_op(RpcOp op)
         return "Delete";
     case Update:
         return "Update";
-    case Get:
-        return "Get";
     default:
         return "Unknown";
     }
@@ -288,25 +284,6 @@ char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route)
     }
     return fb->buff;
 }
-char *fmt_getfilter(struct fmt_buff *fb, bool clear, struct get_filter *filter)
-{
-    BUG(!fb || !filter, NULL);
-    if (clear)
-        clear_fmt_buff(fb);
-
-    fmt_buff(fb, "Getfilter ─── otypes(%zu):", filter->otypes.len);
-    for (size_t i = 0; i < filter->otypes.len; i++) {
-        uint8_t otype = filter->otypes.data[i];
-        fmt_buff(fb, " %s", str_object_type(otype));
-    }
-
-    fmt_buff(fb, " vrfIds(%zu):", filter->vrfIds.len);
-    for (size_t i = 0; i < filter->vrfIds.len; i++) {
-        uint32_t vrfid = filter->vrfIds.data[i];
-        fmt_buff(fb, " %u", vrfid);
-    }
-    return fb->buff;
-}
 char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object)
 {
     BUG(!fb || !object, NULL);
@@ -324,8 +301,6 @@ char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object)
         return fmt_rmac(fb, clear, &object->rmac);
     case IpRoute:
         return fmt_iproute(fb, clear, &object->route);
-    case GetFilter:
-        return fmt_getfilter(fb, clear, &object->get_filter);
     default:
         if (clear)
             clear_fmt_buff(fb);

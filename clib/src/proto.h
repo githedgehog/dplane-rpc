@@ -13,7 +13,7 @@
 
 #define VER_DP_MAJOR 1
 
-#define VER_DP_MINOR 0
+#define VER_DP_MINOR 1
 
 #define VER_DP_PATCH 0
 
@@ -81,7 +81,6 @@ enum ObjType {
   IfAddress = 2,
   Rmac = 3,
   IpRoute = 4,
-  GetFilter = 5,
   MaxObjType,
 };
 typedef uint8_t ObjType;
@@ -108,7 +107,6 @@ enum RpcOp {
   Add = 2,
   Del = 3,
   Update = 4,
-  Get = 5,
   MaxRpcOp,
 };
 typedef uint8_t RpcOp;

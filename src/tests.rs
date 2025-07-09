@@ -34,13 +34,6 @@ mod positive_tests {
     }
 
     #[test]
-    fn test_rpcmsg_request_without_object() {
-        let req = RpcRequest::new(RpcOp::Get, 123456);
-        let msg = req.wrap_in_msg();
-        test_encode_decode_msg(&msg);
-    }
-
-    #[test]
     fn test_rpcmsg_request_connect() {
         let coninfo = ConnectInfo {
             name: "test".to_owned(),
@@ -296,26 +289,6 @@ mod positive_tests {
                 break;
             }
         }
-    }
-
-    #[test]
-    fn test_rpcmsg_request_get_with_empty_filter() {
-        let filter = GetFilter::default();
-        let req = RpcRequest::new(RpcOp::Get, 11223344).set_object(RpcObject::GetFilter(filter));
-
-        let msg = req.wrap_in_msg();
-        test_encode_decode_msg(&msg);
-    }
-
-    #[test]
-    fn test_rpcmsg_request_get_with_filter() {
-        let filter = GetFilter {
-            otype: vec![ObjType::IpRoute, ObjType::IfAddress, ObjType::Rmac],
-            vrfid: vec![11, 21, 31, 41],
-        };
-        let req = RpcRequest::new(RpcOp::Get, 13).set_object(RpcObject::GetFilter(filter));
-        let msg = req.wrap_in_msg();
-        test_encode_decode_msg(&msg);
     }
 }
 
