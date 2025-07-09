@@ -3,4 +3,5 @@ clib/build/
 clib/.cproject
 clib/.project
 clib/.settings
+.vscode/
 
