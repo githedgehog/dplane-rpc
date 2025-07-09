@@ -122,6 +122,7 @@ enum RpcResultCode {
   ExpectMore = 3,
   InvalidRequest = 4,
   Unsupported = 5,
+  Ignored = 6,
   RpcResultCodeMax,
 };
 typedef uint8_t RpcResultCode;

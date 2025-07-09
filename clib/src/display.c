@@ -81,6 +81,8 @@ const char *str_rescode(RpcResultCode code)
         return "Unsupported";
     case ExpectMore:
         return "ExpectMore";
+    case Ignored:
+        return "Ignored";
     default:
         return "Unknown";
     }
