@@ -5,7 +5,6 @@
 
 #include "buffer.h"
 #include "dp_types.h"
-#include "vec.h"
 #include <stdbool.h>
 
 // can override with cmake
@@ -75,11 +74,6 @@ struct ip_route {
     struct next_hop nhops[MAX_NHOPS];
 };
 
-struct get_filter {
-    vec_u8 otypes;
-    vec_u32 vrfIds;
-};
-
 struct RpcObject {
     ObjType type;
     union {
@@ -87,7 +81,6 @@ struct RpcObject {
         struct rmac rmac;
         struct ifaddress ifaddress;
         struct ip_route route;
-        struct get_filter get_filter;
     };
 };
 
@@ -111,9 +104,6 @@ int iproute_as_object(struct RpcObject *object, struct ip_route *route);
 /* object encoding */
 int encode_object(buff_t *buff, struct RpcObject *object);
 int decode_object(buff_t *buff, struct RpcObject *object);
-
-/* disposal */
-void rpc_object_dispose(struct RpcObject *object);
 
 /* version info initializer */
 extern const struct ver_info VER_INFO_INITIALIZER;
