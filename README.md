@@ -45,8 +45,7 @@ The wire format allows for requests not to carry any object at all, even if sema
 * Responses may carry multiple objects to allow for state-retrieval operations.
 
 * Since the communication may be local over a Unix socket, peers should know if the other end is alive / responsive.
-Control messages are intended to suit that purpose (e.g.
-by including some keepalive control message).
+Control messages are intended to suit that purpose (e.g. by including some keepalive control message).
 
 * There should be a way to "regain synchronization" in the unfortunate case where a message cannot be successfully decoded.
 The notification messages are intended for that purpose; at least to report that a fatal condition occurred.

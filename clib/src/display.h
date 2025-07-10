@@ -27,7 +27,6 @@ char *fmt_conninfo(struct fmt_buff *fb, bool clear, struct conn_info *c);
 char *fmt_rmac(struct fmt_buff *fb, bool clear, struct rmac *rmac);
 char *fmt_ifaddress(struct fmt_buff *fb, bool clear, struct ifaddress *ifaddr);
 char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route);
-char *fmt_getfilter(struct fmt_buff *fb, bool clear, struct get_filter *filter);
 char *fmt_rpcobject(struct fmt_buff *fb, bool clear, struct RpcObject *object);
 
 /* message formatters (in fmt_buff) */
