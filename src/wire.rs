@@ -568,6 +568,16 @@ impl Wire<RpcNotification> for RpcNotification {
     }
 }
 
+/* RpcControl */
+impl Wire<RpcControl> for RpcControl {
+    fn decode(_buf: &mut Bytes) -> WireResult<RpcControl> {
+        Ok(RpcControl::default())
+    }
+    fn encode(&self, _buf: &mut BytesMut) -> Result<(), WireError> {
+        Ok(())
+    }
+}
+
 /* RpcMsg and MsgType */
 impl Wire<MsgType> for MsgType {
     fn decode(buf: &mut Bytes) -> WireResult<MsgType> {
@@ -597,7 +607,7 @@ impl Wire<RpcMsg> for RpcMsg {
         let mut msg = match mtype {
             MsgType::Request => Ok(RpcMsg::Request(RpcRequest::decode(buf)?)),
             MsgType::Response => Ok(RpcMsg::Response(RpcResponse::decode(buf)?)),
-            MsgType::Control => unimplemented!(),
+            MsgType::Control => Ok(RpcMsg::Control(RpcControl::decode(buf)?)),
             MsgType::Notification => Ok(RpcMsg::Notification(RpcNotification::decode(buf)?)),
         };
 
@@ -624,7 +634,7 @@ impl Wire<RpcMsg> for RpcMsg {
             RpcMsg::Request(m) => m.encode(buf)?,
             RpcMsg::Response(m) => m.encode(buf)?,
             RpcMsg::Notification(m) => m.encode(buf)?,
-            _ => unimplemented!(),
+            RpcMsg::Control(m) => m.encode(buf)?,
         };
         // set the actual length
         if buf.len() > u16::MAX as usize {
