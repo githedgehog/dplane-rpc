@@ -26,9 +26,7 @@ pub struct RpcResponse {
 
 #[doc = "A control message"]
 #[derive(Debug, PartialEq, Default)]
-pub struct RpcControl {
-    // Todo: not needed now
-}
+pub struct RpcControl {}
 
 #[doc = "A notification message"]
 #[derive(Debug, PartialEq, Default)]
