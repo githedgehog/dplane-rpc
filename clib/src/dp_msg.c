@@ -87,12 +87,11 @@ static int decode_response(buff_t *buff, struct RpcResponse *resp)
 static int encode_control(buff_t *buff, struct RpcControl *ctl)
 {
     // Control messages are empty at the moment
-    return 0;
+    return E_OK;
 }
 static int decode_control(buff_t *buff, struct RpcControl *ctl)
 {
-    // TODO
-    return -1;
+    return E_OK;
 }
 
 /* msg:notification */
