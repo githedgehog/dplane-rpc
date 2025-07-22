@@ -26,7 +26,9 @@ pub struct RpcResponse {
 
 #[doc = "A control message"]
 #[derive(Debug, PartialEq, Default)]
-pub struct RpcControl {}
+pub struct RpcControl {
+    pub refresh: u8, /* treated as bool */
+}
 
 #[doc = "A notification message"]
 #[derive(Debug, PartialEq, Default)]
@@ -235,7 +237,7 @@ impl Display for RpcNotification {
 }
 impl Display for RpcControl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Control")
+        write!(f, "Control refresh:{}", self.refresh)
     }
 }
 impl Display for RpcMsg {

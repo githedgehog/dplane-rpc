@@ -348,6 +348,19 @@ int test_msg_response(buff_t *buff)
     return EXIT_SUCCESS;
 }
 
+int test_msg_control(buff_t *buff) {
+    TEST();
+    buff_clear(buff);
+
+    struct RpcMsg msg = {0};
+    struct RpcControl ctl = {0};
+
+    ctl.refresh = 1;
+    msg.type = Control;
+    msg.control = ctl;
+
+    return check_msg(buff, &msg);
+}
 
 int main (int argc, char **argv)
 {
@@ -365,6 +378,10 @@ int main (int argc, char **argv)
 
     /* test msg:response encoding / decoding */
     if (test_msg_response(buff) != EXIT_SUCCESS)
+        return EXIT_FAILURE;
+
+    /* test msg:control encoding / decoding */
+    if (test_msg_control(buff) != EXIT_SUCCESS)
         return EXIT_FAILURE;
 
     buff_free(buff);

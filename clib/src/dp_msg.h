@@ -21,6 +21,7 @@ struct RpcResponse {
 };
 
 struct RpcControl {
+    uint8_t refresh;
 };
 
 struct RpcNotification {

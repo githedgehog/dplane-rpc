@@ -225,6 +225,13 @@ mod positive_tests {
     }
 
     #[test]
+    fn test_rpcmsg_control() {
+        let ctl = RpcControl{ refresh: 1 };
+        let msg = ctl.wrap_in_msg();
+        test_encode_decode_msg(&msg);
+    }
+
+    #[test]
     fn test_rpcmsg_response_with_objects() {
         // create a response
         let mut resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);

@@ -336,7 +336,7 @@ char *fmt_rpc_control(struct fmt_buff *fb, bool clear, struct RpcControl *ctl)
     BUG(!fb || !ctl, NULL);
     if (clear)
         clear_fmt_buff(fb);
-    return fmt_buff(fb, "Control");
+    return fmt_buff(fb, "Control refresh:%u", ctl->refresh);
 }
 char *fmt_rpc_notification(struct fmt_buff *fb, bool clear, struct RpcNotification *ctl)
 {

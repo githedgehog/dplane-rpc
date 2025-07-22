@@ -577,10 +577,14 @@ impl Wire<RpcNotification> for RpcNotification {
 
 /* RpcControl */
 impl Wire<RpcControl> for RpcControl {
-    fn decode(_buf: &mut Bytes) -> WireResult<RpcControl> {
-        Ok(RpcControl::default())
+    fn decode(buf: &mut Bytes) -> WireResult<RpcControl> {
+        let refresh = buf.sget_u8("refresh")?;
+        Ok(RpcControl{
+            refresh
+        })
     }
-    fn encode(&self, _buf: &mut BytesMut) -> Result<(), WireError> {
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        buf.put_u8(self.refresh);
         Ok(())
     }
 }

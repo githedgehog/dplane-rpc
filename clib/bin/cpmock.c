@@ -136,6 +136,10 @@ static void log_msg(const char *prefix, struct RpcMsg *msg)
                     str_rpc_op(msg->request.op),
                     str_object_type(msg->request.object.type));
             break;
+        case Control:
+        case Notification:
+            log_dbg("%s msg: %s", prefix, str_msg_type(msg->type));
+            break;
         default:
             // we only cover requests atm
             break;
@@ -241,6 +245,14 @@ static int send_notification(void)
     struct RpcMsg msg = {.type = Notification};
     return send_msg(&msg);
 }
+static int send_control(void)
+{
+    struct RpcControl ctl = {0};
+    ctl.refresh = 1;
+
+    struct RpcMsg msg = {.type = Control, .control = ctl};
+    return send_msg_compare_echo(&msg);
+}
 
 int main(int argc, char **argv)
 {
@@ -283,6 +295,11 @@ int main(int argc, char **argv)
 
     /* Request: Ip route (Ipv6) */
     r = send_ipv6_route();
+    if (r != EXIT_SUCCESS)
+        return r;
+
+    /* Send control */
+    r = send_control();
     if (r != EXIT_SUCCESS)
         return r;
 

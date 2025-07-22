@@ -86,11 +86,18 @@ static int decode_response(buff_t *buff, struct RpcResponse *resp)
 /* msg:control */
 static int encode_control(buff_t *buff, struct RpcControl *ctl)
 {
-    // Control messages are empty at the moment
+    int r;
+    if ((r = put_u8(buff, ctl->refresh)))
+        return r;
+
     return E_OK;
 }
 static int decode_control(buff_t *buff, struct RpcControl *ctl)
 {
+    int r;
+    if ((r = get_u8(buff, &ctl->refresh)))
+        return r;
+
     return E_OK;
 }
 
