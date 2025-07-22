@@ -229,7 +229,7 @@ char *fmt_conninfo(struct fmt_buff *fb, bool clear, struct conn_info *c)
     if (clear)
         clear_fmt_buff(fb);
 
-    fmt_buff(fb, "ConnInfo ─── name: %s pid: %u ", c->name, c->pid);
+    fmt_buff(fb, "ConnInfo ─── name: %s pid: %u synt: %lu ", c->name, c->pid, c->synt);
     return fmt_verinfo(fb, false, &c->verinfo);
 }
 char *fmt_rmac(struct fmt_buff *fb, bool clear, struct rmac *rmac)

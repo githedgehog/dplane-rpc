@@ -43,6 +43,7 @@ mod positive_tests {
                 minor: 66,
                 patch: 99,
             },
+            synt: 1714,
         };
         let req = RpcRequest::new(RpcOp::Connect, 999).set_object(RpcObject::ConnectInfo(coninfo));
         let msg = req.wrap_in_msg();

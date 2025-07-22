@@ -28,7 +28,8 @@ struct conn_info build_conn_info(void)
     struct conn_info info = {
        .name = "test",
        .pid = 1234,
-       .verinfo = build_ver_info()
+       .verinfo = build_ver_info(),
+       .synt = 1492
     };
     return info;
 }

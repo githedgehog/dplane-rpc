@@ -8,7 +8,7 @@ use std::fmt::Display;
 pub use std::net::IpAddr;
 
 #[doc = "A versioning information object."]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct VerInfo {
     pub major: u8,
     pub minor: u8,
@@ -16,11 +16,12 @@ pub struct VerInfo {
 }
 
 #[doc = "A connection information object identifying the requestor."]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ConnectInfo {
     pub pid: u32,
     pub name: String,
     pub verinfo: VerInfo,
+    pub synt: u64,
 }
 
 #[doc = "A (IP, MAC, Vni) tuple"]
@@ -153,8 +154,8 @@ impl Display for ConnectInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "ConnectInfo ─── name:{} pid:{} verinfo:{}",
-            &self.name, self.pid, self.verinfo
+            "ConnectInfo ─── name:{} pid:{} verinfo:{} synt:{}",
+            &self.name, self.pid, self.verinfo, self.synt
         )
     }
 }

@@ -29,6 +29,7 @@ struct conn_info {
     char name[MAX_STRING_LEN + 1];
     uint32_t pid;
     struct ver_info verinfo;
+    uint64_t synt;
 };
 
 struct rmac {

@@ -215,8 +215,10 @@ static int encode_conn_info(buff_t *buff, struct conn_info *info)
         return r;
     if ((r = put_u32(buff, info->pid)) != E_OK)
         return r;
+    if ((r = encode_verinfo(buff, &info->verinfo)) != E_OK)
+        return r;
 
-    return encode_verinfo(buff, &info->verinfo);
+    return put_u64(buff, info->synt);
 }
 static int decode_conn_info(buff_t *buff, struct conn_info *info)
 {
@@ -229,8 +231,10 @@ static int decode_conn_info(buff_t *buff, struct conn_info *info)
         return r;
     if ((r = get_u32(buff, &info->pid)) != E_OK)
         return r;
+    if ((r = decode_verinfo(buff, &info->verinfo)) != E_OK)
+        return r;
 
-    return decode_verinfo(buff, &info->verinfo);
+    return get_u64(buff, &info->synt);
 }
 
 /* ifadddress: encode / decode */

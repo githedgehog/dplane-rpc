@@ -330,12 +330,19 @@ impl Wire<ConnectInfo> for ConnectInfo {
         let name = buf.sget_string("name")?;
         let pid = buf.sget_u32_ne("pid")?;
         let verinfo = VerInfo::decode(buf)?;
-        Ok(ConnectInfo { name, pid, verinfo })
+        let synt = buf.sget_u64_ne("synt")?;
+        Ok(ConnectInfo {
+            name,
+            pid,
+            verinfo,
+            synt,
+        })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         put_string(buf, &self.name)?;
         buf.put_u32_ne(self.pid);
         self.verinfo.encode(buf)?;
+        buf.put_u64_ne(self.synt);
         Ok(())
     }
 }
