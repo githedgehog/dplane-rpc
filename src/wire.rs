@@ -2,7 +2,7 @@
 // Copyright Open Network Fabric Authors
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use log::{error, trace};
+use tracing::{error, trace};
 use mac_address::MacAddress;
 use num_traits::FromPrimitive;
 use std::mem::size_of;
