@@ -6,9 +6,9 @@ use std::process;
 use tracing::{debug, info, warn};
 
 use bytes::Bytes;
-use dplane_rpc::log::{init_dplane_rpc_log, LogConfig};
+use dplane_rpc::log::{LogConfig, init_dplane_rpc_log};
 use dplane_rpc::msg::*;
-use dplane_rpc::socks::{ux_sock_bind, Pretty};
+use dplane_rpc::socks::{Pretty, ux_sock_bind};
 use dplane_rpc::wire::Wire;
 
 fn process_rx_data(sock: &UnixDatagram, peer: &SocketAddr, data: &[u8]) {
