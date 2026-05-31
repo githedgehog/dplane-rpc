@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Open Network Fabric Authors
 
-pub use tracing::{debug, error, info, warn};
 pub use tracing::Level;
+pub use tracing::{debug, error, info, warn};
 
 pub struct LogConfig {
     pub display_level: bool,

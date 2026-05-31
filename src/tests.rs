@@ -226,7 +226,7 @@ mod positive_tests {
 
     #[test]
     fn test_rpcmsg_control() {
-        let ctl = RpcControl{ refresh: 1 };
+        let ctl = RpcControl { refresh: 1 };
         let msg = ctl.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
