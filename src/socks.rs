@@ -4,7 +4,7 @@
 use crate::msg::RpcMsg;
 use crate::wire::Wire;
 use bytes::BytesMut;
-use log::{error, trace};
+use tracing::{error, trace};
 use mio::Interest;
 use std::collections::VecDeque;
 use std::fs;
@@ -237,7 +237,7 @@ mod cached_sock_test {
     use crate::log::{init_dplane_rpc_log, LogConfig};
     use crate::msg::*;
     use bytes::Bytes;
-    use log::debug;
+    use tracing::debug;
     use mio::unix::SourceFd;
     use mio::{Events, Interest, Poll, Token};
     use std::os::unix::net::SocketAddr;
