@@ -30,10 +30,10 @@ pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
 }
 
 pub trait Pretty {
-    fn pretty(&self) -> Display;
+    fn pretty(&self) -> Display<'_>;
 }
 impl Pretty for &SocketAddr {
-    fn pretty(&self) -> Display {
+    fn pretty(&self) -> Display<'_> {
         self.as_pathname()
             .unwrap_or(Path::new("anonymous"))
             .display()
