@@ -4,7 +4,7 @@
 
 #pragma once
 
-/* Generated with cbindgen:0.27.0 */
+/* Generated with cbindgen:0.29.3 */
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -24,58 +24,91 @@
 #define IPV6_ADDR_LEN 16
 
 /**
- *The type of encapsulation towards some next-hop. NoEncap if no encapsulation is used.
- */
-enum EncapType {
-  NoEncap = 0,
-  VXLAN = 1,
-};
-typedef uint8_t EncapType;
-
-/**
- *Action associated to a route
- */
-enum ForwardAction {
-  Forward = 0,
-  Drop = 1,
-};
-typedef uint8_t ForwardAction;
-
-/**
- *Ip version for an address or prefix. None if not present.
- */
-enum IpVer {
-  NONE = 0,
-  IPV4 = 1,
-  IPV6 = 2,
-};
-typedef uint8_t IpVer;
-
-/**
- *A type of match indicated in a GetFilter object in a Get request.
- */
-enum MatchType {
-  MtNone = 0,
-  MtObjType = 1,
-  MtVrf = 2,
-};
-typedef uint8_t MatchType;
-
-/**
  *Code for the type of a message
  */
-enum MsgType {
+enum MsgType
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
   Control = 1,
   Request = 2,
   Response = 3,
   Notification = 4,
 };
+#if __STDC_VERSION__ >= 202311L
+typedef enum MsgType MsgType;
+#else
 typedef uint8_t MsgType;
+#endif // __STDC_VERSION__ >= 202311L
+
+/**
+ *Code for the result within a response.
+ */
+enum RpcResultCode
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  Ok = 0,
+  Ignored = 1,
+  Failure = 2,
+  InvalidRequest = 3,
+  Unsupported = 4,
+  RpcResultCodeMax,
+};
+#if __STDC_VERSION__ >= 202311L
+typedef enum RpcResultCode RpcResultCode;
+#else
+typedef uint8_t RpcResultCode;
+#endif // __STDC_VERSION__ >= 202311L
+
+/**
+ *Ip version for an address or prefix. None if not present.
+ */
+enum IpVer
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  NONE = 0,
+  IPV4 = 1,
+  IPV6 = 2,
+};
+#if __STDC_VERSION__ >= 202311L
+typedef enum IpVer IpVer;
+#else
+typedef uint8_t IpVer;
+#endif // __STDC_VERSION__ >= 202311L
+
+/**
+ *The operation to perform in a request.
+ */
+enum RpcOp
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  Connect = 0,
+  Add = 1,
+  Del = 2,
+  Update = 3,
+  MaxRpcOp,
+};
+#if __STDC_VERSION__ >= 202311L
+typedef enum RpcOp RpcOp;
+#else
+typedef uint8_t RpcOp;
+#endif // __STDC_VERSION__ >= 202311L
 
 /**
  *The type of object that a request operation refers to, such as a route.
  */
-enum ObjType {
+enum ObjType
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
   None = 0,
   ConnectInfo = 1,
   IfAddress = 2,
@@ -83,12 +116,37 @@ enum ObjType {
   IpRoute = 4,
   MaxObjType,
 };
+#if __STDC_VERSION__ >= 202311L
+typedef enum ObjType ObjType;
+#else
 typedef uint8_t ObjType;
+#endif // __STDC_VERSION__ >= 202311L
+
+/**
+ *The type of encapsulation towards some next-hop. NoEncap if no encapsulation is used.
+ */
+enum EncapType
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  NoEncap = 0,
+  VXLAN = 1,
+};
+#if __STDC_VERSION__ >= 202311L
+typedef enum EncapType EncapType;
+#else
+typedef uint8_t EncapType;
+#endif // __STDC_VERSION__ >= 202311L
 
 /**
  *A type of route.
  */
-enum RouteType {
+enum RouteType
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
   Local = 1,
   Connected = 2,
   Static = 3,
@@ -97,32 +155,46 @@ enum RouteType {
   Bgp = 6,
   Other = 7,
 };
+#if __STDC_VERSION__ >= 202311L
+typedef enum RouteType RouteType;
+#else
 typedef uint8_t RouteType;
+#endif // __STDC_VERSION__ >= 202311L
 
 /**
- *The operation to perform in a request.
+ *A type of match indicated in a GetFilter object in a Get request.
  */
-enum RpcOp {
-  Connect = 0,
-  Add = 1,
-  Del = 2,
-  Update = 3,
-  MaxRpcOp,
+enum MatchType
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  MtNone = 0,
+  MtObjType = 1,
+  MtVrf = 2,
 };
-typedef uint8_t RpcOp;
+#if __STDC_VERSION__ >= 202311L
+typedef enum MatchType MatchType;
+#else
+typedef uint8_t MatchType;
+#endif // __STDC_VERSION__ >= 202311L
 
 /**
- *Code for the result within a response.
+ *Action associated to a route
  */
-enum RpcResultCode {
-  Ok = 0,
-  Ignored = 1,
-  Failure = 2,
-  InvalidRequest = 3,
-  Unsupported = 4,
-  RpcResultCodeMax,
+enum ForwardAction
+#if __STDC_VERSION__ >= 202311L
+  : uint8_t
+#endif // __STDC_VERSION__ >= 202311L
+ {
+  Forward = 0,
+  Drop = 1,
 };
-typedef uint8_t RpcResultCode;
+#if __STDC_VERSION__ >= 202311L
+typedef enum ForwardAction ForwardAction;
+#else
+typedef uint8_t ForwardAction;
+#endif // __STDC_VERSION__ >= 202311L
 
 /**
  *Number of next-hops that a route has
