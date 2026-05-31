@@ -29,7 +29,7 @@ mod positive_tests {
         if *msg != msg_dec {
             println!("Decoded message does not match the encoded one");
             println!("Decoded Message:\n {:#?}", &msg_dec);
-            assert!(false);
+            panic!("did not match");
         }
     }
 

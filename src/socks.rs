@@ -221,10 +221,11 @@ impl RpcCachedSock {
 impl Drop for RpcCachedSock {
     fn drop(&mut self) {
         let _ = self.sock.shutdown(Shutdown::Both);
-        if let Ok(addr) = self.sock.local_addr() {
-            if let Some(path) = addr.as_pathname() {
-                let _ = std::fs::remove_file(path);
-            }
+        let Ok(addr) = self.sock.local_addr() else {
+            return;
+        };
+        if let Some(path) = addr.as_pathname() {
+            let _ = std::fs::remove_file(path);
         }
     }
 }
