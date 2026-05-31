@@ -4,7 +4,7 @@
 use crate::msg::RpcMsg;
 use crate::wire::Wire;
 use bytes::BytesMut;
-use log::{error, trace};
+use tracing::{error, trace};
 use mio::Interest;
 use std::collections::VecDeque;
 use std::fs;
