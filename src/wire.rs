@@ -2,11 +2,11 @@
 // Copyright Open Network Fabric Authors
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use tracing::{error, trace};
 use mac_address::MacAddress;
 use num_traits::FromPrimitive;
 use std::mem::size_of;
 use std::net::IpAddr;
+use tracing::{error, trace};
 
 use crate::msg::*;
 use crate::proto::{EncapType, IpVer, MsgType, ObjType, RouteType, RpcOp, RpcResultCode};
@@ -579,9 +579,7 @@ impl Wire<RpcNotification> for RpcNotification {
 impl Wire<RpcControl> for RpcControl {
     fn decode(buf: &mut Bytes) -> WireResult<RpcControl> {
         let refresh = buf.sget_u8("refresh")?;
-        Ok(RpcControl{
-            refresh
-        })
+        Ok(RpcControl { refresh })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(self.refresh);

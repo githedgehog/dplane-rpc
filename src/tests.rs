@@ -29,7 +29,7 @@ mod positive_tests {
         if *msg != msg_dec {
             println!("Decoded message does not match the encoded one");
             println!("Decoded Message:\n {:#?}", &msg_dec);
-            assert!(false);
+            panic!("did not match");
         }
     }
 
@@ -226,7 +226,7 @@ mod positive_tests {
 
     #[test]
     fn test_rpcmsg_control() {
-        let ctl = RpcControl{ refresh: 1 };
+        let ctl = RpcControl { refresh: 1 };
         let msg = ctl.wrap_in_msg();
         test_encode_decode_msg(&msg);
     }
