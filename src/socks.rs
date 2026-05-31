@@ -4,7 +4,6 @@
 use crate::msg::RpcMsg;
 use crate::wire::Wire;
 use bytes::BytesMut;
-use tracing::{error, trace};
 use mio::Interest;
 use std::collections::VecDeque;
 use std::fs;
@@ -14,6 +13,7 @@ use std::os::fd::AsRawFd;
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{SocketAddr, UnixDatagram};
 use std::path::{Display, Path};
+use tracing::{error, trace};
 
 pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
     let path = path.as_ref();
@@ -30,10 +30,10 @@ pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
 }
 
 pub trait Pretty {
-    fn pretty(&self) -> Display;
+    fn pretty(&self) -> Display<'_>;
 }
 impl Pretty for &SocketAddr {
-    fn pretty(&self) -> Display {
+    fn pretty(&self) -> Display<'_> {
         self.as_pathname()
             .unwrap_or(Path::new("anonymous"))
             .display()
@@ -221,28 +221,29 @@ impl RpcCachedSock {
 impl Drop for RpcCachedSock {
     fn drop(&mut self) {
         let _ = self.sock.shutdown(Shutdown::Both);
-        if let Ok(addr) = self.sock.local_addr() {
-            if let Some(path) = addr.as_pathname() {
-                let _ = std::fs::remove_file(path);
-            }
+        let Ok(addr) = self.sock.local_addr() else {
+            return;
+        };
+        if let Some(path) = addr.as_pathname() {
+            let _ = std::fs::remove_file(path);
         }
     }
 }
 
 #[cfg(test)]
 mod cached_sock_test {
-    use super::ux_sock_bind;
     use super::RpcCachedSock;
+    use super::ux_sock_bind;
     use super::*;
-    use crate::log::{init_dplane_rpc_log, LogConfig};
+    use crate::log::{LogConfig, init_dplane_rpc_log};
     use crate::msg::*;
     use bytes::Bytes;
-    use tracing::debug;
     use mio::unix::SourceFd;
     use mio::{Events, Interest, Poll, Token};
     use std::os::unix::net::SocketAddr;
     use std::thread;
     use std::time::Duration;
+    use tracing::debug;
 
     /// Build a dummy response, with a certain sequence number
     fn build_dummy_msg(seqn: u64) -> RpcMsg {
