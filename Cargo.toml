@@ -5,17 +5,18 @@ edition = "2024"
 license = "Apache-2.0"
 
 [dependencies]
-bytes = { version = "1.11.1", default-features = false, features = ["serde"] }
+bytes = { version = "1.11.1", default-features = false, features = [] }
 mac_address = { version = "1.1.8", default-features = false, features = [] }
-mio = { version = "1.2.1", default-features = false, features = ["net", "os-ext"] }
+mio = { version = "1.2.1", default-features = false, features = [] }
 num-derive = { version = "0.4.2", default-features = false, features = [] }
 num-traits = { version = "0.2.19", default-features = false, features = [] }
-tracing = { version = "0.1.44", default-features = false, features = ["attributes"] }
+tracing = { version = "0.1.44", default-features = false, features = [] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = [] }
 tracing-test = { version = "0.2.6", default-features = false, features = [] }
 
 [dev-dependencies]
 rand = { version = "0.9.4", default-features = false, features = [] }
+mio = { version = "1.2.1", default-features = false, features = ["net", "os-ext"] }
 
 [build-dependencies]
 cbindgen = { version = "0.27.0", default-features = false, features = [] }
