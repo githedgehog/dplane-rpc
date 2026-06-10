@@ -4,7 +4,7 @@
 
 #pragma once
 
-/* Generated with cbindgen:0.29.3 */
+/* Generated with cbindgen:0.29.4 */
 
 #include <stdarg.h>
 #include <stdbool.h>
