@@ -48,7 +48,7 @@ pub enum RpcMsg {
 /* Msg: utils */
 impl RpcMsg {
     #[allow(dead_code)]
-    pub(crate) fn get_control(&self) -> Result<&RpcControl, ()> {
+    pub fn get_control(&self) -> Result<&RpcControl, ()> {
         if let RpcMsg::Control(data) = self {
             Ok(data)
         } else {
@@ -57,7 +57,7 @@ impl RpcMsg {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn get_request(&self) -> Result<&RpcRequest, ()> {
+    pub fn get_request(&self) -> Result<&RpcRequest, ()> {
         if let RpcMsg::Request(data) = self {
             Ok(data)
         } else {
@@ -66,7 +66,7 @@ impl RpcMsg {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn get_response(&self) -> Result<&RpcResponse, ()> {
+    pub fn get_response(&self) -> Result<&RpcResponse, ()> {
         if let RpcMsg::Response(data) = self {
             Ok(data)
         } else {
@@ -75,7 +75,7 @@ impl RpcMsg {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn get_notification(&self) -> Result<&RpcNotification, ()> {
+    pub fn get_notification(&self) -> Result<&RpcNotification, ()> {
         if let RpcMsg::Notification(data) = self {
             Ok(data)
         } else {
@@ -84,22 +84,22 @@ impl RpcMsg {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn is_control(&self) -> bool {
+    pub fn is_control(&self) -> bool {
         matches!(self, &RpcMsg::Control(_))
     }
 
     #[allow(dead_code)]
-    pub(crate) fn is_request(&self) -> bool {
+    pub fn is_request(&self) -> bool {
         matches!(self, &RpcMsg::Request(_))
     }
 
     #[allow(dead_code)]
-    pub(crate) fn is_response(&self) -> bool {
+    pub fn is_response(&self) -> bool {
         matches!(self, &RpcMsg::Response(_))
     }
 
     #[allow(dead_code)]
-    pub(crate) fn is_notification(&self) -> bool {
+    pub fn is_notification(&self) -> bool {
         matches!(self, &RpcMsg::Notification(_))
     }
 }
