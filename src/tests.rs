@@ -222,6 +222,35 @@ mod positive_tests {
     }
 
     #[test]
+    fn test_rpcmsg_encode_too_many_nhops() {
+        let mut route = IpRoute {
+            prefix: "7.0.0.1".parse().unwrap(),
+            prefix_len: 32,
+            vrfid: 0,
+            tableid: 254,
+            rtype: RouteType::Bgp,
+            distance: 20,
+            metric: 100,
+            nhops: vec![],
+        };
+        add_next_hops(&mut route, 15, 17).expect("255 next-hops should fit");
+        // bypass add_next_hop() to exceed the limit
+        route.nhops.push(NextHop {
+            fwaction: ForwardAction::default(),
+            address: Some("10.0.0.1".parse().unwrap()),
+            ifindex: None,
+            vrfid: 0,
+            encap: None,
+        });
+
+        let msg = RpcRequest::new(RpcOp::Add, 7777)
+            .set_object(RpcObject::IpRoute(route))
+            .wrap_in_msg();
+        let mut buf = BytesMut::new();
+        assert_eq!(msg.encode(&mut buf), Err(WireError::TooManyNextHops));
+    }
+
+    #[test]
     fn test_rpcmsg_response() {
         let resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);
         let msg = resp.wrap_in_msg();
@@ -302,6 +331,71 @@ mod positive_tests {
             }
         }
     }
+
+    #[test]
+    fn test_rpcmsg_encode_into_non_empty_buffer() {
+        let msg1 = RpcControl { refresh: 1 }.wrap_in_msg();
+        let msg2 = RpcRequest::new(RpcOp::Add, 1234)
+            .set_object(RpcObject::Rmac(Rmac::new(
+                "7.0.0.1".parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                3000,
+            )))
+            .wrap_in_msg();
+
+        let mut buf = BytesMut::new();
+        msg1.encode(&mut buf).expect("Encoding should succeed");
+        let len1 = buf.len();
+        msg2.encode(&mut buf).expect("Encoding should succeed");
+
+        let mut wire1 = Bytes::copy_from_slice(&buf[..len1]);
+        let mut wire2 = Bytes::copy_from_slice(&buf[len1..]);
+        assert_eq!(RpcMsg::decode(&mut wire1), Ok(msg1));
+        assert_eq!(RpcMsg::decode(&mut wire2), Ok(msg2));
+    }
+
+    #[test]
+    fn test_rpcmsg_encode_failure_leaves_buffer_untouched() {
+        let mut buf = BytesMut::new();
+        RpcControl { refresh: 1 }
+            .wrap_in_msg()
+            .encode(&mut buf)
+            .expect("Encoding should succeed");
+        let before = buf.clone();
+
+        let mut resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);
+        for n in 1..=256 {
+            resp.objs.push(RpcObject::Rmac(Rmac::new(
+                "7.0.0.1".parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                n,
+            )));
+        }
+        assert_eq!(
+            resp.wrap_in_msg().encode(&mut buf),
+            Err(WireError::TooManyObjects)
+        );
+        assert_eq!(buf, before);
+    }
+
+    #[test]
+    fn test_rpcmsg_encode_too_many_objects() {
+        let mut resp = RpcResponse::new(RpcOp::Add, 12345, RpcResultCode::Ok);
+        // bypass add_object() to exceed the limit
+        for n in 1..=256 {
+            let rmac = Rmac::new(
+                "7.0.0.1".parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                n,
+            );
+            resp.objs.push(RpcObject::Rmac(rmac));
+        }
+        let mut buf = BytesMut::new();
+        assert_eq!(
+            resp.wrap_in_msg().encode(&mut buf),
+            Err(WireError::TooManyObjects)
+        );
+    }
 }
 
 #[cfg(test)]
@@ -361,6 +455,42 @@ mod negative_tests {
         let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
         let res = RpcMsg::decode(&mut buf_rx);
         assert_eq!(res, Err(WireError::InvalidObjTtype(99)));
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn neg_sentinel_obj_type() {
+        let wire_bad  = [2, 28, 0, 2, 205, 129, 1, 0, 0, 0, 0, 0, ObjType::MaxObjType as u8, 1, 7, 0, 0, 1, 1, 2, 3, 4, 5, 6, 184, 11, 0, 0];
+        let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
+        let res = RpcMsg::decode(&mut buf_rx);
+        assert_eq!(res, Err(WireError::InvalidObjTtype(ObjType::MaxObjType as u8)));
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn neg_sentinel_request_op() {
+        let wire_bad  = [2, 12, 0, RpcOp::MaxRpcOp as u8, 1, 0, 0, 0, 0, 0, 0, 0];
+        let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
+        let res = RpcMsg::decode(&mut buf_rx);
+        assert_eq!(res, Err(WireError::InvalidOp(RpcOp::MaxRpcOp as u8)));
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn neg_sentinel_response_op() {
+        let wire_bad  = [3, 14, 0, RpcOp::MaxRpcOp as u8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
+        let res = RpcMsg::decode(&mut buf_rx);
+        assert_eq!(res, Err(WireError::InvalidOp(RpcOp::MaxRpcOp as u8)));
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn neg_sentinel_rescode() {
+        let wire_bad  = [3, 14, 0, RpcOp::Add as u8, 1, 0, 0, 0, 0, 0, 0, 0, RpcResultCode::RpcResultCodeMax as u8, 0];
+        let mut buf_rx = Bytes::copy_from_slice(&wire_bad);
+        let res = RpcMsg::decode(&mut buf_rx);
+        assert_eq!(res, Err(WireError::InValidResCode(RpcResultCode::RpcResultCodeMax as u8)));
     }
 
     #[rustfmt::skip]
