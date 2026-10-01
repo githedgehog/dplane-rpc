@@ -618,6 +618,22 @@ impl Wire<MsgType> for MsgType {
         Ok(())
     }
 }
+fn encode_rpc_msg(msg: &RpcMsg, buf: &mut BytesMut, start: usize) -> Result<(), WireError> {
+    msg.msg_type().encode(buf)?;
+    let len_offset = buf.len();
+    buf.put_u16_ne(0); // reserve space for length
+
+    match msg {
+        RpcMsg::Request(m) => m.encode(buf)?,
+        RpcMsg::Response(m) => m.encode(buf)?,
+        RpcMsg::Notification(m) => m.encode(buf)?,
+        RpcMsg::Control(m) => m.encode(buf)?,
+    };
+    // set the actual length of this message
+    let msglen = MsgLen::try_from(buf.len() - start).map_err(|_| WireError::TooBig)?;
+    buf[len_offset..len_offset + size_of::<MsgLen>()].copy_from_slice(&msglen.to_ne_bytes());
+    Ok(())
+}
 impl Wire<RpcMsg> for RpcMsg {
     fn decode(buf: &mut Bytes) -> WireResult<RpcMsg> {
         let rx_len = buf.len() as MsgLen;
@@ -654,24 +670,13 @@ impl Wire<RpcMsg> for RpcMsg {
         msg
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        self.msg_type().encode(buf)?;
-        let len_offset = buf.len();
-        buf.put_u16_ne(0); // reserve space for length
-
-        match self {
-            RpcMsg::Request(m) => m.encode(buf)?,
-            RpcMsg::Response(m) => m.encode(buf)?,
-            RpcMsg::Notification(m) => m.encode(buf)?,
-            RpcMsg::Control(m) => m.encode(buf)?,
-        };
-        // set the actual length
-        if buf.len() > u16::MAX as usize {
-            Err(WireError::TooBig)
-        } else {
-            let bufflen: MsgLen = buf.len() as u16;
-            buf[len_offset..len_offset + size_of::<MsgLen>()]
-                .copy_from_slice(&bufflen.to_ne_bytes());
-            Ok(())
+        // the buffer might not be empty. We begin writing at start
+        let start = buf.len();
+        let res = encode_rpc_msg(self, buf, start);
+        if res.is_err() {
+            // leave the buffer as it was on error
+            buf.truncate(start);
         }
+        res
     }
 }
