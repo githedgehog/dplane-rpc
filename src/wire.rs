@@ -15,44 +15,55 @@ use crate::proto::{IPV4_ADDR_LEN, IPV6_ADDR_LEN, MAC_LEN};
 #[doc = "Errors returned by the decoding and encoding trait methods.
 Note: these are local error codes, not present on the wire. However, we may
 use those to send notifications to the sender, be it for logging and troubleshooting."]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum WireError {
-    /// The msg type is unknown
+    #[error("The msg type is unknown {0}")]
     InvalidMsgType(u8),
-    /// The msg length does not match the number of octets available
+
+    #[error("The msg length ({0}) does not match the number of octets available ({1})")]
     InconsistentMsgLen(u16, u16),
-    /// There are not enough octets to decode a certain field
+
+    #[error("There are not enough octets ({0}) to decode field of size {1} ({2})")]
     NotEnoughBytes(usize, usize, &'static str),
-    /// After decoding a message, there are octetts left over
+
+    #[error("After decoding a message, there are {0} octets left over")]
     ExcessBytes(usize),
-    /// The operation in a request is not known
+
+    #[error("Unknown operation request {0}")]
     InvalidOp(u8),
-    /// The result code in a response is invalid
+
+    #[error("Invalid result code in response: {0}")]
     InValidResCode(u8),
-    /// The type of object is unknown
+
+    #[error("Unknown object type: {0}")]
     InvalidObjTtype(u8),
-    /// The type of match is unknown
-    InvalidMatchTtype(u8),
-    /// The version for an IP address is invalid
+
+    #[error("Invalid IP version: {0}")]
     InvalidIpVersion(u8),
-    /// The action associated to a route is invalid
+
+    #[error("Invalid IP route action: {0}")]
     InvalidForwardAction(u8),
-    /// A mandatory IP address is missing
+
+    #[error("Mandatory IP addres is missing")]
     MissingIpAddress,
-    /// A mandatory IP prefix is missing
+
+    #[error("Mandatory IP prefix is missing")]
     MissingIpPrefix,
-    /// The encapsulation type is invalid
+
+    #[error("Invalid encapsulation type")]
     InvalidEncap(u8),
-    /// The message is too large and should be split. This error can only happen
-    /// when encoding a message and it is possibly the only encoding error possible.
+
+    #[error("Message is too long")]
     TooBig,
-    /// The maximum number of next-hops in a route was exceeded
+
+    #[error("Max number of next-hops exceeded")]
     TooManyNextHops,
-    /// The maximum number of objects in a response was exceeded
+
+    // N.B. responses do not anymore contain objects. This should not be seen
+    #[error("Too many objects in response")]
     TooManyObjects,
-    /// The match list for a particular match type is too long
-    MatchListTooLong,
-    /// Attempted to encode a string that exceeds the maximum allowed size
+
+    #[error("Attempted to encode a string that exceeds the maximum allowed size")]
     StringTooLong,
 }
 
