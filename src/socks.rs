@@ -3,7 +3,7 @@
 
 use crate::msg::RpcMsg;
 use crate::wire::Wire;
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use mio::Interest;
 use std::collections::VecDeque;
 use std::fs;
@@ -13,7 +13,7 @@ use std::os::fd::AsRawFd;
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{SocketAddr, UnixDatagram};
 use std::path::{Display, Path};
-use tracing::{error, trace};
+use tracing::{error, trace, warn};
 
 pub fn ux_sock_bind(path: impl AsRef<Path>) -> std::io::Result<UnixDatagram> {
     let path = path.as_ref();
@@ -67,17 +67,17 @@ impl RpcMsg {
 }
 
 #[derive(Debug)]
-/// An RpcMsg cache to cache outgoing messages in order
-struct MsgCache(VecDeque<(RpcMsg, SocketAddr)>);
+/// A cache of encoded outgoing messages, in order
+struct MsgCache(VecDeque<(Bytes, SocketAddr)>);
 #[allow(unused)]
 impl MsgCache {
     pub fn new() -> Self {
         Self(VecDeque::new())
     }
-    pub fn push_back(&mut self, msg: RpcMsg, peer: SocketAddr) {
-        self.0.push_back((msg, peer));
+    pub fn push_back(&mut self, data: Bytes, peer: SocketAddr) {
+        self.0.push_back((data, peer));
     }
-    pub fn pop_front(&mut self) -> Option<(RpcMsg, SocketAddr)> {
+    pub fn pop_front(&mut self) -> Option<(Bytes, SocketAddr)> {
         self.0.pop_front()
     }
     pub fn len(&self) -> usize {
@@ -89,7 +89,7 @@ impl MsgCache {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
-    pub fn read_head(&self) -> Option<&(RpcMsg, SocketAddr)> {
+    pub fn read_head(&self) -> Option<&(Bytes, SocketAddr)> {
         self.0.front()
     }
 }
@@ -97,6 +97,13 @@ impl Default for MsgCache {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Outcome of an attempt to send an encoded message
+enum SendOutcome {
+    Sent,      // The msg was sent
+    NeedRetry, // The msg could not be sent now
+    Drop,      // The msg could not be sent and won't in the future
 }
 
 #[allow(unused)]
@@ -108,7 +115,10 @@ pub struct RpcCachedSock {
 }
 
 impl RpcCachedSock {
+    /// Number of cached messages above which we warn
     const CACHE_THRESHOLD: usize = 500;
+    /// Max number of cached messages. Messages beyond this are dropped.
+    const CACHE_MAX_LEN: usize = 65536;
 
     /// Create an RpcCachedSock from an existing unix socket
     pub fn from_sock(sock: UnixDatagram) -> Self {
@@ -156,64 +166,89 @@ impl RpcCachedSock {
         self.cache.len()
     }
 
-    /// private
-    fn unix_send(&self, msg: &RpcMsg, peer: &SocketAddr) -> Result<usize> {
-        send_msg(&self.sock, msg, peer)
+    /// private: attempt to send an encoded message and tell what to do with it
+    fn try_send(&self, data: &[u8], peer: &SocketAddr) -> SendOutcome {
+        match self.sock.send_to_addr(data, peer) {
+            Ok(_) => SendOutcome::Sent,
+            Err(e) => {
+                if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) {
+                    SendOutcome::NeedRetry
+                } else {
+                    error!("Dropping msg to {}: {e}", peer.pretty());
+                    SendOutcome::Drop
+                }
+            }
+        }
+    }
+
+    /// private: request writable readiness notifications
+    fn set_writable(&mut self) {
+        if !self.interests.is_writable() {
+            self.interests = self.interests.add(Interest::WRITABLE);
+        }
+    }
+
+    /// private: cache an encoded message, unless the cache is full
+    fn enqueue(&mut self, data: Bytes, peer: &SocketAddr) {
+        if self.cache.len() >= Self::CACHE_MAX_LEN {
+            error!(
+                "Cache is full ({} messages): dropping message to '{}'",
+                Self::CACHE_MAX_LEN,
+                peer.pretty()
+            );
+            return;
+        }
+        self.cache.push_back(data, peer.clone());
+        if self.cache.len() == Self::CACHE_THRESHOLD {
+            warn!("Cache length reached {}", Self::CACHE_THRESHOLD);
+        }
     }
 
     /// Attempt to send a message. If cache is not empty, queue and send
-    /// cached messages first, preserving the order.
+    /// cached messages first, preserving the order. Messages that cannot be
+    /// encoded, or that fail to be sent for reasons other than the socket
+    /// not being ready (e.g. the peer is gone), are dropped.
     pub fn send_msg(&mut self, msg: RpcMsg, peer: &SocketAddr) {
+        trace!("Sending {}", msg);
+        let mut buf = BytesMut::with_capacity(128);
+        if let Err(e) = msg.encode(&mut buf) {
+            error!("Dropping msg to {}: encode error: {e}", peer.pretty());
+            return;
+        }
+        let data = buf.freeze();
+
         if !self.cache.is_empty() {
-            self.cache.push_back(msg, peer.clone());
+            self.enqueue(data, peer);
             self.flush_out_fast();
-        } else if let Err(e) = self.unix_send(&msg, peer) {
-            if e.kind() != ErrorKind::WouldBlock {
-                error!("Failure sending over unix sock: {}", e);
-            } else if !self.interests().is_writable() {
-                trace!("Writable readiness notification is required");
-                self.interests = self.interests.add(Interest::WRITABLE);
-            }
-            self.cache.push_back(msg, peer.clone());
-            if self.cache_len() > Self::CACHE_THRESHOLD {
-                error!("Cache length exceeded {}", Self::CACHE_THRESHOLD);
-            }
-        } else {
-            // msg is consumed
+        } else if let SendOutcome::NeedRetry = self.try_send(&data, peer) {
+            self.set_writable();
+            self.enqueue(data, peer);
         }
     }
 
-    /// Attempt to send cached messages
+    /// Attempt to send cached messages. Same as flush_out_fast().
     pub fn flush_out(&mut self) {
-        while let Some((msg, peer)) = self.cache.pop_front() {
-            if self.unix_send(&msg, &peer).is_err() {
-                self.cache.0.push_front((msg, peer.clone()));
-                break;
-            }
-        }
+        self.flush_out_fast();
     }
 
-    /// Same as flush_out(), but more efficient in case of failures since
-    /// messages are only popped upon successful send.
+    /// Attempt to send cached messages, in order. Messages are only popped when
+    /// sent or dropped. If the socket is not ready, writable readiness notification
+    /// is requested so that flushing can be resumed later.
     pub fn flush_out_fast(&mut self) {
-        while let Some((msg, peer)) = self.cache.read_head() {
-            if let Err(e) = self.unix_send(msg, peer) {
-                if e.kind() != ErrorKind::WouldBlock {
-                    error!("Failure sending over unix sock: {}", e);
+        while let Some((data, peer)) = self.cache.read_head() {
+            match self.try_send(data, peer) {
+                SendOutcome::NeedRetry => {
+                    self.set_writable(); // ensure we get awaken
+                    return;
                 }
-                return;
-            } else {
-                /* drop it, we sent it already */
-                self.cache.pop_front();
+                SendOutcome::Sent | SendOutcome::Drop => {
+                    self.cache.pop_front();
+                }
             }
         }
         debug_assert!(self.cache.is_empty());
         if self.interests().is_writable() {
-            trace!("Writable readiness notification no longer needed");
             self.interests = Interest::READABLE;
-            //            let _ = self.interests.remove(Interest::WRITABLE);
-            //            assert!(!self.interests.is_writable());
-            //            assert!(self.interests.is_readable());
         }
     }
 }
@@ -263,6 +298,139 @@ mod cached_sock_test {
         cfg.display_target = true;
         cfg.show_line_numbers = true;
         init_dplane_rpc_log(&cfg);
+    }
+
+    /// Build a response that cannot be encoded (too many objects)
+    fn build_unencodable_msg(seqn: u64) -> RpcMsg {
+        let mut resp = RpcResponse::new(RpcOp::Add, seqn, RpcResultCode::Ok);
+        for n in 1..=256 {
+            resp.objs.push(RpcObject::Rmac(Rmac::new(
+                "7.0.0.1".parse().unwrap(),
+                MacAddress::new([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
+                n,
+            )));
+        }
+        resp.wrap_in_msg()
+    }
+
+    /// Receive all pending responses from sock, returning their seqns
+    fn drain(sock: &UnixDatagram) -> Vec<u64> {
+        let mut seqns = vec![];
+        let mut raw = vec![0; 1000];
+        while let Ok((len, _)) = sock.recv_from(raw.as_mut_slice()) {
+            let mut buf_rx = Bytes::copy_from_slice(&raw[0..len]);
+            let msg = RpcMsg::decode(&mut buf_rx).expect("Decoding should succeed");
+            seqns.push(msg.get_response().expect("Should be a response").seqn);
+        }
+        seqns
+    }
+
+    #[test]
+    fn test_cached_sock_drops_on_peer_gone() {
+        init_logs();
+        let mut csock = RpcCachedSock::new("/tmp/test-cached-peer-gone.sock").expect("Should work");
+        csock
+            .get_sock_mut()
+            .set_nonblocking(true)
+            .expect("Should succeed");
+
+        /* peer whose path does not exist: ENOENT */
+        let _ = std::fs::remove_file("/tmp/test-cached-peer-gone-noent.sock");
+        let noent = SocketAddr::from_pathname("/tmp/test-cached-peer-gone-noent.sock").unwrap();
+        csock.send_msg(build_dummy_msg(1), &noent);
+        assert_eq!(csock.cache_len(), 0);
+
+        /* peer whose socket was closed, leaving the path: ECONNREFUSED */
+        let refused_path = "/tmp/test-cached-peer-gone-refused.sock";
+        drop(ux_sock_bind(refused_path).expect("Should work"));
+        let refused = SocketAddr::from_pathname(refused_path).unwrap();
+        csock.send_msg(build_dummy_msg(2), &refused);
+        assert_eq!(csock.cache_len(), 0);
+        assert!(!csock.interests().is_writable());
+
+        /* a live peer still gets messages */
+        let rx_path = "/tmp/test-cached-peer-gone-rx.sock";
+        let rx_sock = ux_sock_bind(rx_path).expect("Should work");
+        rx_sock.set_nonblocking(true).expect("Should succeed");
+        let rx_peer = SocketAddr::from_pathname(rx_path).unwrap();
+        csock.send_msg(build_dummy_msg(3), &rx_peer);
+        assert_eq!(csock.cache_len(), 0);
+        assert_eq!(drain(&rx_sock), vec![3]);
+        let _ = std::fs::remove_file(refused_path);
+    }
+
+    #[test]
+    fn test_cached_sock_drops_unencodable() {
+        init_logs();
+        let mut csock =
+            RpcCachedSock::new("/tmp/test-cached-unencodable.sock").expect("Should work");
+        csock
+            .get_sock_mut()
+            .set_nonblocking(true)
+            .expect("Should succeed");
+        let rx_path = "/tmp/test-cached-unencodable-rx.sock";
+        let rx_sock = ux_sock_bind(rx_path).expect("Should work");
+        rx_sock.set_nonblocking(true).expect("Should succeed");
+        let rx_peer = SocketAddr::from_pathname(rx_path).unwrap();
+
+        csock.send_msg(build_unencodable_msg(1), &rx_peer);
+        assert_eq!(csock.cache_len(), 0);
+        csock.send_msg(build_dummy_msg(2), &rx_peer);
+        assert_eq!(csock.cache_len(), 0);
+        assert_eq!(drain(&rx_sock), vec![2]);
+    }
+
+    #[test]
+    fn test_cached_sock_no_head_of_line_blocking() {
+        init_logs();
+        let mut csock = RpcCachedSock::new("/tmp/test-cached-hol.sock").expect("Should work");
+        csock
+            .get_sock_mut()
+            .set_nonblocking(true)
+            .expect("Should succeed");
+        let rx_path = "/tmp/test-cached-hol-rx.sock";
+        let rx_sock = ux_sock_bind(rx_path).expect("Should work");
+        rx_sock.set_nonblocking(true).expect("Should succeed");
+        let rx_peer = SocketAddr::from_pathname(rx_path).unwrap();
+
+        /* send without reading until messages get cached */
+        let mut seqn = 1;
+        while csock.cache_len() == 0 {
+            assert!(seqn < 100_000, "Messages never got cached");
+            csock.send_msg(build_dummy_msg(seqn), &rx_peer);
+            seqn += 1;
+        }
+        assert!(csock.interests().is_writable());
+
+        /* queue a message to a gone peer: it gets cached, as it's behind others */
+        let _ = std::fs::remove_file("/tmp/test-cached-hol-noent.sock");
+        let noent = SocketAddr::from_pathname("/tmp/test-cached-hol-noent.sock").unwrap();
+        csock.send_msg(build_dummy_msg(u64::MAX), &noent);
+
+        /* an unencodable message never gets cached */
+        let cached = csock.cache_len();
+        csock.send_msg(build_unencodable_msg(u64::MAX), &rx_peer);
+        assert_eq!(csock.cache_len(), cached);
+
+        /* more messages behind */
+        for _ in 0..10 {
+            csock.send_msg(build_dummy_msg(seqn), &rx_peer);
+            seqn += 1;
+        }
+
+        /* drain and flush: everything to the live peer must arrive, in order */
+        let mut received = vec![];
+        for _ in 0..100_000 {
+            received.extend(drain(&rx_sock));
+            if csock.cache_len() == 0 {
+                break;
+            }
+            csock.flush_out_fast();
+        }
+        received.extend(drain(&rx_sock));
+        assert_eq!(csock.cache_len(), 0);
+        assert!(!csock.interests().is_writable());
+        assert_eq!(received, (1..seqn).collect::<Vec<u64>>());
     }
 
     #[test]
