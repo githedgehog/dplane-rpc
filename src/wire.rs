@@ -455,8 +455,9 @@ impl Wire<IpRoute> for IpRoute {
         buf.put_u8(self.rtype as u8);
         buf.put_u8(self.distance);
         buf.put_u32_ne(self.metric);
-        debug_assert!(self.nhops.len() <= NumNhops::MAX as usize);
-        buf.put_u8(self.nhops.len() as NumNhops);
+        let num_nhops =
+            NumNhops::try_from(self.nhops.len()).map_err(|_| WireError::TooManyNextHops)?;
+        buf.put_u8(num_nhops);
         for nhop in &self.nhops {
             nhop.encode(buf)?;
         }
@@ -573,8 +574,9 @@ impl Wire<RpcResponse> for RpcResponse {
         self.op.encode(buf)?;
         buf.put_u64_ne(self.seqn);
         self.rescode.encode(buf)?;
-        debug_assert!(self.objs.len() <= MsgNumObjects::MAX as usize);
-        buf.put_u8(self.objs.len() as MsgNumObjects);
+        let num_objects =
+            MsgNumObjects::try_from(self.objs.len()).map_err(|_| WireError::TooManyObjects)?;
+        buf.put_u8(num_objects);
         for obj in &self.objs {
             obj.encode(buf)?;
         }
