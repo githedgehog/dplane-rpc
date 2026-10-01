@@ -286,7 +286,9 @@ impl Wire<Option<NextHopEncap>> for Option<NextHopEncap> {
 impl Wire<ObjType> for ObjType {
     fn decode(buf: &mut Bytes) -> WireResult<ObjType> {
         let otype = buf.sget_u8("ObjType")?;
-        let otype: ObjType = ObjType::from_u8(otype).ok_or(WireError::InvalidObjTtype(otype))?;
+        let otype: ObjType = ObjType::from_u8(otype)
+            .filter(|t| *t != ObjType::MaxObjType)
+            .ok_or(WireError::InvalidObjTtype(otype))?;
         Ok(otype)
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -498,17 +500,31 @@ impl Wire<Option<RpcObject>> for Option<RpcObject> {
     }
 }
 
+/* RpcOp */
+impl Wire<RpcOp> for RpcOp {
+    fn decode(buf: &mut Bytes) -> WireResult<RpcOp> {
+        let raw = buf.sget_u8("Op")?;
+        let op = RpcOp::from_u8(raw)
+            .filter(|op| *op != RpcOp::MaxRpcOp)
+            .ok_or(WireError::InvalidOp(raw))?;
+        Ok(op)
+    }
+    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
+        buf.put_u8(*self as u8);
+        Ok(())
+    }
+}
+
 /* RpcRequest */
 impl Wire<RpcRequest> for RpcRequest {
     fn decode(buf: &mut Bytes) -> WireResult<RpcRequest> {
-        let op = buf.sget_u8("Op")?;
-        let op: RpcOp = RpcOp::from_u8(op).ok_or(WireError::InvalidOp(op))?;
+        let op = RpcOp::decode(buf)?;
         let seqn: MsgSeqn = buf.sget_u64_ne("seqn")?;
         let obj: Option<RpcObject> = RpcObject::decode(buf)?;
         Ok(RpcRequest { op, seqn, obj })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        buf.put_u8(self.op as u8);
+        self.op.encode(buf)?;
         buf.put_u64_ne(self.seqn);
         self.obj.encode(buf)?;
         Ok(())
@@ -519,7 +535,9 @@ impl Wire<RpcRequest> for RpcRequest {
 impl Wire<RpcResultCode> for RpcResultCode {
     fn decode(buf: &mut Bytes) -> WireResult<RpcResultCode> {
         let rescode = buf.sget_u8("Rescode")?;
-        let rescode = RpcResultCode::from_u8(rescode).ok_or(WireError::InValidResCode(rescode))?;
+        let rescode = RpcResultCode::from_u8(rescode)
+            .filter(|r| *r != RpcResultCode::RpcResultCodeMax)
+            .ok_or(WireError::InValidResCode(rescode))?;
         Ok(rescode)
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
@@ -529,8 +547,7 @@ impl Wire<RpcResultCode> for RpcResultCode {
 }
 impl Wire<RpcResponse> for RpcResponse {
     fn decode(buf: &mut Bytes) -> WireResult<RpcResponse> {
-        let op = buf.sget_u8("Op")?;
-        let op: RpcOp = RpcOp::from_u8(op).ok_or(WireError::InvalidOp(op))?;
+        let op = RpcOp::decode(buf)?;
         let seqn: MsgSeqn = buf.sget_u64_ne("seqn")?;
         let rescode: RpcResultCode = RpcResultCode::decode(buf)?;
         let num_objects: MsgNumObjects = buf.sget_u8("num-objects")?;
@@ -553,7 +570,7 @@ impl Wire<RpcResponse> for RpcResponse {
         })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        buf.put_u8(self.op as u8);
+        self.op.encode(buf)?;
         buf.put_u64_ne(self.seqn);
         self.rescode.encode(buf)?;
         debug_assert!(self.objs.len() <= MsgNumObjects::MAX as usize);
