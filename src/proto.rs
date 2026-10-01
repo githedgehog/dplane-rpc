@@ -4,8 +4,8 @@
 use num_derive::FromPrimitive;
 
 /* The version of this wire format */
-pub const VER_DP_MAJOR: u8 = 1;
-pub const VER_DP_MINOR: u8 = 1;
+pub const VER_DP_MAJOR: u8 = 2;
+pub const VER_DP_MINOR: u8 = 0;
 pub const VER_DP_PATCH: u8 = 0;
 
 /* Some constants */
@@ -101,25 +101,6 @@ pub enum EncapType {
     #[default]
     NoEncap = 0,
     VXLAN = 1,
-}
-
-#[doc = "A type of match indicated in a GetFilter object in a Get request."]
-#[repr(u8)]
-#[derive(Copy, Clone, Debug, Default, FromPrimitive, PartialEq)]
-pub enum MatchType {
-    #[default]
-    MtNone = 0,
-    MtObjType = 1,
-    MtVrf = 2,
-    /*
-       RoutePrefix = 3,
-       RouteType = 4,
-       IpAddress = 5,
-       Ifindex = 6,
-       Mac = 7,
-       Vni = 8,
-       NextHopAddress = 9,
-    */
 }
 
 // Type aliases to be more explicit on the size of some fields on the wire.

@@ -50,6 +50,8 @@ struct next_hop build_next_hop(const char *addr, Ifindex ifindex, Vni vni)
     if (vni != 0) {
         nhop.encap.type = VXLAN;
         nhop.encap.vxlan.vni = vni;
+        uint8_t mac[MAC_LEN] = {0x02,0xCA,0xFE,0xBA,0xBE,0x00};
+        set_mac_address(&nhop.encap.vxlan.mac, mac);
     }
     set_ip_address(&nhop.address, addr);
     return nhop;

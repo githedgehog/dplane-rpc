@@ -12,14 +12,14 @@ mod positive_tests {
     // and checks if resulting msg matches the original.
     fn test_encode_decode_msg(msg: &RpcMsg) {
         // Encode message into wire fmt
-        println!("Message to encode:\n {:#?}", &msg);
+        println!("Message to encode:\n {msg:#?}");
         let mut buf = BytesMut::with_capacity(128);
         let _ = msg.encode(&mut buf);
         let wire: &[u8] = buf.deref();
 
         // show wire
         println!("Wire encoding has {} octets:", wire.len());
-        println!("{:?}", &wire);
+        println!("{wire:?}");
 
         // Decode message from wire
         let mut buf_rx = Bytes::copy_from_slice(wire);
@@ -28,7 +28,7 @@ mod positive_tests {
         // Compare msg created from wire with the original
         if *msg != msg_dec {
             println!("Decoded message does not match the encoded one");
-            println!("Decoded Message:\n {:#?}", &msg_dec);
+            println!("Decoded Message:\n {msg_dec:#?}");
             panic!("did not match");
         }
     }
@@ -83,12 +83,13 @@ mod positive_tests {
             nhops: vec![],
         };
 
+        let mac = MacAddress::new([0x02, 0xDE, 0xAD, 0xCA, 0xFE, 0x06]);
         let nhop = NextHop {
             fwaction: ForwardAction::default(),
             address: Some("7.0.0.1".parse().unwrap()),
             ifindex: None,
             vrfid: 0,
-            encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: 300 })),
+            encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni: 300, mac })),
         };
         assert_eq!(route.add_next_hop(nhop), Ok(()));
 
@@ -171,7 +172,10 @@ mod positive_tests {
                     address: Some(a.parse().unwrap()),
                     ifindex: None,
                     vrfid: 0,
-                    encap: Some(NextHopEncap::VXLAN(VxlanEncap { vni })),
+                    encap: Some(NextHopEncap::VXLAN(VxlanEncap {
+                        vni,
+                        mac: MacAddress::new([0x02, 0xDE, 0xAD, 0xCA, 0xFE, 0x06]),
+                    })),
                 };
                 route.add_next_hop(nhop)?;
             }

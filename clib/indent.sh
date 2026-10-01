@@ -5,7 +5,7 @@
 # re-formatted.
 shopt -s extglob
 for file in src/!(proto.h|*.txt) ; do
-  clang-format-14 --Werror -i -style=file $file
+  clang-format --Werror -i -style=file $file
 done
 shopt -u extglob
 

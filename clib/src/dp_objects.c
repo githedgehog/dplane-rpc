@@ -12,8 +12,7 @@
 const struct ver_info VER_INFO_INITIALIZER = {
     .major = VER_DP_MAJOR,
     .minor = VER_DP_MINOR,
-    .patch = VER_DP_PATCH
-};
+    .patch = VER_DP_PATCH};
 
 /* utils: checks */
 int check_object_type(ObjType type)
@@ -328,12 +327,28 @@ static int decode_rmac(buff_t *buff, struct rmac *rmac)
 static int encode_next_hop_encap_vxlan(buff_t *buff, struct next_hop_encap_vxlan *vxlan)
 {
     BUG(!buff || !vxlan, E_BUG);
-    return put_u32(buff, vxlan->vni);
+
+    int r;
+    if ((r = put_u32(buff, vxlan->vni)) != E_OK)
+        return r;
+
+    if ((r = encode_mac(buff, &vxlan->mac)) != E_OK)
+        return r;
+
+    return E_OK;
 }
 static int decode_next_hop_encap_vxlan(buff_t *buff, struct next_hop_encap_vxlan *vxlan)
 {
     BUG(!buff || !vxlan, E_BUG);
-    return get_u32(buff, &vxlan->vni);
+
+    int r;
+    if ((r = get_u32(buff, &vxlan->vni)) != E_OK)
+        return r;
+
+    if ((r = decode_mac(buff, &vxlan->mac)) != E_OK)
+        return r;
+
+    return E_OK;
 }
 static int encode_next_hop_encap(buff_t *buff, struct next_hop_encap *encap)
 {

@@ -48,6 +48,7 @@ struct ifaddress {
 
 struct next_hop_encap_vxlan {
     Vni vni;
+    struct mac_addr mac;
 };
 struct next_hop_encap {
     EncapType type;

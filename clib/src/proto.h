@@ -7,9 +7,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define VER_DP_MAJOR 1
+#define VER_DP_MAJOR 2
 
-#define VER_DP_MINOR 1
+#define VER_DP_MINOR 0
 
 #define VER_DP_PATCH 0
 
@@ -155,24 +155,6 @@ enum RouteType
 typedef enum RouteType RouteType;
 #else
 typedef uint8_t RouteType;
-#endif // __STDC_VERSION__ >= 202311L
-
-/**
- *A type of match indicated in a GetFilter object in a Get request.
- */
-enum MatchType
-#if __STDC_VERSION__ >= 202311L
-  : uint8_t
-#endif // __STDC_VERSION__ >= 202311L
- {
-  MtNone = 0,
-  MtObjType = 1,
-  MtVrf = 2,
-};
-#if __STDC_VERSION__ >= 202311L
-typedef enum MatchType MatchType;
-#else
-typedef uint8_t MatchType;
 #endif // __STDC_VERSION__ >= 202311L
 
 /**

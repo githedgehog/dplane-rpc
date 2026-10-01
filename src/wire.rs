@@ -239,10 +239,12 @@ impl Wire<EncapType> for EncapType {
 impl Wire<VxlanEncap> for VxlanEncap {
     fn decode(buf: &mut Bytes) -> WireResult<VxlanEncap> {
         let vni: Vni = buf.sget_u32_ne("EncapVxLAN")?;
-        Ok(VxlanEncap { vni })
+        let mac = MacAddress::decode(buf)?;
+        Ok(VxlanEncap { vni, mac })
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u32_ne(self.vni);
+        MacAddress::encode(&self.mac, buf)?;
         Ok(())
     }
 }
@@ -286,19 +288,6 @@ impl Wire<ForwardAction> for ForwardAction {
         let a = buf.sget_u8("fwaction")?;
         let fwaction = ForwardAction::from_u8(a).ok_or(WireError::InvalidForwardAction(a))?;
         Ok(fwaction)
-    }
-    fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        buf.put_u8(*self as u8);
-        Ok(())
-    }
-}
-
-impl Wire<MatchType> for MatchType {
-    fn decode(buf: &mut Bytes) -> WireResult<MatchType> {
-        let mtype = buf.sget_u8("MatchType")?;
-        let mtype: MatchType =
-            MatchType::from_u8(mtype).ok_or(WireError::InvalidMatchTtype(mtype))?;
-        Ok(mtype)
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
         buf.put_u8(*self as u8);

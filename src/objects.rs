@@ -56,10 +56,10 @@ pub struct IpRoute {
 }
 
 #[doc = "Encapsulation data for a VxLAN encapsulation."]
-#[repr(transparent)]
 #[derive(Debug, PartialEq)]
 pub struct VxlanEncap {
     pub vni: Vni,
+    pub mac: MacAddress,
 }
 
 #[doc = "Type for distinct encapsulation types"]
@@ -155,7 +155,7 @@ impl Display for ConnectInfo {
         write!(
             f,
             "ConnectInfo ─── name:{} pid:{} verinfo:{} synt:{}",
-            &self.name, self.pid, self.verinfo, self.synt
+            self.name, self.pid, self.verinfo, self.synt
         )
     }
 }
@@ -181,7 +181,7 @@ impl Display for NextHopEncap {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             NextHopEncap::VXLAN(e) => {
-                write!(f, "Vxlan (vni:{})", e.vni)
+                write!(f, "Vxlan (vni:{}, rmac: {})", e.vni, e.mac)
             }
         }
     }

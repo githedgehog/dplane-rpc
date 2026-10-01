@@ -276,6 +276,7 @@ char *fmt_iproute(struct fmt_buff *fb, bool clear, struct ip_route *route)
             break;
         case VXLAN:
             fmt_buff(fb, " encap: VxLAN(vni:%u)", nhop->encap.vxlan.vni);
+            fmt_mac(fb, false, " mac:", &nhop->encap.vxlan.mac);
             break;
         default:
             fmt_buff(fb, " encap: unknown type (%u)", nhop->encap.type);

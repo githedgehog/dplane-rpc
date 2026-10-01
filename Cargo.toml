@@ -1,6 +1,6 @@
 [package]
 name = "dplane-rpc"
-version = "1.1.3"
+version = "2.0.0"
 edition = "2024"
 license = "Apache-2.0"
 
@@ -10,6 +10,7 @@ mac_address = { version = "1.1.8", default-features = false, features = [] }
 mio = { version = "1.2.1", default-features = false, features = [] }
 num-derive = { version = "0.5.1", default-features = false, features = [] }
 num-traits = { version = "0.2.19", default-features = false, features = [] }
+thiserror = { version = "2.0.20", default-features = false, features = [] }
 tracing = { version = "0.1.44", default-features = false, features = [] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = [] }
 tracing-test = { version = "0.2.6", default-features = false, features = [] }

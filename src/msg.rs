@@ -45,60 +45,52 @@ pub enum RpcMsg {
     Notification(RpcNotification),
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum RpcMsgUtilError {
+    #[error("Attempted to get wrong message type")]
+    WrongMsgBodyAccess,
+}
+
 /* Msg: utils */
 impl RpcMsg {
-    #[allow(dead_code)]
-    pub fn get_control(&self) -> Result<&RpcControl, ()> {
+    pub fn get_control(&self) -> Result<&RpcControl, RpcMsgUtilError> {
         if let RpcMsg::Control(data) = self {
             Ok(data)
         } else {
-            Err(()) // should panic instead ?
+            Err(RpcMsgUtilError::WrongMsgBodyAccess)
         }
     }
-
-    #[allow(dead_code)]
-    pub fn get_request(&self) -> Result<&RpcRequest, ()> {
+    pub fn get_request(&self) -> Result<&RpcRequest, RpcMsgUtilError> {
         if let RpcMsg::Request(data) = self {
             Ok(data)
         } else {
-            Err(()) // should panic instead ?
+            Err(RpcMsgUtilError::WrongMsgBodyAccess)
         }
     }
-
-    #[allow(dead_code)]
-    pub fn get_response(&self) -> Result<&RpcResponse, ()> {
+    pub fn get_response(&self) -> Result<&RpcResponse, RpcMsgUtilError> {
         if let RpcMsg::Response(data) = self {
             Ok(data)
         } else {
-            Err(()) // should panic instead ?
+            Err(RpcMsgUtilError::WrongMsgBodyAccess)
         }
     }
-
-    #[allow(dead_code)]
-    pub fn get_notification(&self) -> Result<&RpcNotification, ()> {
+    pub fn get_notification(&self) -> Result<&RpcNotification, RpcMsgUtilError> {
         if let RpcMsg::Notification(data) = self {
             Ok(data)
         } else {
-            Err(()) // should panic instead ?
+            Err(RpcMsgUtilError::WrongMsgBodyAccess)
         }
     }
 
-    #[allow(dead_code)]
     pub fn is_control(&self) -> bool {
         matches!(self, &RpcMsg::Control(_))
     }
-
-    #[allow(dead_code)]
     pub fn is_request(&self) -> bool {
         matches!(self, &RpcMsg::Request(_))
     }
-
-    #[allow(dead_code)]
     pub fn is_response(&self) -> bool {
         matches!(self, &RpcMsg::Response(_))
     }
-
-    #[allow(dead_code)]
     pub fn is_notification(&self) -> bool {
         matches!(self, &RpcMsg::Notification(_))
     }
