@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Open Network Fabric Authors
 
+use crate::objects::MacAddress;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use mac_address::MacAddress;
 use num_traits::FromPrimitive;
 use std::mem::size_of;
 use std::net::IpAddr;
@@ -151,7 +151,7 @@ impl Wire<MacAddress> for MacAddress {
         Ok(MacAddress::new(m))
     }
     fn encode(&self, buf: &mut BytesMut) -> Result<(), WireError> {
-        buf.extend_from_slice(&self.bytes());
+        buf.extend_from_slice(&self.octets());
         Ok(())
     }
 }

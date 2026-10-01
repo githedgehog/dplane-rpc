@@ -3,9 +3,34 @@
 
 pub use crate::proto::*;
 use crate::wire::WireError;
-pub use mac_address::MacAddress;
 use std::fmt::Display;
 pub use std::net::IpAddr;
+
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
+pub struct MacAddress([u8; MAC_LEN]);
+impl MacAddress {
+    #[must_use]
+    pub fn new(octets: [u8; MAC_LEN]) -> MacAddress {
+        MacAddress(octets)
+    }
+    #[must_use]
+    pub fn octets(&self) -> [u8; MAC_LEN] {
+        self.0
+    }
+}
+impl std::fmt::Display for MacAddress {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        for n in 0..MAC_LEN {
+            write!(
+                f,
+                "{:<02x}{}",
+                self.0[n],
+                if n != MAC_LEN - 1 { ":" } else { "" }
+            )?;
+        }
+        Ok(())
+    }
+}
 
 #[doc = "A versioning information object."]
 #[derive(Clone, Debug, PartialEq)]
