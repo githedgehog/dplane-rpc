@@ -11,11 +11,9 @@ num-derive = { version = "0.5.1", default-features = false, features = [] }
 num-traits = { version = "0.2.19", default-features = false, features = [] }
 thiserror = { version = "2.0.20", default-features = false, features = [] }
 tracing = { version = "0.1.44", default-features = false, features = [] }
-tracing-subscriber = { version = "0.3.23", default-features = false, features = [] }
-tracing-test = { version = "0.2.6", default-features = false, features = [] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "ansi", "tracing-log"] }
 
 [dev-dependencies]
-rand = { version = "0.10.3", default-features = false, features = [] }
 mio = { version = "1.2.3", default-features = false, features = ["net", "os-ext"] }
 
 [build-dependencies]
